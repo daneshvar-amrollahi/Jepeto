@@ -3,3 +3,5 @@ This is an identifier_
          _supposedly_so_
 
          # And a comment :)
+
+main: a(a, b, c)

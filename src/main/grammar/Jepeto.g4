@@ -1,9 +1,30 @@
 grammar Jepeto;
 
 program
-    : (Identifier | LineComment)* EOF
+    :   (Identifier)*main EOF
     { System.out.println("program"); }
     ;
+
+MAIN
+    :   'main'
+    ;
+
+main
+    : MAIN':'functionCall
+    {System.out.println("Main");}
+    ;
+
+
+functionCall
+    :   Identifier'('argList')'
+    ;
+
+argList
+    :   ((Identifier',')*Identifier)
+    |   (Identifier'='Identifier',')*(Identifier'='Identifier)
+    |
+    ;
+
 
 Identifier
     :   NonDigit (NonDigit | Digit)*
@@ -34,4 +55,5 @@ Newline
 
 LineComment
     :   '#' ~[\r\n]*
+        -> skip
     ;
