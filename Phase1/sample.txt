@@ -1,6 +1,0 @@
-{
-    PLC: {
-        season: "Spring",
-        year: 2020
-    }
-}
