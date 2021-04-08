@@ -1,0 +1,4 @@
+Identifier=1
+Whitespace=2
+Newline=3
+LineComment=4
