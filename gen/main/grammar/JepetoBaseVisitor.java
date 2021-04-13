@@ -52,6 +52,13 @@ public class JepetoBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitBody(JepetoParser.BodyContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitFuncDec(JepetoParser.FuncDecContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
@@ -80,14 +87,14 @@ public class JepetoBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitReturn_(JepetoParser.Return_Context ctx) { return visitChildren(ctx); }
+	@Override public T visitReturnStatement(JepetoParser.ReturnStatementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBody(JepetoParser.BodyContext ctx) { return visitChildren(ctx); }
+	@Override public T visitReturn_(JepetoParser.Return_Context ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

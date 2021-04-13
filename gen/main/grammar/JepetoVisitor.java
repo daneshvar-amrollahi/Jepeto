@@ -41,6 +41,12 @@ public interface JepetoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunction(JepetoParser.FunctionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link JepetoParser#body}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBody(JepetoParser.BodyContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link JepetoParser#funcDec}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -65,17 +71,17 @@ public interface JepetoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitElse_(JepetoParser.Else_Context ctx);
 	/**
+	 * Visit a parse tree produced by {@link JepetoParser#returnStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnStatement(JepetoParser.ReturnStatementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link JepetoParser#return_}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitReturn_(JepetoParser.Return_Context ctx);
-	/**
-	 * Visit a parse tree produced by {@link JepetoParser#body}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBody(JepetoParser.BodyContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link JepetoParser#statement}.
 	 * @param ctx the parse tree

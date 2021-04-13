@@ -58,6 +58,16 @@ public interface JepetoListener extends ParseTreeListener {
 	 */
 	void exitFunction(JepetoParser.FunctionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link JepetoParser#body}.
+	 * @param ctx the parse tree
+	 */
+	void enterBody(JepetoParser.BodyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#body}.
+	 * @param ctx the parse tree
+	 */
+	void exitBody(JepetoParser.BodyContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link JepetoParser#funcDec}.
 	 * @param ctx the parse tree
 	 */
@@ -98,6 +108,16 @@ public interface JepetoListener extends ParseTreeListener {
 	 */
 	void exitElse_(JepetoParser.Else_Context ctx);
 	/**
+	 * Enter a parse tree produced by {@link JepetoParser#returnStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterReturnStatement(JepetoParser.ReturnStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#returnStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitReturnStatement(JepetoParser.ReturnStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link JepetoParser#return_}.
 	 * @param ctx the parse tree
 	 */
@@ -107,16 +127,6 @@ public interface JepetoListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitReturn_(JepetoParser.Return_Context ctx);
-	/**
-	 * Enter a parse tree produced by {@link JepetoParser#body}.
-	 * @param ctx the parse tree
-	 */
-	void enterBody(JepetoParser.BodyContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JepetoParser#body}.
-	 * @param ctx the parse tree
-	 */
-	void exitBody(JepetoParser.BodyContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JepetoParser#statement}.
 	 * @param ctx the parse tree

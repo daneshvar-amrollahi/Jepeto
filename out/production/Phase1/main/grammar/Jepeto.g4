@@ -28,8 +28,14 @@ argList
 
 function
     :   'func' funcDec ':' (if_ | return_)
-    |   'func' funcDec ':' body
+    |   'func' funcDec ':' '{' body '}'
     ;
+
+body
+    //: '{'(if_ | statement)* return_ (if_ | statement)*'}'
+    :(if_ | statement)*
+    ;
+
 
 funcDec
     :  Identifier argDec
@@ -40,23 +46,26 @@ argDec
     ;
 
 if_
-    :   'if' expression ':' return_ else_
-    |   'if' expression ':' return_
-    |   'if' expression ':' body else_
-    |   'if' expression ':' body
+    :   'if' expression ':' '{' body '}' else_
+    |   'if' expression ':' '{' body '}'
+    |   'if' expression ':' returnStatement else_
+    |   'if' expression ':' returnStatement
+    |   'if' expression ':' if_ else_
+    |   'if' expression ':' if_
     ;
 
 else_
-    : 'else' ':'  body
-    | 'else' ':' return_
+    :   'else' ':'  '{' body '}'
+    |   'else' ':' returnStatement
+    |   'else' ':' if_
+    ;
+
+returnStatement
+    :   return_ ';'
     ;
 
 return_
-    : 'return' (expression | 'void') //add anonymousFunction later
-    ;
-
-body
-    : '{'(statement | if_)* return_ (statement | if_)*'}'
+    : 'return' (expression | 'void')  //add anonymousFunction later
     ;
 
 statement
@@ -65,10 +74,11 @@ statement
 
 
 expression
-    :   expression (OPERATOR) expression
-    |   '(' expression ')'
-    |   '~' expression
+    :   '(' expression ')'
     |   '-' expression
+    |   expression (OPERATOR) expression
+    |   '~' expression
+
     |   functionCall
     |   Int
     |   Bool
@@ -77,7 +87,7 @@ expression
     ;
 
 OPERATOR
-    : '*' | '/' | '+' | '-' 'and' 'or' 'is' 'not' '<' '>'
+    : '*' | '/' | '+' | '-' | 'and' | 'or' | 'is' | 'not' | '<' | '>'
     ;
 
 print
@@ -101,7 +111,7 @@ Bool
 
 
 String
-    : '"' ~["]*
+    : '"' ~["]* '"'
     ;
 
 fragment

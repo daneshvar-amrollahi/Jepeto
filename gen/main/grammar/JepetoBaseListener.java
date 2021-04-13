@@ -76,6 +76,18 @@ public class JepetoBaseListener implements JepetoListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBody(JepetoParser.BodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBody(JepetoParser.BodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFuncDec(JepetoParser.FuncDecContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -124,6 +136,18 @@ public class JepetoBaseListener implements JepetoListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterReturnStatement(JepetoParser.ReturnStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitReturnStatement(JepetoParser.ReturnStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterReturn_(JepetoParser.Return_Context ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -131,18 +155,6 @@ public class JepetoBaseListener implements JepetoListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitReturn_(JepetoParser.Return_Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterBody(JepetoParser.BodyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBody(JepetoParser.BodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
