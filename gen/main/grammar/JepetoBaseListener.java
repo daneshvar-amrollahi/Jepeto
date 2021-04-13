@@ -1,4 +1,4 @@
-// Generated from /home/daneshvar/Desktop/PLC/Project/Jepeto/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
+// Generated from /home/mahyar/CAs/Jepeto/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
 package main.grammar;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -107,6 +107,18 @@ public class JepetoBaseListener implements JepetoListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArgDec(JepetoParser.ArgDecContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArg(JepetoParser.ArgContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArg(JepetoParser.ArgContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

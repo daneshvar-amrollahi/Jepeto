@@ -2,21 +2,19 @@ grammar Jepeto;
 
 program
     :   (function)* main (function)* EOF
-    //{ System.out.println("program"); }
     ;
 
-MAIN
+Main
     :   'main'
     ;
 
 
 main
-    : MAIN':'(functionCall | print)
-    {System.out.println("Main");}
+    : Main ':' (functionCall | print)
     ;
 
 functionCall
-    :   Identifier argList
+     :   Identifier argList
     //:   anonymousFunction argList
     ;
 
@@ -27,7 +25,7 @@ argList
     ;
 
 function
-    :   'func' funcDec ':' (if_ | return_)
+    :   'func' funcDec ':' (if_ | returnStatement)
     |   'func' funcDec ':' '{' body '}'
     ;
 
@@ -38,11 +36,17 @@ body
 
 
 funcDec
-    :  Identifier argDec
+    :  Identifier { System.out.println("FunctionDec : " + $Identifier.getText()); } argDec
     ;
 
 argDec
-    :   '(' (Identifier',')*Identifier ')'
+    :   '(' (arg ',')* arg ')'
+    |   '(' ')'
+    ;
+
+arg
+    :   Identifier
+    { System.out.println("ArgDec : " + $Identifier.getText()); }
     ;
 
 if_
@@ -98,7 +102,6 @@ print
 
 Identifier
     :   NonDigit (NonDigit | Digit)*
-    { System.out.println("Identifier"); }
     ;
 
 Int
