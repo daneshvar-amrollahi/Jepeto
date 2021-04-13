@@ -16,16 +16,9 @@ func f(x, y): {
 
 main: a(a = 2, b = 2 * 2, c = a + 7)
 
-#func kireBoz(kireAsb, kireKhar):
-#    if kireAsb not kireKhar: {
-#        return "Be Kire Seyyed";
-#    }
-#    else: {
-#        return "Kiramam Nist Seyyed";
-#    }
 
-func first():
-    return ba11z;
+func first(x):
+    return "bye";
 
 func sec():
-    return b00bz;
+    return "hi";
