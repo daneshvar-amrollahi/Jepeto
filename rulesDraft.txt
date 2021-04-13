@@ -1,0 +1,59 @@
+program:
+	function* + main
+
+
+function:
+	2 halate:
+		1. khatti
+		2. chand khatti:
+			functionDec + { + (statement | If)* + }
+			
+If:
+	2 halate:
+		1. 1 khatti
+		2. chand khatti
+			if + '(' + expression + ')' + '{statement*'}'		
+
+statement:
+	(functionCall | return | print) + ';'
+
+functionCall:
+	id + '(' + argList + ')'
+	
+return:
+	'return' + (functionCall | expression)
+	
+expression:
+	expression + ( + | * | - | / | and | or | < | > | is ) + expression
+	(expression)
+	~expression
+	-expression
+	functionCall
+	Int
+	bool
+	string
+	Identifier
+	
+	
+functionCall:
+	identifier + '(' + argList + ')'
+
+argList:
+	1. (expression)*
+	2. (id = expression)*	
+
+main:
+	'main' + (functionCall | print)
+	
+print:
+	print + '(' + (expression) + ')'
+
+
+
+
+
+
+
+id: olaviatesh payin baashe ke avval kalame kilidi haaro bekeshe biroon
+
+
