@@ -1,4 +1,4 @@
-// Generated from /home/daneshvar/Desktop/PLC/Project/Jepeto/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
+// Generated from /home/mahyar/CAs/Jepeto/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
 package main.grammar;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -22,6 +22,18 @@ public interface JepetoVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMain(JepetoParser.MainContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#funcCallStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFuncCallStmt(JepetoParser.FuncCallStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#printStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrintStmt(JepetoParser.PrintStmtContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link JepetoParser#functionCall}.
 	 * @param ctx the parse tree

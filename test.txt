@@ -3,8 +3,10 @@ func f(x, y): {
         if (b + 2 > 10):
             if (c or 5):
                 return a;
-            else:
+            else: {
+                print("haG molayi shod");
                 return "molayi1";
+            }
         else:
             if ((x + y) * 10 < (a + 2) / 2):
                 return b;
@@ -14,8 +16,12 @@ func f(x, y): {
         return a;
 }
 
-main: a(a = 2, b = 2 * 2, c = a + 7)
-
+main: print(a + 7 + (
+                    "molz" - 5 * f(
+                                    g(molof)
+                                   )
+                    )
+            );
 
 func first(x):
     return "bye";

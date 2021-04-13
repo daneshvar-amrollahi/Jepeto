@@ -1,4 +1,4 @@
-// Generated from /home/daneshvar/Desktop/PLC/Project/Jepeto/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
+// Generated from /home/mahyar/CAs/Jepeto/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
 package main.grammar;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -27,6 +27,26 @@ public interface JepetoListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMain(JepetoParser.MainContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#funcCallStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterFuncCallStmt(JepetoParser.FuncCallStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#funcCallStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitFuncCallStmt(JepetoParser.FuncCallStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#printStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrintStmt(JepetoParser.PrintStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#printStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrintStmt(JepetoParser.PrintStmtContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JepetoParser#functionCall}.
 	 * @param ctx the parse tree

@@ -1,16 +1,24 @@
 grammar Jepeto;
 
 program
-    :   (function)* main (function)* EOF
+//    :   (function)* main (function)* EOF
+    :   (function)* main { System.out.println("Main"); } (function)* EOF
     ;
 
 Main
     :   'main'
     ;
 
-
 main
-    : Main ':' (functionCall | print)
+    : Main ':' (funcCallStmt | printStmt)
+    ;
+
+funcCallStmt
+    :   functionCall ';'
+    ;
+
+printStmt
+    :   print ';'
     ;
 
 functionCall
@@ -30,10 +38,9 @@ function
     ;
 
 body
-    //: '{'(if_ | statement)* return_ (if_ | statement)*'}'
-    :(if_ | statement)*
+//    : (if_ | statement)* return_ (if_ | statement)*
+    : (if_ | statement)*
     ;
-
 
 funcDec
     :  Identifier { System.out.println("FunctionDec : " + $Identifier.getText()); } argDec
@@ -49,42 +56,56 @@ arg
     { System.out.println("ArgDec : " + $Identifier.getText()); }
     ;
 
+If
+    :   'if'
+    { System.out.println("Conditional : if"); }
+    ;
+
 if_
-    :   'if' expression ':' '{' body '}' else_
-    |   'if' expression ':' '{' body '}'
-    |   'if' expression ':' returnStatement else_
-    |   'if' expression ':' returnStatement
-    |   'if' expression ':' if_ else_
-    |   'if' expression ':' if_
+    :   If expression ':' '{' body '}' else_
+    |   If expression ':' '{' body '}'
+    |   If expression ':' returnStatement else_
+    |   If expression ':' returnStatement
+    |   If expression ':' if_ else_
+    |   If expression ':' if_
+    ;
+
+Else
+    :   'else'
+    { System.out.println("Conditional : else"); }
     ;
 
 else_
-    :   'else' ':'  '{' body '}'
-    |   'else' ':' returnStatement
-    |   'else' ':' if_
+    :   Else ':'  '{' body '}'
+    |   Else ':' returnStatement
+    |   Else ':' if_
     ;
 
 returnStatement
     :   return_ ';'
     ;
 
-return_
-    : 'return' (expression | 'void')  //add anonymousFunction later
+Return
+    :   'return'
+    { System.out.println("Return"); }
     ;
 
+return_
+    : Return (expression | 'void')  //add anonymousFunction later
+    ;
+
+//semicolons for any nonsense will be added here,
+//so mind your damn bizness
 statement
-    :   (functionCall | return_ | print)';'
+    :   (print | functionCall | return_) ';'
     ;
 
 
 expression
-    :   '~' expression
-    |   '-' expression
+    :   '(' expression ')'
     |   expression (OPERATOR) expression
-    |   '(' expression ')'
-
-
-
+    |   '~' expression
+    |   '-' expression
     |   functionCall
     |   Int
     |   Bool
@@ -96,8 +117,13 @@ OPERATOR
     : '*' | '/' | '+' | '-' | 'and' | 'or' | 'is' | 'not' | '<' | '>'
     ;
 
+Print
+    :   'print'
+    { System.out.println("Built-in : print"); }
+    ;
+
 print
-    :   'print' '(' expression ')' ';'
+    :   'print' '(' expression ')'
     ;
 
 Identifier
