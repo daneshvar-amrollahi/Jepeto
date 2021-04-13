@@ -4,15 +4,21 @@ program:
 
 function:
 	2 halate:
-		1. khatti
+		1. 1 khatti
 		2. chand khatti:
-			functionDec + { + (statement | If)* + }
+			functionDec + { + body + }
 			
 If:
 	2 halate:
 		1. 1 khatti
 		2. chand khatti
-			if + '(' + expression + ')' + '{statement*'}'		
+			if + '(' + expression + ')' + '{' + body + '}' + 'else' + '{' + body + '}' //with else
+			if + '(' + expression + ')' + '{' + body + '}' //without else
+			
+
+body:
+	(statement | If)* + return + (statement | If)*   
+
 
 statement:
 	(functionCall | return | print) + ';'
@@ -20,8 +26,9 @@ statement:
 functionCall:
 	id + '(' + argList + ')'
 	
+
 return:
-	'return' + (functionCall | expression)
+	'return' + (expression | 'void')
 	
 expression:
 	expression + ( + | * | - | / | and | or | < | > | is ) + expression
@@ -31,19 +38,35 @@ expression:
 	functionCall
 	Int
 	bool
-	string
+	string 
 	Identifier
+
+bool
+	true | false
 	
-	
+‫‫
+
+int 
+	(1-9)*+ (0-9)*
+
+string
+	"[a-zA-Z]*"+
+
+
 functionCall:
 	identifier + '(' + argList + ')'
+	anonymousFunction + argList
 
 argList:
-	1. (expression)*
-	2. (id = expression)*	
+	1. (expression | functionCall)*
+	2.1 (id = expression)*
+	2.2 (id = anonymousFunction)*
+
+anonymousFunction:
+	argList --> { body }
 
 main:
-	'main' + (functionCall | print)
+	'main' + ':' + (functionCall | print)
 	
 print:
 	print + '(' + (expression) + ')'
