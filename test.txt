@@ -1,7 +1,1 @@
-This is an identifier_
-
-         _supposedly_so_
-
-         # And a comment :)
-
-main: a(a, b, c)
+main: a(a = 2, b = 2 * 2, c = a + 7)

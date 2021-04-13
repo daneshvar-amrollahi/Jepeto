@@ -34,4 +34,64 @@ public interface JepetoVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArgList(JepetoParser.ArgListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#function}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunction(JepetoParser.FunctionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#funcDec}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFuncDec(JepetoParser.FuncDecContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#argDec}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArgDec(JepetoParser.ArgDecContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#if_}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIf_(JepetoParser.If_Context ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#else_}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElse_(JepetoParser.Else_Context ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#return_}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturn_(JepetoParser.Return_Context ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#body}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBody(JepetoParser.BodyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStatement(JepetoParser.StatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpression(JepetoParser.ExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#print}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrint(JepetoParser.PrintContext ctx);
 }

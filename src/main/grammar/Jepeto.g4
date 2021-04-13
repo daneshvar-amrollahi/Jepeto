@@ -9,11 +9,11 @@ MAIN
     :   'main'
     ;
 
+
 main
     : MAIN':'(functionCall | print)
     {System.out.println("Main");}
     ;
-
 
 functionCall
     :   Identifier argList
@@ -27,7 +27,7 @@ argList
     ;
 
 function
-    :   'func' funcDec ':' (if | return)
+    :   'func' funcDec ':' (if_ | return_)
     |   'func' funcDec ':' body
     ;
 
@@ -39,36 +39,69 @@ argDec
     :   '(' (Identifier',')*Identifier ')'
     ;
 
-if
-    :   'if' expression ':' return else
-    |   'if' expression ':' return
-    |   'if' expression ':' body else
+if_
+    :   'if' expression ':' return_ else_
+    |   'if' expression ':' return_
+    |   'if' expression ':' body else_
     |   'if' expression ':' body
     ;
 
-else
+else_
     : 'else' ':'  body
-    | 'else' ':' return
+    | 'else' ':' return_
     ;
 
-return
+return_
     : 'return' (expression | 'void') //add anonymousFunction later
     ;
 
 body
-    : '{'(statement | if)* return (statement | if)*'}'
+    : '{'(statement | if_)* return_ (statement | if_)*'}'
     ;
 
 statement
-    :   (functionCall | return | print)';'
+    :   (functionCall | return_ | print)';'
     ;
 
 
+expression
+    :   expression (OPERATOR) expression
+    |   '(' expression ')'
+    |   '~' expression
+    |   '-' expression
+    |   functionCall
+    |   Int
+    |   Bool
+    |   String
+    |   Identifier
+    ;
 
+OPERATOR
+    : '*' | '/' | '+' | '-' 'and' 'or' 'is' 'not' '<' '>'
+    ;
+
+print
+    :   'print' '(' expression ')' ';'
+    ;
 
 Identifier
     :   NonDigit (NonDigit | Digit)*
     { System.out.println("Identifier"); }
+    ;
+
+Int
+    :[1-9][0-9]*
+    ;
+
+Bool
+    : 'true'
+    | 'false'
+    ;
+
+
+
+String
+    : '"' ~["]*
     ;
 
 fragment
