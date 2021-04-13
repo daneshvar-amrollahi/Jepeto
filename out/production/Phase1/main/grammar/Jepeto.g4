@@ -1,7 +1,7 @@
 grammar Jepeto;
 
 program
-    :   (Identifier | LineComment)*main EOF
+    :   (Identifier)*main EOF
     { System.out.println("program"); }
     ;
 
@@ -55,4 +55,5 @@ Newline
 
 LineComment
     :   '#' ~[\r\n]*
+        -> skip
     ;

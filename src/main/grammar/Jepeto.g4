@@ -1,8 +1,8 @@
 grammar Jepeto;
 
 program
-    :   (Identifier)*main EOF
-    { System.out.println("program"); }
+    :   (function)* main (function)* EOF
+    //{ System.out.println("program"); }
     ;
 
 MAIN
@@ -10,20 +10,60 @@ MAIN
     ;
 
 main
-    : MAIN':'functionCall
+    : MAIN':'(functionCall | print)
     {System.out.println("Main");}
     ;
 
 
 functionCall
-    :   Identifier'('argList')'
+    :   Identifier argList
+    //:   anonymousFunction argList
     ;
 
 argList
-    :   ((Identifier',')*Identifier)
-    |   (Identifier'='Identifier',')*(Identifier'='Identifier)
-    |
+    :   '('(expression',')*expression')'
+    |   '('(Identifier'='expression',')*(Identifier'='expression)')'
+    //| (Identifier'='anonymousFunction',')*(Identifier'='anonymousFunction',')
     ;
+
+function
+    :   'func' funcDec ':' (if | return)
+    |   'func' funcDec ':' body
+    ;
+
+funcDec
+    :  Identifier argDec
+    ;
+
+argDec
+    :   '(' (Identifier',')*Identifier ')'
+    ;
+
+if
+    :   'if' expression ':' return else
+    |   'if' expression ':' return
+    |   'if' expression ':' body else
+    |   'if' expression ':' body
+    ;
+
+else
+    : 'else' ':'  body
+    | 'else' ':' return
+    ;
+
+return
+    : 'return' (expression | 'void') //add anonymousFunction later
+    ;
+
+body
+    : '{'(statement | if)* return (statement | if)*'}'
+    ;
+
+statement
+    :   (functionCall | return | print)';'
+    ;
+
+
 
 
 Identifier

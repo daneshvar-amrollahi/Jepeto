@@ -35,7 +35,7 @@ functionCall:
 	
 
 return:
-	'return' + (expression | 'void')
+	'return' + (expression | 'void' | anonymounsFunction)
 	
 expression:
 	expression + ( + | * | - | / | and | or | < | > | is ) + expression
@@ -71,6 +71,7 @@ listMember:
 functionCall:
 	identifier + argList*
 	anonymousFunction + argList
+
 
 argList:
 	'('

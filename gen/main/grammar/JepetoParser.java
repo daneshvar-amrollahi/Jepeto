@@ -100,10 +100,6 @@ public class JepetoParser extends Parser {
 		public TerminalNode Identifier(int i) {
 			return getToken(JepetoParser.Identifier, i);
 		}
-		public List<TerminalNode> LineComment() { return getTokens(JepetoParser.LineComment); }
-		public TerminalNode LineComment(int i) {
-			return getToken(JepetoParser.LineComment, i);
-		}
 		public ProgramContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -133,19 +129,11 @@ public class JepetoParser extends Parser {
 			setState(11);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==Identifier || _la==LineComment) {
+			while (_la==Identifier) {
 				{
 				{
 				setState(8);
-				_la = _input.LA(1);
-				if ( !(_la==Identifier || _la==LineComment) ) {
-				_errHandler.recoverInline(this);
-				}
-				else {
-					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
-					_errHandler.reportMatch(this);
-					consume();
-				}
+				match(Identifier);
 				}
 				}
 				setState(13);
@@ -388,16 +376,16 @@ public class JepetoParser extends Parser {
 		"\t\3\4\4\t\4\4\5\t\5\3\2\7\2\f\n\2\f\2\16\2\17\13\2\3\2\3\2\3\2\3\2\3"+
 		"\3\3\3\3\3\3\3\3\3\3\4\3\4\3\4\3\4\3\4\3\5\3\5\7\5!\n\5\f\5\16\5$\13\5"+
 		"\3\5\3\5\3\5\3\5\3\5\7\5+\n\5\f\5\16\5.\13\5\3\5\3\5\3\5\3\5\5\5\64\n"+
-		"\5\3\5\2\2\6\2\4\6\b\2\3\4\2\t\t\f\f\2\66\2\r\3\2\2\2\4\24\3\2\2\2\6\31"+
-		"\3\2\2\2\b\63\3\2\2\2\n\f\t\2\2\2\13\n\3\2\2\2\f\17\3\2\2\2\r\13\3\2\2"+
-		"\2\r\16\3\2\2\2\16\20\3\2\2\2\17\r\3\2\2\2\20\21\5\4\3\2\21\22\7\2\2\3"+
-		"\22\23\b\2\1\2\23\3\3\2\2\2\24\25\7\b\2\2\25\26\7\3\2\2\26\27\5\6\4\2"+
-		"\27\30\b\3\1\2\30\5\3\2\2\2\31\32\7\t\2\2\32\33\7\4\2\2\33\34\5\b\5\2"+
-		"\34\35\7\5\2\2\35\7\3\2\2\2\36\37\7\t\2\2\37!\7\6\2\2 \36\3\2\2\2!$\3"+
-		"\2\2\2\" \3\2\2\2\"#\3\2\2\2#%\3\2\2\2$\"\3\2\2\2%\64\7\t\2\2&\'\7\t\2"+
-		"\2\'(\7\7\2\2()\7\t\2\2)+\7\6\2\2*&\3\2\2\2+.\3\2\2\2,*\3\2\2\2,-\3\2"+
-		"\2\2-/\3\2\2\2.,\3\2\2\2/\60\7\t\2\2\60\61\7\7\2\2\61\64\7\t\2\2\62\64"+
-		"\3\2\2\2\63\"\3\2\2\2\63,\3\2\2\2\63\62\3\2\2\2\64\t\3\2\2\2\6\r\",\63";
+		"\5\3\5\2\2\6\2\4\6\b\2\2\2\66\2\r\3\2\2\2\4\24\3\2\2\2\6\31\3\2\2\2\b"+
+		"\63\3\2\2\2\n\f\7\t\2\2\13\n\3\2\2\2\f\17\3\2\2\2\r\13\3\2\2\2\r\16\3"+
+		"\2\2\2\16\20\3\2\2\2\17\r\3\2\2\2\20\21\5\4\3\2\21\22\7\2\2\3\22\23\b"+
+		"\2\1\2\23\3\3\2\2\2\24\25\7\b\2\2\25\26\7\3\2\2\26\27\5\6\4\2\27\30\b"+
+		"\3\1\2\30\5\3\2\2\2\31\32\7\t\2\2\32\33\7\4\2\2\33\34\5\b\5\2\34\35\7"+
+		"\5\2\2\35\7\3\2\2\2\36\37\7\t\2\2\37!\7\6\2\2 \36\3\2\2\2!$\3\2\2\2\""+
+		" \3\2\2\2\"#\3\2\2\2#%\3\2\2\2$\"\3\2\2\2%\64\7\t\2\2&\'\7\t\2\2\'(\7"+
+		"\7\2\2()\7\t\2\2)+\7\6\2\2*&\3\2\2\2+.\3\2\2\2,*\3\2\2\2,-\3\2\2\2-/\3"+
+		"\2\2\2.,\3\2\2\2/\60\7\t\2\2\60\61\7\7\2\2\61\64\7\t\2\2\62\64\3\2\2\2"+
+		"\63\"\3\2\2\2\63,\3\2\2\2\63\62\3\2\2\2\64\t\3\2\2\2\6\r\",\63";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
