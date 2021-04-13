@@ -38,7 +38,7 @@ public class JepetoParser extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, "':'", "'('", "','", "')'", "'='", "'func'", "'{'", "'}'", "'if'", 
-			"'else'", "';'", "'return'", "'void'", "'-'", "'~'", "'print'", "'main'"
+			"'else'", "';'", "'return'", "'void'", "'~'", "'-'", "'print'", "'main'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -1188,27 +1188,27 @@ public class JepetoParser extends Parser {
 			case 1:
 				{
 				setState(193);
-				match(T__1);
+				match(T__13);
 				setState(194);
-				expression(0);
-				setState(195);
-				match(T__3);
+				expression(9);
 				}
 				break;
 			case 2:
 				{
-				setState(197);
-				match(T__13);
-				setState(198);
+				setState(195);
+				match(T__14);
+				setState(196);
 				expression(8);
 				}
 				break;
 			case 3:
 				{
+				setState(197);
+				match(T__1);
+				setState(198);
+				expression(0);
 				setState(199);
-				match(T__14);
-				setState(200);
-				expression(6);
+				match(T__3);
 				}
 				break;
 			case 4:
@@ -1408,12 +1408,12 @@ public class JepetoParser extends Parser {
 		"\2\u00ba\31\3\2\2\2\u00bb\u00bf\5\6\4\2\u00bc\u00bf\5\30\r\2\u00bd\u00bf"+
 		"\5\36\20\2\u00be\u00bb\3\2\2\2\u00be\u00bc\3\2\2\2\u00be\u00bd\3\2\2\2"+
 		"\u00bf\u00c0\3\2\2\2\u00c0\u00c1\7\r\2\2\u00c1\33\3\2\2\2\u00c2\u00c3"+
-		"\b\17\1\2\u00c3\u00c4\7\4\2\2\u00c4\u00c5\5\34\17\2\u00c5\u00c6\7\6\2"+
-		"\2\u00c6\u00d1\3\2\2\2\u00c7\u00c8\7\20\2\2\u00c8\u00d1\5\34\17\n\u00c9"+
-		"\u00ca\7\21\2\2\u00ca\u00d1\5\34\17\b\u00cb\u00d1\5\6\4\2\u00cc\u00d1"+
-		"\7\26\2\2\u00cd\u00d1\7\27\2\2\u00ce\u00d1\7\30\2\2\u00cf\u00d1\7\25\2"+
-		"\2\u00d0\u00c2\3\2\2\2\u00d0\u00c7\3\2\2\2\u00d0\u00c9\3\2\2\2\u00d0\u00cb"+
-		"\3\2\2\2\u00d0\u00cc\3\2\2\2\u00d0\u00cd\3\2\2\2\u00d0\u00ce\3\2\2\2\u00d0"+
+		"\b\17\1\2\u00c3\u00c4\7\20\2\2\u00c4\u00d1\5\34\17\13\u00c5\u00c6\7\21"+
+		"\2\2\u00c6\u00d1\5\34\17\n\u00c7\u00c8\7\4\2\2\u00c8\u00c9\5\34\17\2\u00c9"+
+		"\u00ca\7\6\2\2\u00ca\u00d1\3\2\2\2\u00cb\u00d1\5\6\4\2\u00cc\u00d1\7\26"+
+		"\2\2\u00cd\u00d1\7\27\2\2\u00ce\u00d1\7\30\2\2\u00cf\u00d1\7\25\2\2\u00d0"+
+		"\u00c2\3\2\2\2\u00d0\u00c5\3\2\2\2\u00d0\u00c7\3\2\2\2\u00d0\u00cb\3\2"+
+		"\2\2\u00d0\u00cc\3\2\2\2\u00d0\u00cd\3\2\2\2\u00d0\u00ce\3\2\2\2\u00d0"+
 		"\u00cf\3\2\2\2\u00d1\u00d7\3\2\2\2\u00d2\u00d3\f\t\2\2\u00d3\u00d4\7\24"+
 		"\2\2\u00d4\u00d6\5\34\17\n\u00d5\u00d2\3\2\2\2\u00d6\u00d9\3\2\2\2\u00d7"+
 		"\u00d5\3\2\2\2\u00d7\u00d8\3\2\2\2\u00d8\35\3\2\2\2\u00d9\u00d7\3\2\2"+

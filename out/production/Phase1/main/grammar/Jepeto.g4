@@ -74,10 +74,12 @@ statement
 
 
 expression
-    :   '(' expression ')'
+    :   '~' expression
     |   '-' expression
     |   expression (OPERATOR) expression
-    |   '~' expression
+    |   '(' expression ')'
+
+
 
     |   functionCall
     |   Int
