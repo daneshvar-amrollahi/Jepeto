@@ -29,6 +29,7 @@ functionCall
 argList
     :   '('(expression',')*expression')'
     |   '('(Identifier'='expression',')*(Identifier'='expression)')'
+    |   '(' ')'
     //| (Identifier'='anonymousFunction',')*(Identifier'='anonymousFunction',')
     ;
 
@@ -150,12 +151,23 @@ addSubExpression
     ;
 
 mulDivExpression
-    :   mulDivExpression ('~' | '-') tildaNegOperator
+    :   ('~' | '-') tildaNegOperator
     |   tildaNegOperator
     ;
 
 tildaNegOperator
-    :   ('~' | '-') factor_
+    :   tildaNegOperator '::' concatExpression
+    |   concatExpression
+    ;
+
+concatExpression
+    :   subscriptExpression '.size'
+    |   subscriptExpression
+    ;
+
+subscriptExpression
+    :   subscriptExpression '[' expression ']'
+    |   factor_ '[' expression ']'
     |   factor_
     ;
 

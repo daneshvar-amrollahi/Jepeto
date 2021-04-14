@@ -248,6 +248,26 @@ public interface JepetoListener extends ParseTreeListener {
 	 */
 	void exitTildaNegOperator(JepetoParser.TildaNegOperatorContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link JepetoParser#concatExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterConcatExpression(JepetoParser.ConcatExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#concatExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitConcatExpression(JepetoParser.ConcatExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#subscriptExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubscriptExpression(JepetoParser.SubscriptExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#subscriptExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubscriptExpression(JepetoParser.SubscriptExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link JepetoParser#factor_}.
 	 * @param ctx the parse tree
 	 */

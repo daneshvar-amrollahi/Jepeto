@@ -1,22 +1,7 @@
 func f(x, y): {
-    if (x - 2 or 3 * 7 is 10):
-        if (b - 2 > 10):
-            if (c or 5):
-                return a;
-            else: {
-                print("haG molayi shod");
-                return "molayi1";
-            }
-        else:
-            if (x - y * 10 < (a - 2) / 2):
-                return b;
-            else:
-                return "molayi2";
-    else: {
-        if (72 - a < "str"):
-            return a;
-        return b;
-    }
+    if (a[3 * 32 * f[2][-4] ] is 2):
+        return "salam";
+     return "khodafez";
 }
 
 main: print(a + 7 + (
@@ -25,9 +10,3 @@ main: print(a + 7 + (
                                    )
                     )
             );
-
-func first(x):
-    return "bye";
-
-func sec():
-    return "hi";

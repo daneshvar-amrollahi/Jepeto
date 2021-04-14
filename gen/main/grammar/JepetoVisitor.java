@@ -155,6 +155,18 @@ public interface JepetoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTildaNegOperator(JepetoParser.TildaNegOperatorContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link JepetoParser#concatExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConcatExpression(JepetoParser.ConcatExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#subscriptExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubscriptExpression(JepetoParser.SubscriptExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link JepetoParser#factor_}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
