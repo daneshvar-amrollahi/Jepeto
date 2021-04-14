@@ -1,12 +1,21 @@
-func f(x, y): {
-    if (a[3 * 32 * f[2][-4] + g()()[3 - "a"] :: 2 :: f[g[h(x-3)[1]]] + 4 :: 5] is 2):
-        return "salam";
-     return "khodafez";
-}
+#func f(x, y): {
+#    if (a[3 * 32 * f[2][-4] + g()()[3 - "a"] :: 2 :: f[g[h(x-3)[1]]] + 4 :: 5] is 2):
+#        return "salam";
+#    return "khodafez";
+    #f(2)(3);
+#}
 
-main: print(a + 7 + (
-                    "molz" - 5 * f(
-                                    g(molof)
-                                   )
-                    )
-            );
+#main: print(a + 7 + (
+#                    "molz" - 5 * f(
+#                                    g(molof)
+#                                   )
+#                    )
+#            );
+
+func f():
+    return (a, c) -> {
+        return g[1][2];
+    };
+
+main:
+    print(f(1, 2) - g[2][3][i]);

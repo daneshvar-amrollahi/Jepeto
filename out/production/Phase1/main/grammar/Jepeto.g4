@@ -21,8 +21,12 @@ printStmt
     :   print ';'
     ;
 
+anonymousFunctionCall
+    :   anonymousFunction (argList)+
+    ;
+
 functionCall
-     :  Identifier (argList)+
+    :  Identifier (argList)+
     //:   anonymousFunction argList
     ;
 
@@ -40,8 +44,12 @@ function
     |   'func' funcDec ':' '{' body '}'
     ;
 
+anonymousFunction
+    :   argDec '->' '{' body '}'
+    ;
+
 body
-//    : (if_ | statement)* return_ (if_ | statement)*
+//    : (if_ | statement)* returnStatement (if_ | statement)*
     : (if_ | statement)*
     ;
 
@@ -103,20 +111,6 @@ statement
     :   (print | functionCall | return_) ';'
     ;
 
-
-/*expression
-    :   '(' expression ')'
-    |   expression (OPERATOR) expression
-    |   '~' expression
-    |   '-' expression
-    |   functionCall
-    |   Int
-    |   Bool
-    |   String
-    |   Identifier
-    ;
-*/
-
 expression
     :   expression 'or' orExpression
     |   orExpression
@@ -173,13 +167,22 @@ subscriptExpression
     |   factor_
     ;
 
+//subscriptExpression
+//    :   factor_ ('[' expression ']')+
+//    |   factor_
+//    ;
+
+
 factor_
     :   '(' expression ')'
     |   functionCall
+    |   anonymousFunctionCall
+    |   anonymousFunction
     |   Int
     |   Bool
     |   String
     |   Identifier
+    |   listType
     ;
 
 OPERATOR
@@ -193,6 +196,11 @@ Print
 
 print
     :   'print' '(' expression ')'
+    ;
+
+listType
+    :   '[' ((expression) ',')* (expression) ']'
+    |   '[' ']'
     ;
 
 Identifier

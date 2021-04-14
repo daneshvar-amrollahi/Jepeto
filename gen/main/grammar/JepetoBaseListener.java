@@ -64,6 +64,18 @@ public class JepetoBaseListener implements JepetoListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterAnonymousFunctionCall(JepetoParser.AnonymousFunctionCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAnonymousFunctionCall(JepetoParser.AnonymousFunctionCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFunctionCall(JepetoParser.FunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -95,6 +107,18 @@ public class JepetoBaseListener implements JepetoListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunction(JepetoParser.FunctionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAnonymousFunction(JepetoParser.AnonymousFunctionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAnonymousFunction(JepetoParser.AnonymousFunctionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -347,6 +371,18 @@ public class JepetoBaseListener implements JepetoListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPrint(JepetoParser.PrintContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterListType(JepetoParser.ListTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitListType(JepetoParser.ListTypeContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

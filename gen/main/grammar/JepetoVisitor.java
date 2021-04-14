@@ -35,6 +35,12 @@ public interface JepetoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPrintStmt(JepetoParser.PrintStmtContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link JepetoParser#anonymousFunctionCall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAnonymousFunctionCall(JepetoParser.AnonymousFunctionCallContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link JepetoParser#functionCall}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -52,6 +58,12 @@ public interface JepetoVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFunction(JepetoParser.FunctionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#anonymousFunction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAnonymousFunction(JepetoParser.AnonymousFunctionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link JepetoParser#body}.
 	 * @param ctx the parse tree
@@ -178,4 +190,10 @@ public interface JepetoVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitPrint(JepetoParser.PrintContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#listType}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitListType(JepetoParser.ListTypeContext ctx);
 }

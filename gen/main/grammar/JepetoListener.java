@@ -48,6 +48,16 @@ public interface JepetoListener extends ParseTreeListener {
 	 */
 	void exitPrintStmt(JepetoParser.PrintStmtContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link JepetoParser#anonymousFunctionCall}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnonymousFunctionCall(JepetoParser.AnonymousFunctionCallContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#anonymousFunctionCall}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnonymousFunctionCall(JepetoParser.AnonymousFunctionCallContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link JepetoParser#functionCall}.
 	 * @param ctx the parse tree
 	 */
@@ -77,6 +87,16 @@ public interface JepetoListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunction(JepetoParser.FunctionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#anonymousFunction}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnonymousFunction(JepetoParser.AnonymousFunctionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#anonymousFunction}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnonymousFunction(JepetoParser.AnonymousFunctionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JepetoParser#body}.
 	 * @param ctx the parse tree
@@ -287,4 +307,14 @@ public interface JepetoListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPrint(JepetoParser.PrintContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#listType}.
+	 * @param ctx the parse tree
+	 */
+	void enterListType(JepetoParser.ListTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#listType}.
+	 * @param ctx the parse tree
+	 */
+	void exitListType(JepetoParser.ListTypeContext ctx);
 }
