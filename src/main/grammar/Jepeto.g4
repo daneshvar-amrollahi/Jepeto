@@ -22,12 +22,14 @@ printStmt
     ;
 
 functionCall
-     :   Identifier argList
+     :  Identifier (argList)+
     //:   anonymousFunction argList
     ;
 
 argList
-    :   '('(expression',')*expression')'
+    :
+    { System.out.println("FunctionCall"); }
+        '('(expression',')*expression')'
     |   '('(Identifier'='expression',')*(Identifier'='expression)')'
     |   '(' ')'
     //| (Identifier'='anonymousFunction',')*(Identifier'='anonymousFunction',')
