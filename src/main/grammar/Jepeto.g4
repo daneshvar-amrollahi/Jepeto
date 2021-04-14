@@ -1,8 +1,7 @@
 grammar Jepeto;
 
 program
-//    :   (function)* main (function)* EOF
-    :   (function)* main { System.out.println("Main"); } (function)* EOF
+    :   (function)* main (function)* EOF
     ;
 
 Main
@@ -10,7 +9,7 @@ Main
     ;
 
 main
-    : Main ':' (funcCallStmt | printStmt)
+    :   Main { System.out.println("Main"); } ':' (funcCallStmt | printStmt)
     ;
 
 funcCallStmt
@@ -39,13 +38,18 @@ argList
     //| (Identifier'='anonymousFunction',')*(Identifier'='anonymousFunction',')
     ;
 
+Func
+    :   'func'
+    ;
+
 function
-    :   'func' funcDec ':' (if_ | returnStatement)
-    |   'func' funcDec ':' '{' body '}'
+    :   funcDec ':' (if_ | returnStatement)
+    |   funcDec ':' '{' body '}'
     ;
 
 anonymousFunction
-    :   argDec '->' '{' body '}'
+    :   { System.out.println("Anonymous Function"); }
+        argDec '->' '{' body '}'
     ;
 
 body
@@ -54,7 +58,7 @@ body
     ;
 
 funcDec
-    :  Identifier { System.out.println("FunctionDec : " + $Identifier.getText()); } argDec
+    :  Func Identifier { System.out.println("FunctionDec : " + $Identifier.getText()); } argDec
     ;
 
 argDec
@@ -69,27 +73,25 @@ arg
 
 If
     :   'if'
-    { System.out.println("Conditional : if"); }
     ;
 
 if_
-    :   If expression ':' '{' body '}' else_
-    |   If expression ':' '{' body '}'
-    |   If expression ':' returnStatement else_
-    |   If expression ':' returnStatement
-    |   If expression ':' if_ else_
-    |   If expression ':' if_
+    :   If { System.out.println("Conditional : if"); } expression ':' '{' body '}' else_
+    |   If { System.out.println("Conditional : if"); } expression ':' '{' body '}'
+    |   If { System.out.println("Conditional : if"); } expression ':' returnStatement else_
+    |   If { System.out.println("Conditional : if"); } expression ':' returnStatement
+    |   If { System.out.println("Conditional : if"); } expression ':' if_ else_
+    |   If { System.out.println("Conditional : if"); } expression ':' if_
     ;
 
 Else
-    :   'else'
-    { System.out.println("Conditional : else"); }
+    :    'else'
     ;
 
 else_
-    :   Else ':'  '{' body '}'
-    |   Else ':' returnStatement
-    |   Else ':' if_
+    :   Else { System.out.println("Conditional : else"); } ':'  '{' body '}'
+    |   Else { System.out.println("Conditional : else"); } ':' returnStatement
+    |   Else { System.out.println("Conditional : else"); } ':' if_
     ;
 
 returnStatement
@@ -98,11 +100,10 @@ returnStatement
 
 Return
     :   'return'
-    { System.out.println("Return"); }
     ;
 
 return_
-    : Return (expression | 'void')  //add anonymousFunction later
+    : Return { System.out.println("Return"); } (expression | 'void')  //add anonymousFunction later
     ;
 
 //semicolons for any nonsense will be added here,
@@ -185,11 +186,11 @@ OPERATOR
 
 Print
     :   'print'
-    { System.out.println("Built-in : print"); }
     ;
 
 print
-    :   'print' '(' expression ')'
+    :   { System.out.println("Built-in : print"); }
+        Print '(' expression ')'
     ;
 
 listType

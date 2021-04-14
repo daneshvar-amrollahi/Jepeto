@@ -12,10 +12,14 @@
 #                    )
 #            );
 
-func f():
-    return (a, c) -> {
-        return g[1][2];
-    };
+func f(x, y):
+    if x > 3:
+        return true;
+    else:
+        if y > 5:
+            return (y) -> {
+                return true;
+            }();
 
 main:
     print(f(1, 2) - g[2][3][i]);
