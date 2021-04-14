@@ -1,6 +1,6 @@
 grammar Jepeto;
 
-program
+jepeto
     :   (function)* main (function)* EOF
     ;
 

@@ -8,15 +8,15 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface JepetoListener extends ParseTreeListener {
 	/**
-	 * Enter a parse tree produced by {@link JepetoParser#program}.
+	 * Enter a parse tree produced by {@link JepetoParser#jepeto}.
 	 * @param ctx the parse tree
 	 */
-	void enterProgram(JepetoParser.ProgramContext ctx);
+	void enterJepeto(JepetoParser.JepetoContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link JepetoParser#program}.
+	 * Exit a parse tree produced by {@link JepetoParser#jepeto}.
 	 * @param ctx the parse tree
 	 */
-	void exitProgram(JepetoParser.ProgramContext ctx);
+	void exitJepeto(JepetoParser.JepetoContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JepetoParser#main}.
 	 * @param ctx the parse tree

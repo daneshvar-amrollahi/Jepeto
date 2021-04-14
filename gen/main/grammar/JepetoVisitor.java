@@ -11,11 +11,11 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface JepetoVisitor<T> extends ParseTreeVisitor<T> {
 	/**
-	 * Visit a parse tree produced by {@link JepetoParser#program}.
+	 * Visit a parse tree produced by {@link JepetoParser#jepeto}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitProgram(JepetoParser.ProgramContext ctx);
+	T visitJepeto(JepetoParser.JepetoContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link JepetoParser#main}.
 	 * @param ctx the parse tree

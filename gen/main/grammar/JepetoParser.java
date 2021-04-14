@@ -24,7 +24,7 @@ public class JepetoParser extends Parser {
 		Identifier=33, Int=34, Bool=35, String=36, Whitespace=37, Newline=38, 
 		LineComment=39;
 	public static final int
-		RULE_program = 0, RULE_main = 1, RULE_funcCallStmt = 2, RULE_printStmt = 3, 
+		RULE_jepeto = 0, RULE_main = 1, RULE_funcCallStmt = 2, RULE_printStmt = 3, 
 		RULE_anonymousFunctionCall = 4, RULE_functionCall = 5, RULE_argList = 6, 
 		RULE_function = 7, RULE_anonymousFunction = 8, RULE_body = 9, RULE_funcDec = 10, 
 		RULE_argDec = 11, RULE_arg = 12, RULE_if_ = 13, RULE_else_ = 14, RULE_returnStatement = 15, 
@@ -35,7 +35,7 @@ public class JepetoParser extends Parser {
 		RULE_print = 29, RULE_listType = 30;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"program", "main", "funcCallStmt", "printStmt", "anonymousFunctionCall", 
+			"jepeto", "main", "funcCallStmt", "printStmt", "anonymousFunctionCall", 
 			"functionCall", "argList", "function", "anonymousFunction", "body", "funcDec", 
 			"argDec", "arg", "if_", "else_", "returnStatement", "return_", "statement", 
 			"expression", "orExpression", "andExpression", "isNotExpression", "ltgtExpression", 
@@ -113,7 +113,7 @@ public class JepetoParser extends Parser {
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
-	public static class ProgramContext extends ParserRuleContext {
+	public static class JepetoContext extends ParserRuleContext {
 		public MainContext main() {
 			return getRuleContext(MainContext.class,0);
 		}
@@ -124,28 +124,28 @@ public class JepetoParser extends Parser {
 		public FunctionContext function(int i) {
 			return getRuleContext(FunctionContext.class,i);
 		}
-		public ProgramContext(ParserRuleContext parent, int invokingState) {
+		public JepetoContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_program; }
+		@Override public int getRuleIndex() { return RULE_jepeto; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof JepetoListener ) ((JepetoListener)listener).enterProgram(this);
+			if ( listener instanceof JepetoListener ) ((JepetoListener)listener).enterJepeto(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof JepetoListener ) ((JepetoListener)listener).exitProgram(this);
+			if ( listener instanceof JepetoListener ) ((JepetoListener)listener).exitJepeto(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof JepetoVisitor ) return ((JepetoVisitor<? extends T>)visitor).visitProgram(this);
+			if ( visitor instanceof JepetoVisitor ) return ((JepetoVisitor<? extends T>)visitor).visitJepeto(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final ProgramContext program() throws RecognitionException {
-		ProgramContext _localctx = new ProgramContext(_ctx, getState());
-		enterRule(_localctx, 0, RULE_program);
+	public final JepetoContext jepeto() throws RecognitionException {
+		JepetoContext _localctx = new JepetoContext(_ctx, getState());
+		enterRule(_localctx, 0, RULE_jepeto);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);

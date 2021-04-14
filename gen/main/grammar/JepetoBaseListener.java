@@ -16,13 +16,13 @@ public class JepetoBaseListener implements JepetoListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterProgram(JepetoParser.ProgramContext ctx) { }
+	@Override public void enterJepeto(JepetoParser.JepetoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitProgram(JepetoParser.ProgramContext ctx) { }
+	@Override public void exitJepeto(JepetoParser.JepetoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

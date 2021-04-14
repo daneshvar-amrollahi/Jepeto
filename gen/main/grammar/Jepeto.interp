@@ -83,7 +83,7 @@ Newline
 LineComment
 
 rule names:
-program
+jepeto
 main
 funcCallStmt
 printStmt
