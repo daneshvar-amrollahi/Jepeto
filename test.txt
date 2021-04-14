@@ -1,25 +1,32 @@
-#func f(x, y): {
-#    if (a[3 * 32 * f[2][-4] + g()()[3 - "a"] :: 2 :: f[g[h(x-3)[1]]] + 4 :: 5] is 2):
-#        return "salam";
-#    return "khodafez";
-    #f(2)(3);
-#}
+func f1 (a1, a2, a3, a4, a5) : {
+    f2(a6 = a5, a7 = 0);
+    print(a1 + a2 * (1 - 2 + 3) or true);
+    print(a4(5));
+    return f3("PLC") + 1400;
+    f4()();
+    print(f5()[0]);
+    return true;
+}
 
-#main: print(a + 7 + (
-#                    "molz" - 5 * f(
-#                                    g(molof)
-#                                   )
-#                    )
-#            );
+func f2(a6, a7) : {
+    if a7 > a6.size - 1:
+        return void;
+    print(a6[a7]);
+    f2 (a6, a7 + 1);
+    return void;
+}
 
-func f(x, y):
-    if x > 3:
-        return true;
-    else:
-        if y > 5:
-            return (y) -> {
-                return ([1, 2]::(1*2)).size or true and false;
-            }();
+func f3(a9):
+    if a9 is "PLC":
+        return 1;
+    else :
+           return 2;
 
-main:
-    print(f(1, 2) - g[1][2].size);
+func f4():
+    return ()->{print("I'm reading an example code"); return void;};
+
+func f5():
+    return [1, 2, 3];
+
+main : print(f1(1, "hi", true, (a8)->{return a8 + 1 * 2 + 3;}, [11, false,
+   "code"]));

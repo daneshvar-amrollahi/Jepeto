@@ -29,9 +29,9 @@ functionCall
     ;
 
 argList
-    :   { System.out.println("FunctionCall"); } '(' (expression ',')* expression ')'
-    |   { System.out.println("FunctionCall"); } '(' (Identifier'='expression ',')* (Identifier'='expression) ')'
-    |   { System.out.println("FunctionCall"); } '(' ')'
+    :   /*{ System.out.println("FunctionCall"); }*/ '(' (expression ',')* expression ')'
+    |   /*{ System.out.println("FunctionCall"); }*/ '(' (Identifier'='expression ',')* (Identifier'='expression) ')'
+    |   /*{ System.out.println("FunctionCall"); }*/ '(' ')'
     ;
 
 Func
@@ -64,7 +64,7 @@ argDec
 
 arg
     :   Identifier
-    { System.out.println("ArgDec : " + $Identifier.getText()); }
+    { System.out.println("ArgumentDec : " + $Identifier.getText()); }
     ;
 
 If
@@ -105,7 +105,9 @@ return_
 //semicolons for any nonsense will be added here,
 //so mind your damn bizness
 statement
-    :   (print | functionCall | return_) ';'
+    : print ';'
+    | {System.out.println("FunctionCall");} functionCall ';'
+    | return_ ';'
     ;
 
 expression
@@ -201,6 +203,7 @@ Identifier
 
 Int
     :[1-9][0-9]*
+    | '0'
     ;
 
 Bool
