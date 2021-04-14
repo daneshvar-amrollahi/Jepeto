@@ -49,8 +49,8 @@ anonymousFunction
     ;
 
 body
-//    : (if_ | statement)* returnStatement (if_ | statement)*
-    : (if_ | statement)*
+    : (if_ | statement)* returnStatement (if_ | statement | returnStatement)*
+    //: (if_ | statement)*
     ;
 
 funcDec
@@ -107,7 +107,7 @@ return_
 statement
     : print ';'
     | {System.out.println("FunctionCall");} functionCall ';'
-    | return_ ';'
+    //| return_ ';'
     ;
 
 expression
