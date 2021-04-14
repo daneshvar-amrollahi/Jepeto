@@ -18,8 +18,8 @@ func f(x, y):
     else:
         if y > 5:
             return (y) -> {
-                return true;
+                return ([1, 2]::(1*2)).size or true and false;
             }();
 
 main:
-    print(f(1, 2) - g[2][3][i]);
+    print(f(1, 2) - g[1][2].size);

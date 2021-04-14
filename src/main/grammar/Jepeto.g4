@@ -26,16 +26,12 @@ anonymousFunctionCall
 
 functionCall
     :  Identifier (argList)+
-    //:   anonymousFunction argList
     ;
 
 argList
-    :
-    { System.out.println("FunctionCall"); }
-        '('(expression',')*expression')'
-    |   '('(Identifier'='expression',')*(Identifier'='expression)')'
-    |   '(' ')'
-    //| (Identifier'='anonymousFunction',')*(Identifier'='anonymousFunction',')
+    :   { System.out.println("FunctionCall"); } '(' (expression ',')* expression ')'
+    |   { System.out.println("FunctionCall"); } '(' (Identifier'='expression ',')* (Identifier'='expression) ')'
+    |   { System.out.println("FunctionCall"); } '(' ')'
     ;
 
 Func
@@ -113,52 +109,53 @@ statement
     ;
 
 expression
-    :   expression 'or' orExpression
+    :   expression 'or' orExpression { System.out.println("Operator : or"); }
     |   orExpression
     ;
 
 orExpression
-    :   orExpression 'and' andExpression
+    :   orExpression 'and' andExpression { System.out.println("Operator : and"); }
     |   andExpression
     ;
 
 
 andExpression
-    :   andExpression 'is' isNotExpression
-    |   andExpression 'not' isNotExpression
+    :   andExpression 'is' isNotExpression { System.out.println("Operator : is"); }
+    |   andExpression 'not' isNotExpression { System.out.println("Operator : not"); }
     |   isNotExpression
     ;
 
 isNotExpression
-    :   isNotExpression '<' ltgtExpression
-    |   isNotExpression '>' ltgtExpression
+    :   isNotExpression '<' ltgtExpression { System.out.println("Operator : <"); }
+    |   isNotExpression '>' ltgtExpression { System.out.println("Operator : >"); }
     |   ltgtExpression
     ;
 
 ltgtExpression
-    :   ltgtExpression '+' addSubExpression
-    |   ltgtExpression '-' addSubExpression
+    :   ltgtExpression '+' addSubExpression { System.out.println("Operator : +"); }
+    |   ltgtExpression '-' addSubExpression { System.out.println("Operator : -"); }
     |   addSubExpression
     ;
 
 addSubExpression
-    :   addSubExpression '*' mulDivExpression
-    |   addSubExpression '/' mulDivExpression
+    :   addSubExpression '*' mulDivExpression { System.out.println("Operator : *"); }
+    |   addSubExpression '/' mulDivExpression { System.out.println("Operator : /"); }
     |   mulDivExpression
     ;
 
 mulDivExpression
-    :   ('~' | '-') tildaNegOperator
+    :   '~' tildaNegOperator { System.out.println("Operator : ~"); }
+    |   '-' tildaNegOperator { System.out.println("Operator : -"); }
     |   tildaNegOperator
     ;
 
 tildaNegOperator
-    :   tildaNegOperator '::' concatExpression
+    :   tildaNegOperator '::' concatExpression { System.out.println("Operator : ::"); }
     |   concatExpression
     ;
 
 concatExpression
-    :   subscriptExpression '.size'
+    :   subscriptExpression { System.out.println("Size"); } '.size'
     |   subscriptExpression
     ;
 
