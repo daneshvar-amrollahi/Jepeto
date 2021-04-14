@@ -101,11 +101,66 @@ statement
     ;
 
 
-expression
+/*expression
     :   '(' expression ')'
     |   expression (OPERATOR) expression
     |   '~' expression
     |   '-' expression
+    |   functionCall
+    |   Int
+    |   Bool
+    |   String
+    |   Identifier
+    ;
+*/
+
+expression
+    :   expression 'or' orExpression
+    |   orExpression
+    ;
+
+orExpression
+    :   orExpression 'and' andExpression
+    |   andExpression
+    ;
+
+
+andExpression
+    :   andExpression 'is' isNotExpression
+    |   andExpression 'not' isNotExpression
+    |   isNotExpression
+    ;
+
+isNotExpression
+    :   isNotExpression '<' ltgtExpression
+    |   isNotExpression '>' ltgtExpression
+    |   ltgtExpression
+    ;
+
+ltgtExpression
+    :   ltgtExpression '+' addSubExpression
+    |   ltgtExpression '-' addSubExpression
+    |   addSubExpression
+    ;
+
+addSubExpression
+    :   addSubExpression '*' mulDivExpression
+    |   addSubExpression '/' mulDivExpression
+    |   mulDivExpression
+    ;
+
+mulDivExpression
+    :   mulDivExpression ('~' | '-') tildaNegOperator
+    |   tildaNegOperator
+    ;
+
+tildaNegOperator
+    :   ('~' | '-') factor_
+    |   factor_
+    ;
+
+factor_
+    :   '(' expression ')'
     |   functionCall
     |   Int
     |   Bool

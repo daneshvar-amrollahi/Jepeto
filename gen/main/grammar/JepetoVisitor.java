@@ -1,4 +1,4 @@
-// Generated from /home/mahyar/CAs/Jepeto/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
+// Generated from /home/daneshvar/Desktop/PLC/Project/Jepeto/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
 package main.grammar;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -112,6 +112,54 @@ public interface JepetoVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExpression(JepetoParser.ExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#orExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOrExpression(JepetoParser.OrExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#andExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAndExpression(JepetoParser.AndExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#isNotExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIsNotExpression(JepetoParser.IsNotExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#ltgtExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLtgtExpression(JepetoParser.LtgtExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#addSubExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAddSubExpression(JepetoParser.AddSubExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#mulDivExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMulDivExpression(JepetoParser.MulDivExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#tildaNegOperator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTildaNegOperator(JepetoParser.TildaNegOperatorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JepetoParser#factor_}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFactor_(JepetoParser.Factor_Context ctx);
 	/**
 	 * Visit a parse tree produced by {@link JepetoParser#print}.
 	 * @param ctx the parse tree

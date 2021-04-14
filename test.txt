@@ -1,6 +1,6 @@
 func f(x, y): {
-    if (a is 2):
-        if (b + 2 > 10):
+    if (x - 2 or 3 * 7 is 10):
+        if (b - 2 > 10):
             if (c or 5):
                 return a;
             else: {
@@ -8,12 +8,15 @@ func f(x, y): {
                 return "molayi1";
             }
         else:
-            if ((x + y) * 10 < (a + 2) / 2):
+            if (x - y * 10 < (a - 2) / 2):
                 return b;
             else:
                 return "molayi2";
-    else:
-        return a;
+    else: {
+        if (72 - a < "str"):
+            return a;
+        return b;
+    }
 }
 
 main: print(a + 7 + (

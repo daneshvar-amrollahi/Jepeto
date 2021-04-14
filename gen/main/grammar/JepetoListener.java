@@ -1,4 +1,4 @@
-// Generated from /home/mahyar/CAs/Jepeto/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
+// Generated from /home/daneshvar/Desktop/PLC/Project/Jepeto/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
 package main.grammar;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -177,6 +177,86 @@ public interface JepetoListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpression(JepetoParser.ExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#orExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrExpression(JepetoParser.OrExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#orExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrExpression(JepetoParser.OrExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#andExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterAndExpression(JepetoParser.AndExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#andExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitAndExpression(JepetoParser.AndExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#isNotExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterIsNotExpression(JepetoParser.IsNotExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#isNotExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitIsNotExpression(JepetoParser.IsNotExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#ltgtExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterLtgtExpression(JepetoParser.LtgtExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#ltgtExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitLtgtExpression(JepetoParser.LtgtExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#addSubExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterAddSubExpression(JepetoParser.AddSubExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#addSubExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitAddSubExpression(JepetoParser.AddSubExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#mulDivExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterMulDivExpression(JepetoParser.MulDivExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#mulDivExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitMulDivExpression(JepetoParser.MulDivExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#tildaNegOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterTildaNegOperator(JepetoParser.TildaNegOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#tildaNegOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitTildaNegOperator(JepetoParser.TildaNegOperatorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JepetoParser#factor_}.
+	 * @param ctx the parse tree
+	 */
+	void enterFactor_(JepetoParser.Factor_Context ctx);
+	/**
+	 * Exit a parse tree produced by {@link JepetoParser#factor_}.
+	 * @param ctx the parse tree
+	 */
+	void exitFactor_(JepetoParser.Factor_Context ctx);
 	/**
 	 * Enter a parse tree produced by {@link JepetoParser#print}.
 	 * @param ctx the parse tree
