@@ -13,7 +13,7 @@ main
     ;
 
 funcCallStmt
-    :   functionCall ';'
+    :   {System.out.println("FunctionCall");} functionCall ';'
     ;
 
 printStmt
@@ -72,12 +72,14 @@ If
     ;
 
 if_
-    :   If { System.out.println("Conditional : if"); } expression ':' '{' body '}' else_
-    |   If { System.out.println("Conditional : if"); } expression ':' '{' body '}'
-    |   If { System.out.println("Conditional : if"); } expression ':' returnStatement else_
-    |   If { System.out.println("Conditional : if"); } expression ':' returnStatement
+    :   If { System.out.println("Conditional : if"); } expression ':' if_
     |   If { System.out.println("Conditional : if"); } expression ':' if_ else_
-    |   If { System.out.println("Conditional : if"); } expression ':' if_
+    |   If { System.out.println("Conditional : if"); } expression ':' returnStatement
+    |   If { System.out.println("Conditional : if"); } expression ':' returnStatement else_
+    |   If { System.out.println("Conditional : if"); } expression ':' statement
+    |   If { System.out.println("Conditional : if"); } expression ':' statement else_
+    |   If { System.out.println("Conditional : if"); } expression ':' '{' body '}'
+    |   If { System.out.println("Conditional : if"); } expression ':' '{' body '}' else_
     ;
 
 Else
