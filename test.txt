@@ -12,18 +12,31 @@
 
 #func f(a):
 #    if (b):
+#    {
 #        if (c):
 #            return 1;
 #        else:
-#            return 2;
+#            print("hi");
+#    }
+
+#main : append([]);
 
 
-main : append([]);
+#func apppend(a) : {
+#    append([[], [[]], [[], 1, 2], "hello"]);
+#    return []::i;
+#}
 
+func f(a):
+    if (a):
+        if (b): {
+            if (c):
+                print("salam");
+            else:
+                print("bye");
+            return 2;
+        }
+        else:
+            return 1;
 
-func apppend(a) : {
-    append([[], [[]], [[], 1, 2], "hello"]);
-    return []::i;
-}
-
-#main: f(a = 1, b = 2, c = 3);
+main: f(a = 1, b = 2, c = 3);
