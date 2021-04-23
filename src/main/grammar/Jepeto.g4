@@ -49,8 +49,8 @@ anonymousFunction
     ;
 
 body
-    : (if_ | statement)* returnStatement (if_ | statement | returnStatement)*
-    //: (if_ | statement)*
+    : (if_ | statement | returnStatement)* returnStatement (if_ | statement | returnStatement)*
+    | (if_ | statement | returnStatement)*
     ;
 
 funcDec
