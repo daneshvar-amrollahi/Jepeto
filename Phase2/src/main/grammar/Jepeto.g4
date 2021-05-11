@@ -41,7 +41,7 @@ functionDeclaration returns [FunctionDeclaration funcDecRet]
     :   { $funcDecRet = new FunctionDeclaration(); }
         FUNC id = identifier { $funcDecRet.setFunctionName($id.IdRet); }
         fad = functionArgumentsDeclaration { $funcDecRet.setArgs($fad.IdArrRet); }
-        COLON body
+        COLON b = body { $funcDecRet.setBody($b.bodyRet); }
     ;
 
 functionArgumentsDeclaration returns [ArrayList<Identifier> IdArrRet]
@@ -57,7 +57,10 @@ functionArgumentsDeclaration returns [ArrayList<Identifier> IdArrRet]
         RPAR
     ;
 
-body: singleStatement | block;
+body returns [Statement bodyRet]
+    :   ss = singleStatement { $bodyRet = $ss.singleStmtRet; }
+    |   b = block { $bodyRet = $b.blockRet; }
+    ;
 
 main returns [MainDeclaration mainRet]
     :   { $mainRet = new MainDeclaration(); }
@@ -78,19 +81,31 @@ splitedExpressionsWithCommaAndKey: (identifier ASSIGN expression (COMMA  identif
 
 functionCallStatement: functionCall SEMICOLLON;
 
-returnStatement: RETURN (expression | voidValue) SEMICOLLON;
+returnStatement returns [ReturnStmt returnRet]
+    :   { $returnRet = new ReturnStmt(); }
+        RETURN (expression | voidValue) SEMICOLLON
+    ;
 
 ifStatement: IF expression COLON conditionBody   (ELSE COLON conditionBody)?;
 
-ifStatementWithReturn: IF expression COLON body ELSE COLON body;
+ifStatementWithReturn returns [ConditionalStmt ifStmtWRetRet]
+    :   // { $ifStmtWRetRet = new ConditionalStmt(); }
+        IF expression COLON body ELSE COLON body
+    ;
 
 printStatement: PRINT LPAR expression RPAR SEMICOLLON;
 
 statement: ifStatement | printStatement | functionCallStatement | returnStatement;
 
-singleStatement : returnStatement | ifStatementWithReturn;
+singleStatement returns [Statement singleStmtRet]
+    :   rs = returnStatement { $singleStmtRet = $rs.returnRet; }
+    |   iswr = ifStatementWithReturn { $singleStmtRet = $iswr.ifStmtWRetRet; }
+    ;
 
-block: LBRACE (statement* (returnStatement | ifStatementWithReturn) statement*) RBRACE;
+block returns [BlockStmt blockRet]
+    :   { $blockRet = new BlockStmt(); }
+        LBRACE (statement* (returnStatement | ifStatementWithReturn) statement*) RBRACE
+    ;
 
 conditionBody: LBRACE (statement)* RBRACE | statement;
 
