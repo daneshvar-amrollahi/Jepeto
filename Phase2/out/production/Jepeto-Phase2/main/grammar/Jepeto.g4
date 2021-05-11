@@ -8,6 +8,7 @@ grammar Jepeto;
     import main.ast.nodes.expression.values.*;
     import main.ast.nodes.expression.values.primitive.*;
     import main.ast.nodes.statement.*;
+    import java.util.ArrayList;
 }
 
 jepeto returns [Program jepetoProgram]
@@ -19,17 +20,45 @@ program returns [Program programRet]
             $programRet = new Program();
             System.out.println("New Program");
         }
-        (functionDeclaration)*
-        m = main
-        {
+        (
+            fd = functionDeclaration {
+                $programRet.addFunction($fd.funcDecRet);
+            }
+        )*
+        m = main {
             $programRet.setMain($m.mainRet);
-            System.out.println("programRet.setMain() called like a champ");
+            System.out.println("programRet.setMain() called");
         }
-        (functionDeclaration)*;
+        (
+            fd2 = functionDeclaration {
+                $programRet.addFunction($fd2.funcDecRet);
+                System.out.println("programRet.addFunction() called");
+            }
+        )*
+    ;
 
-functionDeclaration: FUNC IDENTIFIER functionArgumentsDeclaration  COLON body;
+functionDeclaration returns [FunctionDeclaration funcDecRet]
+    :   { $funcDecRet = new FunctionDeclaration(); }
+        FUNC id = identifier { $funcDecRet.setFunctionName($id.IdRet); }
+        fad = functionArgumentsDeclaration {
+            $funcDecRet.setArgs($fad.IdArrRet);
+            System.out.println($fad.IdArrRet.toString());
+        }
+        COLON body
+    ;
 
-functionArgumentsDeclaration: LPAR (IDENTIFIER (COMMA IDENTIFIER)*)? RPAR ;
+functionArgumentsDeclaration returns [ArrayList<Identifier> IdArrRet]
+    :   { $IdArrRet = new ArrayList<Identifier>(); }
+        LPAR
+        (
+            id = identifier { $IdArrRet.add($id.IdRet); }
+            (
+                COMMA
+                id2 = identifier { $IdArrRet.add($id2.IdRet); }
+            )*
+        )?
+        RPAR
+    ;
 
 body: singleStatement | block;
 
@@ -100,7 +129,9 @@ boolValue : TRUE | FALSE ;
 
 voidValue : VOID;
 
-identifier: IDENTIFIER;
+identifier returns [Identifier IdRet]
+    :   IDENTIFIER { $IdRet = new Identifier($IDENTIFIER.getText()); }
+    ;
 
 
 FUNC: 'func';
