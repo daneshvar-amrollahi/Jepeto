@@ -8,7 +8,7 @@ grammar Jepeto;
     import main.ast.nodes.expression.values.*;
     import main.ast.nodes.expression.values.primitive.*;
     import main.ast.nodes.statement.*;
-    import java.util.ArrayList;
+    import java.util.*;
 }
 
 jepeto returns [Program jepetoProgram]
@@ -66,14 +66,36 @@ main returns [MainDeclaration mainRet]
     :   { $mainRet = new MainDeclaration(); }
         MAIN COLON
         (
-            fcs = functionCallStatement {  }
-            |   ps = printStatement {  }
+            fcs = functionCallStatement {
+                $mainRet.setBody($fcs.funcCallStmtRet);
+                System.out.println("MAIN: body set to " + $fcs.funcCallStmtRet.toString());
+            }
+            |   ps = printStatement {
+                    $mainRet.setBody($ps.prstmtRet);
+                    System.out.println("MAIN: body set to " + $ps.prstmtRet.toString());
+                }
         )
     ;
 
-functionCall: identifier (LPAR functionArguments RPAR)* (LPAR functionArguments RPAR);
+functionCall returns [FunctionCall funcCallRet] locals [Expression inst]
+    :
+        id = identifier {$inst = $id.IdRet;}
+        (LPAR fa = functionArguments RPAR {
+                $funcCallRet = new FunctionCall($inst, $fa.sewcRet, $fa.sewcakRet);
+                $inst = $funcCallRet;
+            }
+        )*
+        (LPAR fa2 = functionArguments RPAR {
+                $funcCallRet = new FunctionCall($inst, $fa2.sewcRet, $fa2.sewcakRet);
+            }
+        )
+    ;
 
-functionArguments: splitedExpressionsWithComma | splitedExpressionsWithCommaAndKey;
+functionArguments returns [ArrayList<Expression> sewcRet, Map<Identifier, Expression> sewcakRet]
+    :
+    sewc = splitedExpressionsWithComma {$sewcRet = $sewc.sewcRet;}
+    | sewcak = splitedExpressionsWithCommaAndKey {$sewcakRet = $sewcak.sewcakRet;}
+    ;
 
 splitedExpressionsWithComma returns [ArrayList<Expression> sewcRet]
     :   {$sewcRet = new ArrayList<Expression>();}
@@ -82,9 +104,17 @@ splitedExpressionsWithComma returns [ArrayList<Expression> sewcRet]
     )?
     ;
 
-splitedExpressionsWithCommaAndKey: (identifier ASSIGN expression (COMMA  identifier ASSIGN expression)*)?;
+splitedExpressionsWithCommaAndKey returns [Map<Identifier, Expression> sewcakRet]
+    :
+    {$sewcakRet = new HashMap<Identifier, Expression>();}
+    (id1 = identifier ASSIGN e1 = expression {$sewcakRet.put($id1.IdRet, $e1.expRet);}
+    (COMMA  id2 = identifier ASSIGN e2 = expression {$sewcakRet.put($id2.IdRet, $e2.expRet);})
+    *)?
+    ;
 
-functionCallStatement: functionCall SEMICOLLON;
+functionCallStatement returns [FunctionCallStmt funcCallStmtRet]
+    : fc = functionCall {$funcCallStmtRet = new FunctionCallStmt($fc.funcCallRet);} SEMICOLLON
+    ;
 
 returnStatement returns [ReturnStmt returnRet]
     :   { $returnRet = new ReturnStmt(); }
@@ -92,16 +122,28 @@ returnStatement returns [ReturnStmt returnRet]
         | vv = voidValue {$returnRet.setReturnedExpr($vv.voidRet);}) SEMICOLLON //Check voidValue later
     ;
 
-ifStatement: IF expression COLON conditionBody   (ELSE COLON conditionBody)?;
+ifStatement returns [ConditionalStmt ifStmtRet]
+    :   IF e = expression
+        COLON cb = conditionBody {$ifStmtRet = new ConditionalStmt($e.expRet, $cb.condBodyRet);}
+        (ELSE COLON ecb = conditionBody {$ifStmtRet.setElseBody($ecb.condBodyRet);})?;
 
 ifStatementWithReturn returns [ConditionalStmt ifStmtWRetRet]
-    :   // { $ifStmtWRetRet = new ConditionalStmt(); }
-        IF expression COLON body ELSE COLON body
+    :
+        IF e = expression
+        COLON thenb = body {$ifStmtWRetRet = new ConditionalStmt($e.expRet, $thenb.bodyRet);}
+        ELSE COLON elseb = body {$ifStmtWRetRet.setElseBody($elseb.bodyRet);}
     ;
 
-printStatement: PRINT LPAR expression RPAR SEMICOLLON;
+printStatement returns [PrintStmt prstmtRet]
+    : PRINT LPAR e = expression {$prstmtRet = new PrintStmt($e.expRet);} RPAR SEMICOLLON;
 
-statement: ifStatement | printStatement | functionCallStatement | returnStatement;
+statement returns [Statement stmtRet]
+    :
+        ifst = ifStatement {$stmtRet = $ifst.ifStmtRet;}
+    |   pst = printStatement {$stmtRet = $pst.prstmtRet;}
+    |   fcs = functionCallStatement {$stmtRet = $fcs.funcCallStmtRet;}
+    |   rs = returnStatement {$stmtRet = $rs.returnRet;}
+    ;
 
 singleStatement returns [Statement singleStmtRet]
     :   rs = returnStatement { $singleStmtRet = $rs.returnRet; }
@@ -110,10 +152,21 @@ singleStatement returns [Statement singleStmtRet]
 
 block returns [BlockStmt blockRet]
     :   { $blockRet = new BlockStmt(); }
-        LBRACE (statement* (returnStatement | ifStatementWithReturn) statement*) RBRACE
+        LBRACE (
+            (st = statement {$blockRet.addStatement($st.stmtRet);})*
+            ( rs = returnStatement {$blockRet.addStatement($rs.returnRet);}
+            | iswr = ifStatementWithReturn {$blockRet.addStatement($iswr.ifStmtWRetRet);}
+            )
+            (st2 = statement {$blockRet.addStatement($st2.stmtRet);})*
+        )
+        RBRACE
     ;
 
-conditionBody: LBRACE (statement)* RBRACE | statement;
+conditionBody returns [Statement condBodyRet] locals [BlockStmt tempBlock]
+    : LBRACE {$tempBlock = new BlockStmt();}
+    (st1 = statement {$tempBlock.addStatement($st1.stmtRet);})* RBRACE
+    {$condBodyRet = $tempBlock;}
+    | st2 = statement {$condBodyRet = $st2.stmtRet;};
 
 expression returns [Expression expRet]
     :   fo = andExpression {$expRet = $fo.andExpRet;}
@@ -192,7 +245,8 @@ otherExpression returns [Expression otherExpRet]
 
 anonymousFunction returns [AnonymousFunction anonRet]
     :
-        fa = functionArgumentsDeclaration {$anonRet = new AnonymousFunction($fa.IdArrRet);} ARROW block;
+        fa = functionArgumentsDeclaration {$anonRet = new AnonymousFunction($fa.IdArrRet);}
+        ARROW b = block {$anonRet.setBody($b.blockRet);};
 
 sizeExpression: DOT SIZE;
 
