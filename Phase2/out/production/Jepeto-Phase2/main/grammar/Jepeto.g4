@@ -75,7 +75,12 @@ functionCall: identifier (LPAR functionArguments RPAR)* (LPAR functionArguments 
 
 functionArguments: splitedExpressionsWithComma | splitedExpressionsWithCommaAndKey;
 
-splitedExpressionsWithComma: (expression (COMMA expression)*)?;
+splitedExpressionsWithComma returns [ArrayList<Expression> sewcRet]
+    :   {$sewcRet = new ArrayList<Expression>();}
+    (   exp1 = expression {$sewcRet.add($exp1.expRet);}
+        (COMMA exp2 = expression {$sewcRet.add($exp2.expRet);})*
+    )?
+    ;
 
 splitedExpressionsWithCommaAndKey: (identifier ASSIGN expression (COMMA  identifier ASSIGN expression)*)?;
 
@@ -83,7 +88,8 @@ functionCallStatement: functionCall SEMICOLLON;
 
 returnStatement returns [ReturnStmt returnRet]
     :   { $returnRet = new ReturnStmt(); }
-        RETURN (e = expression {$returnRet.setReturnedExpr($e.expRet);} | voidValue) SEMICOLLON //Check voidValue later
+        RETURN (e = expression {$returnRet.setReturnedExpr($e.expRet);}
+        | vv = voidValue {$returnRet.setReturnedExpr($vv.voidRet);}) SEMICOLLON //Check voidValue later
     ;
 
 ifStatement: IF expression COLON conditionBody   (ELSE COLON conditionBody)?;
@@ -112,47 +118,105 @@ conditionBody: LBRACE (statement)* RBRACE | statement;
 expression returns [Expression expRet]
     :   fo = andExpression {$expRet = $fo.andExpRet;}
         (OR so = andExpression
-            { $expRet = new BinaryExpression($fo.andExpRet, $so.andExpRet, BinaryOperator.or); }
+            { $expRet = new BinaryExpression($expRet, $so.andExpRet, BinaryOperator.or); }
         )*
-        {System.out.println("Found new Expression");}
+        //{System.out.println("Found new Expression");}
     ;
 
 andExpression returns [Expression andExpRet]
     :   fo = equalityExpression {$andExpRet = $fo.eqExpRet;}
         (AND so = equalityExpression
-            { $andExpRet = new BinaryExpression($fo.eqExpRet, $so.eqExpRet, BinaryOperator.and); }
+            { $andExpRet = new BinaryExpression($andExpRet, $so.eqExpRet, BinaryOperator.and); }
         )*
     ;
 
 equalityExpression returns [Expression eqExpRet]
-    : relationalExpression ((EQUAL | NOT_EQUAL) relationalExpression)*
+    : fo = relationalExpression {$eqExpRet = $fo.relExpRet; BinaryOperator eqop;}
+        (
+            (EQUAL {eqop = BinaryOperator.eq;} | NOT_EQUAL {eqop = BinaryOperator.neq;})
+                so = relationalExpression { $eqExpRet = new BinaryExpression($eqExpRet, $so.relExpRet, eqop); }
+        )*
     ;
 
-relationalExpression: additiveExpression ((GREATER_THAN | LESS_THAN) additiveExpression)*;
+relationalExpression returns [Expression relExpRet]
+    :   fo = additiveExpression {$relExpRet = $fo.addExpRet; BinaryOperator addop;}
+    (
+        (GREATER_THAN {addop = BinaryOperator.gt;} | LESS_THAN {addop = BinaryOperator.lt;})
+            so = additiveExpression { $relExpRet = new BinaryExpression($relExpRet, $so.addExpRet, addop); }
+    )*
+    ;
 
-additiveExpression: multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)*;
+additiveExpression returns [Expression addExpRet]
+    :   fo = multiplicativeExpression {$addExpRet = $fo.mulExpRet; BinaryOperator mulop;}
+    (
+            (PLUS {mulop = BinaryOperator.add;} | MINUS {mulop = BinaryOperator.sub;})
+                so = multiplicativeExpression {$addExpRet = new BinaryExpression($addExpRet, $so.mulExpRet, mulop);}
+    )*
+    ;
 
-multiplicativeExpression: preUnaryExpression ((MULT |  DIVIDE ) preUnaryExpression)*;
+multiplicativeExpression returns [Expression mulExpRet]
+    :   fo = preUnaryExpression {$mulExpRet = $fo.puExpRet; BinaryOperator puop;}
+    (
+            (MULT {puop = BinaryOperator.mult;} |  DIVIDE {puop = BinaryOperator.div;})
 
-preUnaryExpression: ((NOT | MINUS) preUnaryExpression) | appendExpression ;
+                so = preUnaryExpression {$mulExpRet = new BinaryExpression($mulExpRet, $so.puExpRet, puop);}
+    )*;
 
-appendExpression: accessExpression (APPEND accessExpression)*;
+preUnaryExpression returns [Expression puExpRet]
+    :   {UnaryOperator uop;}
+        (
+            (NOT {uop = UnaryOperator.not;} | MINUS {uop = UnaryOperator.minus;})
+                ue = preUnaryExpression {$puExpRet = new UnaryExpression($ue.puExpRet, uop);}
+        )
+        | ape = appendExpression {$puExpRet = $ape.apExpRet;} ;
 
-accessExpression: otherExpression  (LPAR functionArguments RPAR)*  (LBRACK expression RBRACK)* (sizeExpression)*;
+appendExpression returns [Expression apExpRet]
+    :   fo = accessExpression {$apExpRet = $fo.acsExpRet;}
+        (APPEND so = accessExpression
+            {$apExpRet = new BinaryExpression($apExpRet, $so.acsExpRet, BinaryOperator.append);}
+        )*;
 
-otherExpression:  values | identifier | anonymousFunction | LPAR (expression) RPAR ;
+accessExpression returns [Expression acsExpRet]
+    :
+        //{listAcsByIdx = new ListAccessByIndex();}
+        oe = otherExpression {$acsExpRet = $oe.otherExpRet;}
+        (LPAR functionArguments RPAR {$acsExpRet = new FunctionCall($oe.otherExpRet);})* //Come back later
+        (LBRACK idx = expression {$acsExpRet = new ListAccessByIndex($acsExpRet, $idx.expRet);} RBRACK)*
+        (se = sizeExpression {$acsExpRet = new ListSize($acsExpRet);})* ;
 
-anonymousFunction: functionArgumentsDeclaration ARROW block;
+otherExpression returns [Expression otherExpRet]
+    :   v = values {$otherExpRet = $v.valRet;}
+    |   id = identifier {$otherExpRet = $id.IdRet;}
+    |   anon = anonymousFunction {$otherExpRet = $anon.anonRet;}
+    |   LPAR (e = expression {$otherExpRet = $e.expRet;}) RPAR ;
+
+anonymousFunction returns [AnonymousFunction anonRet]
+    :
+        fa = functionArgumentsDeclaration {$anonRet = new AnonymousFunction($fa.IdArrRet);} ARROW block;
 
 sizeExpression: DOT SIZE;
 
-values: boolValue | STRING_VALUE | INT_VALUE | listValue;
+values returns [Value valRet]
+    : bv = boolValue {$valRet = $bv.bvRet;}
+    | STRING_VALUE {$valRet = new StringValue($STRING_VALUE.getText());}
+    | INT_VALUE {$valRet = new IntValue(Integer.parseInt($INT_VALUE.getText()));}
+    | lv = listValue {$valRet = $lv.lvRet;}
+    ;
 
-listValue: LBRACK splitedExpressionsWithComma RBRACK;
+listValue returns [ListValue lvRet]
+    : {$lvRet = new ListValue(); }
+    LBRACK se = splitedExpressionsWithComma {$lvRet.setElements($se.sewcRet);} RBRACK;
 
-boolValue : TRUE | FALSE ;
+boolValue returns [BoolValue bvRet]
+    :
+    TRUE {$bvRet = new BoolValue(true);}
+    | FALSE {$bvRet = new BoolValue(false);}
+    ;
 
-voidValue : VOID;
+voidValue returns [VoidValue voidRet]
+    :
+    VOID {$voidRet = new VoidValue();}
+    ;
 
 identifier returns [Identifier IdRet]
     :   IDENTIFIER { $IdRet = new Identifier($IDENTIFIER.getText()); }
