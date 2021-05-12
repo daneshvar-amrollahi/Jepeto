@@ -59,7 +59,7 @@ functionArgumentsDeclaration returns [ArrayList<Identifier> IdArrRet]
 
 body returns [Statement bodyRet]
     :   ss = singleStatement { $bodyRet = $ss.singleStmtRet; }
-    |   block
+    |   b = block { $bodyRet = $b.blockRet; }
     ;
 
 main returns [MainDeclaration mainRet]
@@ -83,7 +83,7 @@ functionCallStatement: functionCall SEMICOLLON;
 
 returnStatement returns [ReturnStmt returnRet]
     :   { $returnRet = new ReturnStmt(); }
-        RETURN (expression | voidValue) SEMICOLLON
+        RETURN (e = expression {$returnRet.setReturnedExpr($e.expRet);} | voidValue) SEMICOLLON //Check voidValue later
     ;
 
 ifStatement: IF expression COLON conditionBody   (ELSE COLON conditionBody)?;
@@ -109,11 +109,24 @@ block returns [BlockStmt blockRet]
 
 conditionBody: LBRACE (statement)* RBRACE | statement;
 
-expression: andExpression (OR andExpression)*;
+expression returns [Expression expRet]
+    :   fo = andExpression {$expRet = $fo.andExpRet;}
+        (OR so = andExpression
+            { $expRet = new BinaryExpression($fo.andExpRet, $so.andExpRet, BinaryOperator.or); }
+        )*
+        {System.out.println("Found new Expression");}
+    ;
 
-andExpression: equalityExpression (AND equalityExpression)*;
+andExpression returns [Expression andExpRet]
+    :   fo = equalityExpression {$andExpRet = $fo.eqExpRet;}
+        (AND so = equalityExpression
+            { $andExpRet = new BinaryExpression($fo.eqExpRet, $so.eqExpRet, BinaryOperator.and); }
+        )*
+    ;
 
-equalityExpression: relationalExpression ((EQUAL | NOT_EQUAL) relationalExpression)*;
+equalityExpression returns [Expression eqExpRet]
+    : relationalExpression ((EQUAL | NOT_EQUAL) relationalExpression)*
+    ;
 
 relationalExpression: additiveExpression ((GREATER_THAN | LESS_THAN) additiveExpression)*;
 
