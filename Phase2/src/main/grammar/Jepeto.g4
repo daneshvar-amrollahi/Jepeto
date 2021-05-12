@@ -12,12 +12,17 @@ grammar Jepeto;
 }
 
 jepeto returns [Program jepetoProgram]
-    :   p = program { $jepetoProgram = $p.programRet; }EOF
+    :   p = program {
+            $jepetoProgram = $p.programRet;
+            $jepetoProgram.setLine(1);
+        }
+        EOF
     ;
 
 program returns [Program programRet]
     :   {
             $programRet = new Program();
+            $programRet.setLine(1);
             System.out.println("New Program");
         }
         (
@@ -39,7 +44,8 @@ program returns [Program programRet]
 
 functionDeclaration returns [FunctionDeclaration funcDecRet]
     :   { $funcDecRet = new FunctionDeclaration(); }
-        FUNC id = identifier { $funcDecRet.setFunctionName($id.IdRet); }
+        FUNC {$funcDecRet.setLine($FUNC.getLine());}
+        id = identifier { $funcDecRet.setFunctionName($id.IdRet); }
         fad = functionArgumentsDeclaration { $funcDecRet.setArgs($fad.IdArrRet); }
         COLON b = body { $funcDecRet.setBody($b.bodyRet); }
     ;
@@ -64,7 +70,7 @@ body returns [Statement bodyRet]
 
 main returns [MainDeclaration mainRet]
     :   { $mainRet = new MainDeclaration(); }
-        MAIN COLON
+        MAIN COLON {$mainRet.setLine($MAIN.getLine());}
         (
             fcs = functionCallStatement {
                 $mainRet.setBody($fcs.funcCallStmtRet);
