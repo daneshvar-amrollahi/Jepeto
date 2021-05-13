@@ -23,7 +23,7 @@ program returns [Program programRet]
     :   {
             $programRet = new Program();
             $programRet.setLine(1);
-            System.out.println("New Program");
+            //System.out.println("New Program");
         }
         (
             fd = functionDeclaration {
@@ -32,12 +32,12 @@ program returns [Program programRet]
         )*
         m = main {
             $programRet.setMain($m.mainRet);
-            System.out.println("programRet.setMain() called");
+            //System.out.println("programRet.setMain() called");
         }
         (
             fd2 = functionDeclaration {
                 $programRet.addFunction($fd2.funcDecRet);
-                System.out.println("programRet.addFunction() called");
+                //System.out.println("programRet.addFunction() called");
             }
         )*
     ;
@@ -74,27 +74,27 @@ main returns [MainDeclaration mainRet]
         (
             fcs = functionCallStatement {
                 $mainRet.setBody($fcs.funcCallStmtRet);
-                System.out.println("MAIN: body set to " + $fcs.funcCallStmtRet.toString());
+                //System.out.println("MAIN: body set to " + $fcs.funcCallStmtRet.toString());
             }
             |   ps = printStatement {
                     $mainRet.setBody($ps.prstmtRet);
-                    System.out.println("MAIN: body set to " + $ps.prstmtRet.toString());
+                    //System.out.println("MAIN: body set to " + $ps.prstmtRet.toString());
                 }
         )
     ;
 
-functionCall returns [FunctionCall funcCallRet] locals [Expression inst]
+functionCall returns [FunctionCall funcCallRet, int line] locals [Expression inst]
     :
         id = identifier {$inst = $id.IdRet;}
-        (LPAR fa = functionArguments RPAR {
+        (LPAR {$line = $LPAR.getLine();} fa = functionArguments RPAR {
                 $funcCallRet = new FunctionCall($inst, $fa.sewcRet, $fa.sewcakRet);
-                $funcCallRet.setLine($LPAR.getLine());
+                $funcCallRet.setLine($line);
                 $inst = $funcCallRet;
             }
         )*
-        (LPAR fa2 = functionArguments RPAR {
+        (LPAR {$line = $LPAR.getLine(); } fa2 = functionArguments RPAR {
                 $funcCallRet = new FunctionCall($inst, $fa2.sewcRet, $fa2.sewcakRet);
-                $funcCallRet.setLine($LPAR.getLine());
+                $funcCallRet.setLine($line);
             }
         )
     ;
@@ -114,14 +114,14 @@ splitedExpressionsWithComma returns [ArrayList<Expression> sewcRet]
 
 splitedExpressionsWithCommaAndKey returns [Map<Identifier, Expression> sewcakRet]
     :
-    {$sewcakRet = new HashMap<Identifier, Expression>();}
+    {$sewcakRet = new LinkedHashMap<Identifier, Expression>();}
     (id1 = identifier ASSIGN e1 = expression {$sewcakRet.put($id1.IdRet, $e1.expRet);}
     (COMMA  id2 = identifier ASSIGN e2 = expression {$sewcakRet.put($id2.IdRet, $e2.expRet);})
     *)?
     ;
 
-functionCallStatement returns [FunctionCallStmt funcCallStmtRet] //LPAR before args? returned line from child?
-    : fc = functionCall {$funcCallStmtRet = new FunctionCallStmt($fc.funcCallRet);} SEMICOLLON
+functionCallStatement returns [FunctionCallStmt funcCallStmtRet]
+    : fc = functionCall {$funcCallStmtRet = new FunctionCallStmt($fc.funcCallRet); $funcCallStmtRet.setLine($fc.line); } SEMICOLLON
     ;
 
 returnStatement returns [ReturnStmt returnRet]
@@ -166,11 +166,13 @@ singleStatement returns [Statement singleStmtRet]
 block returns [BlockStmt blockRet]
     :   { $blockRet = new BlockStmt(); }
         LBRACE (
-            (st = statement {$blockRet.addStatement($st.stmtRet); $blockRet.setLine($LBRACE.getLine()); } )*
+            {$blockRet.setLine($LBRACE.getLine());}
+            (st = statement {$blockRet.addStatement($st.stmtRet); } )*
             ( rs = returnStatement {$blockRet.addStatement($rs.returnRet);}
             | iswr = ifStatementWithReturn {$blockRet.addStatement($iswr.ifStmtWRetRet);}
             )
             (st2 = statement {$blockRet.addStatement($st2.stmtRet); } )*
+
         )
         RBRACE
     ;
@@ -309,7 +311,7 @@ sizeExpression returns [int line]
 
 values returns [Value valRet]
     : bv = boolValue {$valRet = $bv.bvRet;}
-    | STRING_VALUE {$valRet = new StringValue($STRING_VALUE.getText()); $valRet.setLine($STRING_VALUE.getLine());}
+    | STRING_VALUE {$valRet = new StringValue($STRING_VALUE.getText()); $valRet.setLine($STRING_VALUE.getLine()); }
     | INT_VALUE {$valRet = new IntValue(Integer.parseInt($INT_VALUE.getText())); $valRet.setLine($INT_VALUE.getLine());}
     | lv = listValue {$valRet = $lv.lvRet;}
     ;

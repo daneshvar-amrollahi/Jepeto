@@ -115,9 +115,6 @@ public class ASTTreePrinter extends Visitor<Void> {
         if (binaryExpression.getBinaryOperator() != null)
             binaryExpression.getFirstOperand().accept(this);
 
-        if (binaryExpression.getFirstOperand() != null)
-            binaryExpression.getFirstOperand().accept(this);
-
         if (binaryExpression.getSecondOperand() != null)
             binaryExpression.getSecondOperand().accept(this);
         return null;
@@ -220,7 +217,7 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(StringValue stringValue) {
-        messagePrinter(stringValue.getLine(), toString());
+        messagePrinter(stringValue.getLine(), stringValue.toString());
 
         return null;
     }
