@@ -13,8 +13,10 @@ public class JepetoCompiler {
         JepetoParser jepetoParser = new JepetoParser(tokenStream);
         Program program = jepetoParser.jepeto().jepetoProgram;
 
-        ASTTreePrinter astTreePrinter = new ASTTreePrinter();
-        astTreePrinter.visit(program);
+        NameAnalyzer nameAnalyzer = new NameAnalyzer();
+        nameAnalyzer.visit(program);
+        // ASTTreePrinter astTreePrinter = new ASTTreePrinter();
+        // astTreePrinter.visit(program);
 
     }
 

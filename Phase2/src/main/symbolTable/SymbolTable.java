@@ -13,6 +13,8 @@ public class SymbolTable {
     public static SymbolTable root;
     private static Stack<SymbolTable> stack = new Stack<>();
 
+    private Map<String, SymbolTableItem> items;
+
     public static void push(SymbolTable symbolTable) {
         if (top != null)
             stack.push(top);
@@ -22,8 +24,6 @@ public class SymbolTable {
     public static void pop() {
         top = stack.pop();
     }
-
-    private Map<String, SymbolTableItem> items;
 
     public SymbolTable() {
         this.items = new HashMap<>();
