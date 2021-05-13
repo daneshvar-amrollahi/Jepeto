@@ -88,13 +88,13 @@ functionCall returns [FunctionCall funcCallRet] locals [Expression inst]
         id = identifier {$inst = $id.IdRet;}
         (LPAR fa = functionArguments RPAR {
                 $funcCallRet = new FunctionCall($inst, $fa.sewcRet, $fa.sewcakRet);
-                $funcCallRet.setLine($LPAR.getline());
+                $funcCallRet.setLine($LPAR.getLine());
                 $inst = $funcCallRet;
             }
         )*
         (LPAR fa2 = functionArguments RPAR {
                 $funcCallRet = new FunctionCall($inst, $fa2.sewcRet, $fa2.sewcakRet);
-                $funcCallRet.setLine($LPAR.getline());
+                $funcCallRet.setLine($LPAR.getLine());
             }
         )
     ;
@@ -120,30 +120,35 @@ splitedExpressionsWithCommaAndKey returns [Map<Identifier, Expression> sewcakRet
     *)?
     ;
 
-functionCallStatement returns [FunctionCallStmt funcCallStmtRet]
+functionCallStatement returns [FunctionCallStmt funcCallStmtRet] //LPAR before args? returned line from child?
     : fc = functionCall {$funcCallStmtRet = new FunctionCallStmt($fc.funcCallRet);} SEMICOLLON
     ;
 
 returnStatement returns [ReturnStmt returnRet]
     :   { $returnRet = new ReturnStmt(); }
         RETURN (e = expression {$returnRet.setReturnedExpr($e.expRet);}
-        | vv = voidValue {$returnRet.setReturnedExpr($vv.voidRet);}) SEMICOLLON //Check voidValue later
+        | vv = voidValue {$returnRet.setReturnedExpr($vv.voidRet);}) {$returnRet.setLine($RETURN.getLine());} SEMICOLLON //Check voidValue later
     ;
 
 ifStatement returns [ConditionalStmt ifStmtRet]
     :   IF e = expression
-        COLON cb = conditionBody {$ifStmtRet = new ConditionalStmt($e.expRet, $cb.condBodyRet);}
+        COLON cb = conditionBody {$ifStmtRet = new ConditionalStmt($e.expRet, $cb.condBodyRet); $ifStmtRet.setLine($IF.getLine());}
         (ELSE COLON ecb = conditionBody {$ifStmtRet.setElseBody($ecb.condBodyRet);})?;
 
 ifStatementWithReturn returns [ConditionalStmt ifStmtWRetRet]
     :
         IF e = expression
-        COLON thenb = body {$ifStmtWRetRet = new ConditionalStmt($e.expRet, $thenb.bodyRet);}
+        COLON thenb = body {$ifStmtWRetRet = new ConditionalStmt($e.expRet, $thenb.bodyRet); $ifStmtWRetRet.setLine($IF.getLine());}
         ELSE COLON elseb = body {$ifStmtWRetRet.setElseBody($elseb.bodyRet);}
     ;
 
 printStatement returns [PrintStmt prstmtRet]
-    : PRINT LPAR e = expression {$prstmtRet = new PrintStmt($e.expRet);} RPAR SEMICOLLON;
+    : PRINT LPAR e = expression
+        {
+            $prstmtRet = new PrintStmt($e.expRet);
+            $prstmtRet.setLine($PRINT.getLine());
+        }
+     RPAR SEMICOLLON;
 
 statement returns [Statement stmtRet]
     :
@@ -161,11 +166,11 @@ singleStatement returns [Statement singleStmtRet]
 block returns [BlockStmt blockRet]
     :   { $blockRet = new BlockStmt(); }
         LBRACE (
-            (st = statement {$blockRet.addStatement($st.stmtRet);})*
+            (st = statement {$blockRet.addStatement($st.stmtRet); $blockRet.setLine($LBRACE.getLine()); } )*
             ( rs = returnStatement {$blockRet.addStatement($rs.returnRet);}
             | iswr = ifStatementWithReturn {$blockRet.addStatement($iswr.ifStmtWRetRet);}
             )
-            (st2 = statement {$blockRet.addStatement($st2.stmtRet);})*
+            (st2 = statement {$blockRet.addStatement($st2.stmtRet); } )*
         )
         RBRACE
     ;
@@ -200,8 +205,15 @@ andExpression returns [Expression andExpRet]
 equalityExpression returns [Expression eqExpRet]
     : fo = relationalExpression {$eqExpRet = $fo.relExpRet; BinaryOperator eqop;}
         (
-            (EQUAL {eqop = BinaryOperator.eq;} | NOT_EQUAL {eqop = BinaryOperator.neq;})
-                so = relationalExpression { $eqExpRet = new BinaryExpression($eqExpRet, $so.relExpRet, eqop); }
+            (EQUAL {eqop = BinaryOperator.eq; } | NOT_EQUAL {eqop = BinaryOperator.neq; $eqExpRet.setLine($NOT_EQUAL.getLine());})
+                so = relationalExpression
+                {
+                    $eqExpRet = new BinaryExpression($eqExpRet, $so.relExpRet, eqop);
+                    if (eqop == BinaryOperator.eq)
+                        $eqExpRet.setLine($EQUAL.getLine());
+                    else
+                        $eqExpRet.setLine($NOT_EQUAL.getLine());
+                }
         )*
     ;
 
@@ -209,7 +221,14 @@ relationalExpression returns [Expression relExpRet]
     :   fo = additiveExpression {$relExpRet = $fo.addExpRet; BinaryOperator addop;}
     (
         (GREATER_THAN {addop = BinaryOperator.gt;} | LESS_THAN {addop = BinaryOperator.lt;})
-            so = additiveExpression { $relExpRet = new BinaryExpression($relExpRet, $so.addExpRet, addop); }
+            so = additiveExpression
+            {
+                $relExpRet = new BinaryExpression($relExpRet, $so.addExpRet, addop);
+                if (addop == BinaryOperator.gt)
+                    $relExpRet.setLine($GREATER_THAN.getLine());
+                else
+                    $relExpRet.setLine($LESS_THAN.getLine());
+            }
     )*
     ;
 
@@ -217,7 +236,14 @@ additiveExpression returns [Expression addExpRet]
     :   fo = multiplicativeExpression {$addExpRet = $fo.mulExpRet; BinaryOperator mulop;}
     (
             (PLUS {mulop = BinaryOperator.add;} | MINUS {mulop = BinaryOperator.sub;})
-                so = multiplicativeExpression {$addExpRet = new BinaryExpression($addExpRet, $so.mulExpRet, mulop);}
+                so = multiplicativeExpression
+                {
+                    $addExpRet = new BinaryExpression($addExpRet, $so.mulExpRet, mulop);
+                    if (mulop == BinaryOperator.add)
+                        $addExpRet.setLine($PLUS.getLine());
+                    else
+                        $addExpRet.setLine($MINUS.getLine());
+                 }
     )*
     ;
 
@@ -226,21 +252,38 @@ multiplicativeExpression returns [Expression mulExpRet]
     (
             (MULT {puop = BinaryOperator.mult;} |  DIVIDE {puop = BinaryOperator.div;})
 
-                so = preUnaryExpression {$mulExpRet = new BinaryExpression($mulExpRet, $so.puExpRet, puop);}
+                so = preUnaryExpression
+                {
+                    $mulExpRet = new BinaryExpression($mulExpRet, $so.puExpRet, puop);
+                    if (puop == BinaryOperator.mult)
+                        $mulExpRet.setLine($MULT.getLine());
+                     else
+                        $mulExpRet.setLine($DIVIDE.getLine());
+                }
     )*;
 
 preUnaryExpression returns [Expression puExpRet]
     :   {UnaryOperator uop;}
         (
             (NOT {uop = UnaryOperator.not;} | MINUS {uop = UnaryOperator.minus;})
-                ue = preUnaryExpression {$puExpRet = new UnaryExpression($ue.puExpRet, uop); }
+                ue = preUnaryExpression
+                {
+                    $puExpRet = new UnaryExpression($ue.puExpRet, uop);
+                    if (uop == UnaryOperator.not)
+                        $puExpRet.setLine($NOT.getLine());
+                    else
+                        $puExpRet.setLine($MINUS.getLine());
+                }
         )
         | ape = appendExpression {$puExpRet = $ape.apExpRet;} ;
 
 appendExpression returns [Expression apExpRet]
     :   fo = accessExpression {$apExpRet = $fo.acsExpRet;}
         (APPEND so = accessExpression
-            {$apExpRet = new BinaryExpression($apExpRet, $so.acsExpRet, BinaryOperator.append);}
+            {
+                $apExpRet = new BinaryExpression($apExpRet, $so.acsExpRet, BinaryOperator.append);
+                $apExpRet.setLine($APPEND.getLine());
+            }
         )*;
 
 accessExpression returns [Expression acsExpRet]
@@ -248,7 +291,7 @@ accessExpression returns [Expression acsExpRet]
         oe = otherExpression {$acsExpRet = $oe.otherExpRet;}
         (LPAR functionArguments RPAR {$acsExpRet = new FunctionCall($oe.otherExpRet); $acsExpRet.setLine($LPAR.getLine()); } )* //Come back later
         (LBRACK idx = expression {$acsExpRet = new ListAccessByIndex($acsExpRet, $idx.expRet); $acsExpRet.setLine($LBRACK.getLine());} RBRACK)*
-        (se = sizeExpression {$acsExpRet = new ListSize($acsExpRet); $acsExpRet.setLine($se.line)})* ;
+        (se = sizeExpression {$acsExpRet = new ListSize($acsExpRet); $acsExpRet.setLine($se.line);})* ;
 
 otherExpression returns [Expression otherExpRet]
     :   v = values {$otherExpRet = $v.valRet;}
