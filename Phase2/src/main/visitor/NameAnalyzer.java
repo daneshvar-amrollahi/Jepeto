@@ -17,6 +17,7 @@ import main.symbolTable.exceptions.ItemAlreadyExistsException;
 import main.symbolTable.items.FunctionSymbolTableItem;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -27,30 +28,31 @@ public class NameAnalyzer extends Visitor<Void> {
     public Void visit(Program program) {
         SymbolTable.root = new SymbolTable();
 
+        ArrayList<Boolean> addedToRoot = new ArrayList<Boolean>();
+        // first trying to add all possible functions to root
         for (FunctionDeclaration funcDec : program.getFunctions()) {
             FunctionSymbolTableItem functionSymbolTableItem = new FunctionSymbolTableItem(funcDec);
             try {
                 SymbolTable.root.put(functionSymbolTableItem);
-                continue;
+                addedToRoot.add(true);
             } catch (ItemAlreadyExistsException itemAlreadyExistsException) {
-                // DuplicateFunction duplicateFunction;
-                // duplicateFunction = new DuplicateFunction(funcDec.getLine(),
-                        // funcDec.getFunctionName().getName());
-
-                // System.out.println(duplicateFunction.getMessage());
-                // hasError = true;
+                addedToRoot.add(false);
+                String oldFunctionNameString = funcDec.getFunctionName().getName();
+                for (int i = 1; i < 1000; ++i) {
+                    String newFunctionNameString = oldFunctionNameString + "@" + String.valueOf(i);
+                    funcDec.setFunctionName(new Identifier(newFunctionNameString));
+                    FunctionSymbolTableItem changedFuncSymTabItem = new FunctionSymbolTableItem(funcDec);
+                    try {
+                        SymbolTable.root.put(changedFuncSymTabItem);
+                        break;
+                    } catch (ItemAlreadyExistsException ignored) {}
+                }
             }
+        }
 
-            String oldFunctionNameString = funcDec.getFunctionName().getName();
-            for (int i = 1; i < 1000; ++i) {
-                String newFunctionNameString = oldFunctionNameString + "@" + String.valueOf(i);
-                funcDec.setFunctionName(new Identifier(newFunctionNameString));
-                FunctionSymbolTableItem changedFuncSymTabItem = new FunctionSymbolTableItem(funcDec);
-                try {
-                    SymbolTable.root.put(changedFuncSymTabItem);
-                    break;
-                } catch (ItemAlreadyExistsException ignored) {}
-            }
+        for (FunctionDeclaration funcDec : program.getFunctions()) {
+            String funcNameString = funcDec.getFunctionName().getName();
+            if (funcNameString.indexOf('@') != -1) {}
         }
 
         return null;
