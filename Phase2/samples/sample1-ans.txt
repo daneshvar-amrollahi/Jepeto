@@ -6,7 +6,7 @@ Line 1: Identifier_f1
 Line 1: Identifier_a
 Line 1: IntValue_2
 Line 1: Identifier_b
-Line 1: IntValue_2
+Line 1: StringValue_string
 Line 4: FunctionDeclaration_f1
 Line 4: Identifier_f1
 Line 4: Identifier_b
@@ -37,7 +37,7 @@ Line 8: BinaryExpression_or
 Line 8: Identifier_c
 Line 8: UnaryExpression_not
 Line 8: Identifier_c
-Line 8: ListSize
+Line 8: listSize
 Line 8: Identifier_a
 Line 9: ReturnStmt
 Line 9: Identifier_a
