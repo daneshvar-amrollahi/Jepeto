@@ -50,9 +50,9 @@ functionDeclaration returns [FunctionDeclaration funcDecRet]
         COLON b = body { $funcDecRet.setBody($b.bodyRet); }
     ;
 
-functionArgumentsDeclaration returns [ArrayList<Identifier> IdArrRet]
+functionArgumentsDeclaration returns [ArrayList<Identifier> IdArrRet, int line]
     :   { $IdArrRet = new ArrayList<Identifier>(); }
-        LPAR
+        LPAR {$line = $LPAR.getLine();}
         (
             id = identifier { $IdArrRet.add($id.IdRet); }
             (
@@ -88,11 +88,13 @@ functionCall returns [FunctionCall funcCallRet] locals [Expression inst]
         id = identifier {$inst = $id.IdRet;}
         (LPAR fa = functionArguments RPAR {
                 $funcCallRet = new FunctionCall($inst, $fa.sewcRet, $fa.sewcakRet);
+                $funcCallRet.setLine($LPAR.getline());
                 $inst = $funcCallRet;
             }
         )*
         (LPAR fa2 = functionArguments RPAR {
                 $funcCallRet = new FunctionCall($inst, $fa2.sewcRet, $fa2.sewcakRet);
+                $funcCallRet.setLine($LPAR.getline());
             }
         )
     ;
@@ -175,17 +177,23 @@ conditionBody returns [Statement condBodyRet] locals [BlockStmt tempBlock]
     | st2 = statement {$condBodyRet = $st2.stmtRet;};
 
 expression returns [Expression expRet]
-    :   fo = andExpression {$expRet = $fo.andExpRet;}
+    :   fo = andExpression {$expRet = $fo.andExpRet; $expRet.setLine($fo.andExpRet.getLine());}
         (OR so = andExpression
-            { $expRet = new BinaryExpression($expRet, $so.andExpRet, BinaryOperator.or); }
+            {
+                $expRet = new BinaryExpression($expRet, $so.andExpRet, BinaryOperator.or);
+                $expRet.setLine($OR.getLine());
+            }
         )*
         //{System.out.println("Found new Expression");}
     ;
 
 andExpression returns [Expression andExpRet]
-    :   fo = equalityExpression {$andExpRet = $fo.eqExpRet;}
+    :   fo = equalityExpression {$andExpRet = $fo.eqExpRet; $andExpRet.setLine($fo.eqExpRet.getLine());}
         (AND so = equalityExpression
-            { $andExpRet = new BinaryExpression($andExpRet, $so.eqExpRet, BinaryOperator.and); }
+            {
+                $andExpRet = new BinaryExpression($andExpRet, $so.eqExpRet, BinaryOperator.and);
+                $andExpRet.setLine($AND.getLine());
+            }
         )*
     ;
 
@@ -225,7 +233,7 @@ preUnaryExpression returns [Expression puExpRet]
     :   {UnaryOperator uop;}
         (
             (NOT {uop = UnaryOperator.not;} | MINUS {uop = UnaryOperator.minus;})
-                ue = preUnaryExpression {$puExpRet = new UnaryExpression($ue.puExpRet, uop);}
+                ue = preUnaryExpression {$puExpRet = new UnaryExpression($ue.puExpRet, uop); }
         )
         | ape = appendExpression {$puExpRet = $ape.apExpRet;} ;
 
@@ -237,11 +245,10 @@ appendExpression returns [Expression apExpRet]
 
 accessExpression returns [Expression acsExpRet]
     :
-        //{listAcsByIdx = new ListAccessByIndex();}
         oe = otherExpression {$acsExpRet = $oe.otherExpRet;}
-        (LPAR functionArguments RPAR {$acsExpRet = new FunctionCall($oe.otherExpRet);})* //Come back later
-        (LBRACK idx = expression {$acsExpRet = new ListAccessByIndex($acsExpRet, $idx.expRet);} RBRACK)*
-        (se = sizeExpression {$acsExpRet = new ListSize($acsExpRet);})* ;
+        (LPAR functionArguments RPAR {$acsExpRet = new FunctionCall($oe.otherExpRet); $acsExpRet.setLine($LPAR.getLine()); } )* //Come back later
+        (LBRACK idx = expression {$acsExpRet = new ListAccessByIndex($acsExpRet, $idx.expRet); $acsExpRet.setLine($LBRACK.getLine());} RBRACK)*
+        (se = sizeExpression {$acsExpRet = new ListSize($acsExpRet); $acsExpRet.setLine($se.line)})* ;
 
 otherExpression returns [Expression otherExpRet]
     :   v = values {$otherExpRet = $v.valRet;}
@@ -251,35 +258,36 @@ otherExpression returns [Expression otherExpRet]
 
 anonymousFunction returns [AnonymousFunction anonRet]
     :
-        fa = functionArgumentsDeclaration {$anonRet = new AnonymousFunction($fa.IdArrRet);}
+        fa = functionArgumentsDeclaration {$anonRet = new AnonymousFunction($fa.IdArrRet); $anonRet.setLine($fa.line);}
         ARROW b = block {$anonRet.setBody($b.blockRet);};
 
-sizeExpression: DOT SIZE;
+sizeExpression returns [int line]
+    : DOT {$line = $DOT.getLine();} SIZE;
 
 values returns [Value valRet]
     : bv = boolValue {$valRet = $bv.bvRet;}
-    | STRING_VALUE {$valRet = new StringValue($STRING_VALUE.getText());}
-    | INT_VALUE {$valRet = new IntValue(Integer.parseInt($INT_VALUE.getText()));}
+    | STRING_VALUE {$valRet = new StringValue($STRING_VALUE.getText()); $valRet.setLine($STRING_VALUE.getLine());}
+    | INT_VALUE {$valRet = new IntValue(Integer.parseInt($INT_VALUE.getText())); $valRet.setLine($INT_VALUE.getLine());}
     | lv = listValue {$valRet = $lv.lvRet;}
     ;
 
 listValue returns [ListValue lvRet]
-    : {$lvRet = new ListValue(); }
+    : {$lvRet = new ListValue(); $lvRet.setLine($LBRACK.getLine());}
     LBRACK se = splitedExpressionsWithComma {$lvRet.setElements($se.sewcRet);} RBRACK;
 
 boolValue returns [BoolValue bvRet]
     :
-    TRUE {$bvRet = new BoolValue(true);}
-    | FALSE {$bvRet = new BoolValue(false);}
+    TRUE {$bvRet = new BoolValue(true); $bvRet.setLine($TRUE.getLine());}
+    | FALSE {$bvRet = new BoolValue(false); $bvRet.setLine($FALSE.getLine());}
     ;
 
 voidValue returns [VoidValue voidRet]
     :
-    VOID {$voidRet = new VoidValue();}
+    VOID {$voidRet = new VoidValue(); $voidRet.setLine($VOID.getLine());}
     ;
 
 identifier returns [Identifier IdRet]
-    :   IDENTIFIER { $IdRet = new Identifier($IDENTIFIER.getText()); }
+    :   IDENTIFIER { $IdRet = new Identifier($IDENTIFIER.getText()); $IdRet.setLine($IDENTIFIER.getLine());}
     ;
 
 
