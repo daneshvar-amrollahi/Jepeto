@@ -4,6 +4,7 @@ import main.ast.nodes.Program;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import parsers.*;
+import main.visitor.*;
 
 public class JepetoCompiler {
     public void compile(CharStream textStream) {
@@ -12,7 +13,8 @@ public class JepetoCompiler {
         JepetoParser jepetoParser = new JepetoParser(tokenStream);
         Program program = jepetoParser.jepeto().jepetoProgram;
 
-        //ToDo
+        ASTTreePrinter astTreePrinter = new ASTTreePrinter();
+        astTreePrinter.visit(program);
 
     }
 

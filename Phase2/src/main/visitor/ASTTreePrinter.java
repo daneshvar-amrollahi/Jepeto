@@ -49,6 +49,7 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(MainDeclaration mainDeclaration) {
+        messagePrinter(mainDeclaration.getLine(), mainDeclaration.toString());
         if (mainDeclaration.getBody() != null)
             mainDeclaration.getBody().accept(this); //not sure
         return null;
@@ -57,6 +58,8 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(BlockStmt blockStmt) {
+        messagePrinter(blockStmt.getLine(), blockStmt.toString());
+
         for (Statement stmt : blockStmt.getStatements())
             stmt.accept(this);
         return null;
@@ -64,6 +67,8 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(ConditionalStmt conditionalStmt) {
+        messagePrinter(conditionalStmt.getLine(), conditionalStmt.toString());
+
         if (conditionalStmt.getCondition() != null)
             conditionalStmt.getCondition().accept(this);
 
@@ -78,6 +83,8 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionCallStmt funcCallStmt) {
+        messagePrinter(funcCallStmt.getLine(), funcCallStmt.toString());
+
         if (funcCallStmt.getFunctionCall() != null)
             funcCallStmt.getFunctionCall().accept(this);
         return null;
@@ -85,6 +92,8 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(PrintStmt print) {
+        messagePrinter(print.getLine(), print.toString());
+
         if (print.getArg() != null)
             print.getArg().accept(this);
         return null;
@@ -92,6 +101,8 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(ReturnStmt returnStmt) {
+        messagePrinter(returnStmt.getLine(), returnStmt.toString());
+
         if (returnStmt.getReturnedExpr() != null)
             returnStmt.getReturnedExpr().accept(this);
         return null;
@@ -99,6 +110,8 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(BinaryExpression binaryExpression) {
+        messagePrinter(binaryExpression.getLine(), binaryExpression.toString());
+
         if (binaryExpression.getBinaryOperator() != null)
             binaryExpression.getFirstOperand().accept(this);
 
@@ -112,6 +125,7 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(UnaryExpression unaryExpression) {
+        messagePrinter(unaryExpression.getLine(), unaryExpression.toString());
         /*if (unaryExpression.getOperator() != null)
             unaryExpression.getOperator().accept(this); //problem here?
         */
@@ -124,6 +138,8 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(AnonymousFunction anonymousFunction) {
+        messagePrinter(anonymousFunction.getLine(), anonymousFunction.toString());
+
         for (Identifier arg : anonymousFunction.getArgs())
             arg.accept(this);
 
@@ -135,12 +151,14 @@ public class ASTTreePrinter extends Visitor<Void> {
     @Override
     public Void visit(Identifier identifier) {
         messagePrinter(identifier.getLine(), identifier.toString());
+
         return null;
     }
 
     @Override
     public Void visit(ListAccessByIndex listAccessByIndex) {
         messagePrinter(listAccessByIndex.getLine(), listAccessByIndex.toString());
+
         if (listAccessByIndex.getInstance() != null)
             listAccessByIndex.getInstance().accept(this);
 
@@ -152,6 +170,7 @@ public class ASTTreePrinter extends Visitor<Void> {
     @Override
     public Void visit(ListSize listSize) {
         messagePrinter(listSize.getLine(), listSize.toString());
+
         if (listSize.getInstance() != null)
             listSize.getInstance().accept(this);
         return null;
@@ -188,24 +207,28 @@ public class ASTTreePrinter extends Visitor<Void> {
     @Override
     public Void visit(IntValue intValue) {
         messagePrinter(intValue.getLine(), intValue.toString());
+
         return null;
     }
 
     @Override
     public Void visit(BoolValue boolValue) {
         messagePrinter(boolValue.getLine(), boolValue.toString());
+
         return null;
     }
 
     @Override
     public Void visit(StringValue stringValue) {
         messagePrinter(stringValue.getLine(), toString());
+
         return null;
     }
 
     @Override
     public Void visit(VoidValue voidValue) {
         messagePrinter(voidValue.getLine(), voidValue.toString());
+
         return null;
     }
 
