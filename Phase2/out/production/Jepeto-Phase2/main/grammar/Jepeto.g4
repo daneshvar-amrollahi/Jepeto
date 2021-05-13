@@ -311,7 +311,7 @@ sizeExpression returns [int line]
 
 values returns [Value valRet]
     : bv = boolValue {$valRet = $bv.bvRet;}
-    | STRING_VALUE {$valRet = new StringValue($STRING_VALUE.getText()); $valRet.setLine($STRING_VALUE.getLine()); }
+    | STRING_VALUE { String str = $STRING_VALUE.getText(); $valRet = new StringValue(str.substring(1, str.length() - 1)); $valRet.setLine($STRING_VALUE.getLine()); }
     | INT_VALUE {$valRet = new IntValue(Integer.parseInt($INT_VALUE.getText())); $valRet.setLine($INT_VALUE.getLine());}
     | lv = listValue {$valRet = $lv.lvRet;}
     ;

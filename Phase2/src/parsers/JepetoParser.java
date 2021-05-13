@@ -2822,7 +2822,7 @@ public class JepetoParser extends Parser {
 				{
 				setState(489);
 				((ValuesContext)_localctx).STRING_VALUE = match(STRING_VALUE);
-				((ValuesContext)_localctx).valRet =  new StringValue(((ValuesContext)_localctx).STRING_VALUE.getText()); _localctx.valRet.setLine(((ValuesContext)_localctx).STRING_VALUE.getLine()); 
+				 String str = ((ValuesContext)_localctx).STRING_VALUE.getText(); ((ValuesContext)_localctx).valRet =  new StringValue(str.substring(1, str.length() - 1)); _localctx.valRet.setLine(((ValuesContext)_localctx).STRING_VALUE.getLine()); 
 				}
 				break;
 			case INT_VALUE:
