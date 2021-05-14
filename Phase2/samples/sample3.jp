@@ -1,0 +1,20 @@
+main: f(a = 1, c = 2);
+
+func f(a, b):{
+    return 1;
+}
+
+func g(a, c):
+{
+    return a;
+    print(h(a = 1, b =  2));
+}
+
+func h(x, y):
+    return x;
+
+func f(a, b, c, a, b, b):{
+    return a;
+    return f(x = 1, y = 2);
+}
+
