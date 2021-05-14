@@ -1,0 +1,6 @@
+main: print(3);
+
+func f(a, b): {
+    return (c) -> { return a+b+c; };
+    return c;
+}
