@@ -26,7 +26,9 @@ public class NameAnalyzer extends Visitor<Void> {
     public static  Stack<SymbolTable> naStack = new Stack<>();
     @Override
     public Void visit(Program program) {
+
         SymbolTable.root = new SymbolTable();
+        program.getMain().accept(this);
         // first trying to add all possible functions to root
         for (FunctionDeclaration funcDec : program.getFunctions()) {
             FunctionSymbolTableItem fsti = new FunctionSymbolTableItem(funcDec);
@@ -118,7 +120,8 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(MainDeclaration mainDeclaration) {
-        //ToDo
+        if (mainDeclaration.getBody() != null)
+            mainDeclaration.getBody().accept(this); //not sure
         return null;
     }
 
@@ -146,13 +149,15 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionCallStmt funcCallStmt) {
-        //ToDo
+        if (funcCallStmt.getFunctionCall() != null)
+            funcCallStmt.getFunctionCall().accept(this);
         return null;
     }
 
     @Override
     public Void visit(PrintStmt print) {
-        //ToDo
+        if (print.getArg() != null)
+            print.getArg().accept(this);
         return null;
     }
 
@@ -165,19 +170,28 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(BinaryExpression binaryExpression) {
-        //ToDo
+        if (binaryExpression.getBinaryOperator() != null)
+            binaryExpression.getFirstOperand().accept(this);
+
+        if (binaryExpression.getSecondOperand() != null)
+            binaryExpression.getSecondOperand().accept(this);
         return null;
     }
 
     @Override
     public Void visit(UnaryExpression unaryExpression) {
-        //ToDo
+        if (unaryExpression.getOperand() != null)
+            unaryExpression.getOperand().accept(this);
         return null;
     }
 
     @Override
     public Void visit(AnonymousFunction anonymousFunction) {
-        //ToDo
+        for (Identifier arg : anonymousFunction.getArgs())
+            arg.accept(this);
+
+        if (anonymousFunction.getBody() != null)
+            anonymousFunction.getBody().accept(this);
         return null;
     }
 
@@ -210,13 +224,19 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(ListAccessByIndex listAccessByIndex) {
-        //ToDo
+        if (listAccessByIndex.getInstance() != null)
+            listAccessByIndex.getInstance().accept(this);
+
+        if (listAccessByIndex.getIndex() != null)
+            listAccessByIndex.getIndex().accept(this);
         return null;
     }
 
     @Override
     public Void visit(ListSize listSize) {
-        //ToDo
+
+        if (listSize.getInstance() != null)
+            listSize.getInstance().accept(this);
         return null;
     }
 
@@ -276,7 +296,8 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(ListValue listValue) {
-        //ToDo
+        for (Expression exp : listValue.getElements())
+            exp.accept(this);
         return null;
     }
 
