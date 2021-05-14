@@ -1,4 +1,4 @@
-// Generated from /home/daneshvar/Desktop/PLC/Project/Jepeto/Phase2/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
+// Generated from /home/mahyar/CAs/Jepeto/Phase2/src/main/grammar/Jepeto.g4 by ANTLR 4.9.1
 package parsers;
 
     import main.ast.nodes.*;
@@ -2431,6 +2431,7 @@ public class JepetoParser extends Parser {
 		public Expression acsExpRet;
 		public OtherExpressionContext oe;
 		public Token LPAR;
+		public FunctionArgumentsContext fa;
 		public Token LBRACK;
 		public ExpressionContext idx;
 		public SizeExpressionContext se;
@@ -2440,12 +2441,6 @@ public class JepetoParser extends Parser {
 		public List<TerminalNode> LPAR() { return getTokens(JepetoParser.LPAR); }
 		public TerminalNode LPAR(int i) {
 			return getToken(JepetoParser.LPAR, i);
-		}
-		public List<FunctionArgumentsContext> functionArguments() {
-			return getRuleContexts(FunctionArgumentsContext.class);
-		}
-		public FunctionArgumentsContext functionArguments(int i) {
-			return getRuleContext(FunctionArgumentsContext.class,i);
 		}
 		public List<TerminalNode> RPAR() { return getTokens(JepetoParser.RPAR); }
 		public TerminalNode RPAR(int i) {
@@ -2458,6 +2453,12 @@ public class JepetoParser extends Parser {
 		public List<TerminalNode> RBRACK() { return getTokens(JepetoParser.RBRACK); }
 		public TerminalNode RBRACK(int i) {
 			return getToken(JepetoParser.RBRACK, i);
+		}
+		public List<FunctionArgumentsContext> functionArguments() {
+			return getRuleContexts(FunctionArgumentsContext.class);
+		}
+		public FunctionArgumentsContext functionArguments(int i) {
+			return getRuleContext(FunctionArgumentsContext.class,i);
 		}
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
@@ -2509,10 +2510,13 @@ public class JepetoParser extends Parser {
 				setState(431);
 				((AccessExpressionContext)_localctx).LPAR = match(LPAR);
 				setState(432);
-				functionArguments();
+				((AccessExpressionContext)_localctx).fa = functionArguments();
 				setState(433);
 				match(RPAR);
-				((AccessExpressionContext)_localctx).acsExpRet =  new FunctionCall(((AccessExpressionContext)_localctx).oe.otherExpRet); _localctx.acsExpRet.setLine(((AccessExpressionContext)_localctx).LPAR.getLine()); 
+
+				            ((AccessExpressionContext)_localctx).acsExpRet =  new FunctionCall(((AccessExpressionContext)_localctx).oe.otherExpRet, ((AccessExpressionContext)_localctx).fa.sewcRet, ((AccessExpressionContext)_localctx).fa.sewcakRet);
+				            _localctx.acsExpRet.setLine(((AccessExpressionContext)_localctx).LPAR.getLine());
+				        
 				}
 				}
 				setState(440);

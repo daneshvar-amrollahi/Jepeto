@@ -13,7 +13,7 @@ public class SymbolTable {
     public static SymbolTable root;
     private static Stack<SymbolTable> stack = new Stack<>();
 
-    private Map<String, SymbolTableItem> items;
+    public Map<String, SymbolTableItem> items;
 
     public static void push(SymbolTable symbolTable) {
         if (top != null)

@@ -15,8 +15,8 @@ public class JepetoCompiler {
 
         NameAnalyzer nameAnalyzer = new NameAnalyzer();
         nameAnalyzer.visit(program);
-        // ASTTreePrinter astTreePrinter = new ASTTreePrinter();
-        // astTreePrinter.visit(program);
+        //ASTTreePrinter astTreePrinter = new ASTTreePrinter();
+        //astTreePrinter.visit(program);
 
     }
 

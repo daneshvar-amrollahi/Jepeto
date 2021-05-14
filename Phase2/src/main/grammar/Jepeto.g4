@@ -291,7 +291,10 @@ appendExpression returns [Expression apExpRet]
 accessExpression returns [Expression acsExpRet]
     :
         oe = otherExpression {$acsExpRet = $oe.otherExpRet;}
-        (LPAR functionArguments RPAR {$acsExpRet = new FunctionCall($oe.otherExpRet); $acsExpRet.setLine($LPAR.getLine()); } )* //Come back later
+        (LPAR fa = functionArguments RPAR {
+            $acsExpRet = new FunctionCall($oe.otherExpRet, $fa.sewcRet, $fa.sewcakRet);
+            $acsExpRet.setLine($LPAR.getLine());
+        } )* //Come back later
         (LBRACK idx = expression {$acsExpRet = new ListAccessByIndex($acsExpRet, $idx.expRet); $acsExpRet.setLine($LBRACK.getLine());} RBRACK)*
         (se = sizeExpression {$acsExpRet = new ListSize($acsExpRet); $acsExpRet.setLine($se.line);})* ;
 

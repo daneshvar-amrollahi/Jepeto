@@ -224,7 +224,7 @@ public class NameAnalyzer extends Visitor<Void> {
     public Void visit(FunctionCall funcCall) {
         Expression funcInst = funcCall.getInstance();
         boolean flag = false;
-        System.out.println("func inst is: " + funcInst.toString());
+        // System.out.println("func inst is: " + funcInst.toString());
         if (funcInst.toString().contains("Identifier_")) {
             String funcName = ((Identifier) funcInst).getName();
             try {
@@ -247,11 +247,11 @@ public class NameAnalyzer extends Visitor<Void> {
                 System.exit(2);
             }
 
-            System.out.println("argsMap size is: " + funcCall.getArgsWithKey().size());
+            // System.out.println("argsMap size is: " + funcCall.getArgsWithKey().size());
             for (Map.Entry<Identifier, Expression> pair : funcCall.getArgsWithKey().entrySet()) {
-                System.out.println("inside for");
+                // System.out.println("inside for");
                 Identifier id = pair.getKey();
-                System.out.println("id.getName() = " + id.getName());
+                // System.out.println("id.getName() = " + id.getName());
                 try {
                     SymbolTableItem sti = fsti.getFunctionSymbolTable().getItem("Var" + id.getName());
                     System.out.println("After getItem: " + sti.toString());
@@ -265,10 +265,12 @@ public class NameAnalyzer extends Visitor<Void> {
             }
         }
 
-        if (funcCall.getArgs() != null) {
+        if (!funcCall.getInstance().toString().contains("Identifier_"))
+            funcCall.getInstance().accept(this);
+
+        if (funcCall.getArgs() != null)
             for (Expression e : funcCall.getArgs())
                 e.accept(this);
-        }
         return null;
     }
 
