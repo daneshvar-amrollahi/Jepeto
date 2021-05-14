@@ -20,51 +20,42 @@ import main.symbolTable.items.FunctionSymbolTableItem;
 import java.util.ArrayList;
 import main.symbolTable.items.*;
 import main.symbolTable.SymbolTable.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 public class NameAnalyzer extends Visitor<Void> {
-    boolean hasError = false;
-
+    public boolean hasError = false;
+    public static  Stack<SymbolTable> naStack = new Stack<>();
     @Override
     public Void visit(Program program) {
         SymbolTable.root = new SymbolTable();
-
-        ArrayList<Boolean> addedToRoot = new ArrayList<Boolean>();
         // first trying to add all possible functions to root
         for (FunctionDeclaration funcDec : program.getFunctions()) {
-            FunctionSymbolTableItem functionSymbolTableItem = new FunctionSymbolTableItem(funcDec);
+            FunctionSymbolTableItem fsti = new FunctionSymbolTableItem(funcDec);
 
-            SymbolTable symbolTable = new SymbolTable();
+            SymbolTable funcSymTab = new SymbolTable();
             ArrayList<Identifier> args = funcDec.getArgs();
-            for (int i = 0 ; i < args.size() ; i++)
-            {
+            for (int i = 0 ; i < args.size() ; i++) {
                 Identifier curId = args.get(i);
-                VariableSymbolTableItem variableSymbolTableItem = new VariableSymbolTableItem(curId);
+                VariableSymbolTableItem vsti = new VariableSymbolTableItem(curId);
                 try {
-                    symbolTable.put(variableSymbolTableItem);
-                } catch (ItemAlreadyExistsException ignore)
-                {
-
-                }
-
+                    funcSymTab.put(vsti);
+                } catch (ItemAlreadyExistsException ignore) {}
             }
 
-            functionSymbolTableItem.setFunctionSymbolTable(symbolTable);
+            fsti.setFunctionSymbolTable(funcSymTab);
 
             try {
-                SymbolTable.root.put(functionSymbolTableItem);
-                addedToRoot.add(true);
+                SymbolTable.root.put(fsti);
             } catch (ItemAlreadyExistsException itemAlreadyExistsException) {
-                addedToRoot.add(false);
-                String oldFunctionNameString = funcDec.getFunctionName().getName();
-                for (int i = 1; i < 1000; ++i) {
-                    String newFunctionNameString = oldFunctionNameString + "@" + String.valueOf(i);
-                    funcDec.setFunctionName(new Identifier(newFunctionNameString));
-                    FunctionSymbolTableItem changedFuncSymTabItem = new FunctionSymbolTableItem(funcDec);
+                String oldFuncName = funcDec.getFunctionName().getName();
+                for (int i = 1; i < 1000; i++) {
+                    String newFuncName = oldFuncName + "@" + String.valueOf(i);
                     try {
-                        SymbolTable.root.put(changedFuncSymTabItem);
+                        funcDec.setFunctionName(new Identifier(newFuncName));
+                        FunctionSymbolTableItem newFsti = new FunctionSymbolTableItem(funcDec);
+                        newFsti.setFunctionSymbolTable(funcSymTab);
+                        SymbolTable.root.put(newFsti);
                         break;
                     } catch (ItemAlreadyExistsException ignored) {}
                 }
@@ -72,58 +63,43 @@ public class NameAnalyzer extends Visitor<Void> {
         }
         //f,g,h,f --> f,g,h,f@1 (included in SymbolTable.root)
 
-
-        for (FunctionDeclaration funcDec : program.getFunctions()) //f,g,h,f@1
-        {
-            //FunctionSymbolTableItem functionSymbolTableItem = new FunctionSymbolTableItem(funcDec);
-            //functionSymbolTableItem.setFunctionSymbolTable(SymbolTable.root);
-            //stack.push(SymbolTable.root);
-
-            String funcNameString = funcDec.getFunctionName().getName();
-            if (funcNameString.indexOf('@') == -1) { //wasn't duplicate
-                funcDec.accept(this);
-            }
-            else{ //duplicate
+        for (FunctionDeclaration funcDec : program.getFunctions()) { //f,g,h,f@1
+            String funcName = funcDec.getFunctionName().getName();
+            if (funcName.indexOf('@') != -1) { // duplicate
                 String newName = funcDec.getFunctionName().getName();
                 newName = newName.substring(0, newName.indexOf('@'));
                 DuplicateFunction ex;
                 ex = new DuplicateFunction(funcDec.getLine(), newName);
                 System.out.println(ex.getMessage());
-                funcDec.accept(this);
             }
-
+            funcDec.accept(this);
         }
-
         return null;
     }
 
-
-
     @Override
     public Void visit(FunctionDeclaration funcDeclaration) {
-
-        SymbolTableItem functionSymbolTableItem = new FunctionSymbolTableItem(funcDeclaration);
-
+        // System.out.println("Arrived at function " + funcDeclaration.getFunctionName().getName());
+        SymbolTableItem fsti = new FunctionSymbolTableItem(funcDeclaration);
         try {
-            functionSymbolTableItem = SymbolTable.root.getItem("Function_" + funcDeclaration.getFunctionName().getName());
+            fsti = SymbolTable.root.getItem("Function_" + funcDeclaration.getFunctionName().getName());
         }
-        catch (ItemNotFoundException ignore) {} //we know it won't happen
+        catch (ItemNotFoundException ex) {
+            // System.out.println("Which function? you joking? " + funcDeclaration.getFunctionName().getName());
+            System.exit(1);
+        } // we know it won't happen
 
-        FunctionDeclaration funcDec = ((FunctionSymbolTableItem)(functionSymbolTableItem)).getFuncDeclaration();
-
-        SymbolTable.push( ((FunctionSymbolTableItem)(functionSymbolTableItem)).getFunctionSymbolTable() );
+        FunctionDeclaration funcDec = funcDeclaration;
+        naStack.push( ((FunctionSymbolTableItem)(fsti)).getFunctionSymbolTable() );
 
         ArrayList<Identifier> args = funcDec.getArgs();
-
         SymbolTable symbolTable = new SymbolTable();
-        for (int i = 0 ; i < args.size() ; i++)
-        {
+        for (int i = 0 ; i < args.size() ; i++) {
             Identifier curId = args.get(i);
-            VariableSymbolTableItem variableSymbolTableItem = new VariableSymbolTableItem(curId);
+            VariableSymbolTableItem vsti = new VariableSymbolTableItem(curId);
             try {
-                symbolTable.put(variableSymbolTableItem);
-            } catch (ItemAlreadyExistsException ex)
-            {
+                symbolTable.put(vsti);
+            } catch (ItemAlreadyExistsException ex) {
                 DuplicateArgument duplicateArgument;
                 duplicateArgument = new DuplicateArgument(curId.getLine(), curId.getName());
                 System.out.println(duplicateArgument.getMessage());
@@ -134,77 +110,11 @@ public class NameAnalyzer extends Visitor<Void> {
                 NameConflict nameConflict;
                 nameConflict = new NameConflict(curId.getLine(), curId.getName());
                 System.out.println(nameConflict.getMessage());
-            } catch(ItemNotFoundException ignore) { }
-
+            } catch (ItemNotFoundException ignore) {}
         }
 
         funcDec.getBody().accept(this);
-
-        /*(FunctionSymbolTableItem functionSymbolTableItem = new FunctionSymbolTableItem(funcDeclaration); This part worked
-        SymbolTable symbolTable = new SymbolTable();
-        ArrayList<Identifier> args = funcDeclaration.getArgs();
-        for (int i = 0 ;i < args.size() ; i++)
-        {
-            Identifier curId = args.get(i);
-            VariableSymbolTableItem variableSymbolTableItem = new VariableSymbolTableItem(curId);
-            try {
-                symbolTable.put(variableSymbolTableItem);
-            } catch (ItemAlreadyExistsException ex)
-            {
-                DuplicateArgument duplicateArgument;
-                duplicateArgument = new DuplicateArgument(curId.getLine(), curId.getName());
-                System.out.println(duplicateArgument.getMessage());
-            }
-
-            try {
-                SymbolTable.root.getItem("Function_" + curId.getName());
-                NameConflict nameConflict;
-                nameConflict = new NameConflict(curId.getLine(), curId.getName());
-                System.out.println(nameConflict.getMessage());
-            } catch(ItemNotFoundException ignore)
-            {
-
-            }
-
-        }
-
-        //functionSymbolTableItem.setFunctionSymbolTable(symbolTable);
-
-        funcDeclaration.getBody().accept(this);
-        */
-
-        //System.out.println("NameAnalyzer: Arrived at function " + funcDeclaration.getFunctionName().getName());
-        //ArrayList<Identifier> args = funcDeclaration.getArgs();
-        //a,b,b,a,c,a,d
-        /*
-        for (int i = 0 ; i < args.size() ; i++)
-        {
-            Identifier id1 = args.get(i);
-            //System.out.println(id1.getName());
-            boolean found = false;
-            for (int j = i + 1 ; j < args.size() ; j++)
-            {
-                Identifier id2 = args.get(j);
-                //System.out.println(id2.getName());
-                if (id1.getName().equals(id2.getName())) {
-                    //System.out.println("WTF?");
-                    found = true;
-                    break;
-                }
-            }
-            //System.out.println();
-            if (found)
-            {
-                DuplicateArgument ex;
-                ex = new DuplicateArgument(id1.getLine(), id1.getName());
-                System.out.println(ex.getMessage());
-            }
-        }
-
-        //Name of arg conflicts with function
-
-        //visit body
-        */
+        naStack.pop();
         return null;
     }
 
@@ -275,7 +185,28 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(Identifier identifier) {
-        //ToDo
+//        System.out.println("Arrived at Identifier " + identifier.getName());
+        boolean flag1 = false, flag2 = false;
+        if (naStack.peek() == null)
+            System.exit(1);
+        try {
+            naStack.peek().getItem("Var_" + identifier.getName());
+        } catch (ItemNotFoundException ex) {
+            flag1 = true;
+        }
+
+        try {
+            SymbolTable.root.getItem("Function_" + identifier.getName());
+        } catch (ItemNotFoundException ex) {
+            flag2 = true;
+        }
+
+        if (flag1 && flag2) {
+            VariableNotDeclared vnd;
+            vnd = new VariableNotDeclared(identifier.getLine(), identifier.getName());
+            System.out.println(vnd.getMessage());
+        }
+
         return null;
     }
 
@@ -293,7 +224,18 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionCall funcCall) {
-        //ToDo
+        Expression funcInst = funcCall.getInstance();
+        // System.out.println("func inst is: " + funcInst.toString());
+        if (funcInst.toString().contains("Identifier_")) {
+            String funcName = ((Identifier) funcInst).getName();
+            try {
+                SymbolTable.root.getItem("Function_" + funcName);
+            } catch (ItemNotFoundException ex) {
+                FunctionNotDeclared fnd;
+                fnd = new FunctionNotDeclared(funcInst.getLine(), funcName);
+                System.out.println(fnd.getMessage());
+            }
+        }
         return null;
     }
 
