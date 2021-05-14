@@ -10,7 +10,6 @@ import main.ast.nodes.expression.values.primitive.BoolValue;
 import main.ast.nodes.expression.values.primitive.IntValue;
 import main.ast.nodes.expression.values.primitive.StringValue;
 import main.ast.nodes.statement.*;
-import main.compileErrors.CompileError;
 import main.compileErrors.nameErrors.*;
 import main.symbolTable.SymbolTable;
 import main.symbolTable.exceptions.ItemAlreadyExistsException;
@@ -19,7 +18,6 @@ import main.symbolTable.items.FunctionSymbolTableItem;
 
 import java.util.ArrayList;
 import main.symbolTable.items.*;
-import main.symbolTable.SymbolTable.*;
 import java.util.*;
 
 
@@ -35,12 +33,12 @@ public class NameAnalyzer extends Visitor<Void> {
 
             SymbolTable funcSymTab = new SymbolTable();
             ArrayList<Identifier> args = funcDec.getArgs();
-            for (int i = 0 ; i < args.size() ; i++) {
-                Identifier curId = args.get(i);
+            for (Identifier curId : args) {
                 VariableSymbolTableItem vsti = new VariableSymbolTableItem(curId);
                 try {
                     funcSymTab.put(vsti);
-                } catch (ItemAlreadyExistsException ignore) {}
+                } catch (ItemAlreadyExistsException ignore) {
+                }
             }
 
             fsti.setFunctionSymbolTable(funcSymTab);
@@ -85,8 +83,8 @@ public class NameAnalyzer extends Visitor<Void> {
             fsti = SymbolTable.root.getItem("Function_" + funcDeclaration.getFunctionName().getName());
         }
         catch (ItemNotFoundException ex) {
-            // System.out.println("Which function? you joking? " + funcDeclaration.getFunctionName().getName());
-            System.exit(1);
+             System.out.println("Which function? you joking? " + funcDeclaration.getFunctionName().getName());
+            System.exit(2);
         } // we know it won't happen
 
         FunctionDeclaration funcDec = funcDeclaration;
@@ -94,8 +92,7 @@ public class NameAnalyzer extends Visitor<Void> {
 
         ArrayList<Identifier> args = funcDec.getArgs();
         SymbolTable symbolTable = new SymbolTable();
-        for (int i = 0 ; i < args.size() ; i++) {
-            Identifier curId = args.get(i);
+        for (Identifier curId : args) {
             VariableSymbolTableItem vsti = new VariableSymbolTableItem(curId);
             try {
                 symbolTable.put(vsti);
@@ -110,7 +107,8 @@ public class NameAnalyzer extends Visitor<Void> {
                 NameConflict nameConflict;
                 nameConflict = new NameConflict(curId.getLine(), curId.getName());
                 System.out.println(nameConflict.getMessage());
-            } catch (ItemNotFoundException ignore) {}
+            } catch (ItemNotFoundException ignore) {
+            }
         }
 
         funcDec.getBody().accept(this);
@@ -188,7 +186,7 @@ public class NameAnalyzer extends Visitor<Void> {
 //        System.out.println("Arrived at Identifier " + identifier.getName());
         boolean flag1 = false, flag2 = false;
         if (naStack.peek() == null)
-            System.exit(1);
+            System.exit(2);
         try {
             naStack.peek().getItem("Var_" + identifier.getName());
         } catch (ItemNotFoundException ex) {
@@ -225,16 +223,51 @@ public class NameAnalyzer extends Visitor<Void> {
     @Override
     public Void visit(FunctionCall funcCall) {
         Expression funcInst = funcCall.getInstance();
-        // System.out.println("func inst is: " + funcInst.toString());
+        boolean flag = false;
+        System.out.println("func inst is: " + funcInst.toString());
         if (funcInst.toString().contains("Identifier_")) {
             String funcName = ((Identifier) funcInst).getName();
             try {
                 SymbolTable.root.getItem("Function_" + funcName);
+                flag = true;
             } catch (ItemNotFoundException ex) {
                 FunctionNotDeclared fnd;
                 fnd = new FunctionNotDeclared(funcInst.getLine(), funcName);
                 System.out.println(fnd.getMessage());
             }
+        }
+
+        FunctionSymbolTableItem fsti = new FunctionSymbolTableItem();
+        if (flag && funcCall.getArgsWithKey() != null) {
+            String funcName = ((Identifier) funcInst).getName();
+            try {
+                fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + funcName);
+            } catch (ItemNotFoundException ex) {
+                System.out.println("Which function you said you wanted?");
+                System.exit(2);
+            }
+
+            System.out.println("argsMap size is: " + funcCall.getArgsWithKey().size());
+            for (Map.Entry<Identifier, Expression> pair : funcCall.getArgsWithKey().entrySet()) {
+                System.out.println("inside for");
+                Identifier id = pair.getKey();
+                System.out.println("id.getName() = " + id.getName());
+                try {
+                    SymbolTableItem sti = fsti.getFunctionSymbolTable().getItem("Var" + id.getName());
+                    System.out.println("After getItem: " + sti.toString());
+                } catch (ItemNotFoundException ex) {
+                    ArgumentNotDeclared and;
+                    and = new ArgumentNotDeclared(id.getLine(), id.getName(), funcName);
+                    System.out.println(and.getMessage());
+                }
+
+                pair.getValue().accept(this);
+            }
+        }
+
+        if (funcCall.getArgs() != null) {
+            for (Expression e : funcCall.getArgs())
+                e.accept(this);
         }
         return null;
     }

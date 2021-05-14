@@ -9,6 +9,10 @@ public class FunctionSymbolTableItem extends SymbolTableItem {
     private FunctionDeclaration funcDeclaration;
     private String name;
 
+    public FunctionSymbolTableItem() {
+
+    }
+
     public FunctionSymbolTableItem(FunctionDeclaration funcDeclaration) {
         this.funcDeclaration = funcDeclaration;
         this.name = funcDeclaration.getFunctionName().getName();
