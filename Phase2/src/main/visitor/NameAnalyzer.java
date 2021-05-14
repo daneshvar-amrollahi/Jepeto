@@ -28,7 +28,7 @@ public class NameAnalyzer extends Visitor<Void> {
     public Void visit(Program program) {
 
         SymbolTable.root = new SymbolTable();
-        program.getMain().accept(this);
+
         // first trying to add all possible functions to root
         for (FunctionDeclaration funcDec : program.getFunctions()) {
             FunctionSymbolTableItem fsti = new FunctionSymbolTableItem(funcDec);
@@ -61,6 +61,8 @@ public class NameAnalyzer extends Visitor<Void> {
                 }
             }
         }
+
+        program.getMain().accept(this);
         //f,g,h,f --> f,g,h,f@1 (included in SymbolTable.root)
 
         for (FunctionDeclaration funcDec : program.getFunctions()) { //f,g,h,f@1
@@ -71,9 +73,12 @@ public class NameAnalyzer extends Visitor<Void> {
                 DuplicateFunction ex;
                 ex = new DuplicateFunction(funcDec.getLine(), newName);
                 System.out.println(ex.getMessage());
+                hasError = true;
             }
             funcDec.accept(this);
         }
+
+
         return null;
     }
 
@@ -85,7 +90,6 @@ public class NameAnalyzer extends Visitor<Void> {
             fsti = SymbolTable.root.getItem("Function_" + funcDeclaration.getFunctionName().getName());
         }
         catch (ItemNotFoundException ex) {
-             System.out.println("Which function? you joking? " + funcDeclaration.getFunctionName().getName());
             System.exit(2);
         } // we know it won't happen
 
@@ -102,6 +106,7 @@ public class NameAnalyzer extends Visitor<Void> {
                 DuplicateArgument duplicateArgument;
                 duplicateArgument = new DuplicateArgument(curId.getLine(), curId.getName());
                 System.out.println(duplicateArgument.getMessage());
+                hasError = true;
             }
 
             try {
@@ -109,6 +114,7 @@ public class NameAnalyzer extends Visitor<Void> {
                 NameConflict nameConflict;
                 nameConflict = new NameConflict(curId.getLine(), curId.getName());
                 System.out.println(nameConflict.getMessage());
+                hasError = true;
             } catch (ItemNotFoundException ignore) {
             }
         }
@@ -187,11 +193,36 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(AnonymousFunction anonymousFunction) {
-        for (Identifier arg : anonymousFunction.getArgs())
-            arg.accept(this);
+        SymbolTable symbolTable = new SymbolTable();
+        symbolTable.items = new HashMap<>(naStack.peek().items);
+
+
+        for (Identifier arg : anonymousFunction.getArgs()) {
+
+            String idName = arg.getName();
+
+            try {
+                SymbolTable.root.getItem("Function_" + idName);
+
+                NameConflict nameConflict;
+                nameConflict = new NameConflict(arg.getLine(), arg.getName());
+                System.out.println(nameConflict.getMessage());
+                hasError = true;
+
+            } catch(ItemNotFoundException ex) {
+                VariableSymbolTableItem vsti = new VariableSymbolTableItem(arg);
+                symbolTable.items.put(vsti.getKey(), vsti);
+            }
+
+
+        }
+
+        naStack.push(symbolTable);
 
         if (anonymousFunction.getBody() != null)
             anonymousFunction.getBody().accept(this);
+
+        naStack.pop();
         return null;
     }
 
@@ -217,6 +248,7 @@ public class NameAnalyzer extends Visitor<Void> {
             VariableNotDeclared vnd;
             vnd = new VariableNotDeclared(identifier.getLine(), identifier.getName());
             System.out.println(vnd.getMessage());
+            hasError = true;
         }
 
         return null;
@@ -243,27 +275,27 @@ public class NameAnalyzer extends Visitor<Void> {
     @Override
     public Void visit(FunctionCall funcCall) {
         Expression funcInst = funcCall.getInstance();
-        boolean flag = false;
+        boolean isIdentifier = false;
         // System.out.println("func inst is: " + funcInst.toString());
         if (funcInst.toString().contains("Identifier_")) {
             String funcName = ((Identifier) funcInst).getName();
             try {
                 SymbolTable.root.getItem("Function_" + funcName);
-                flag = true;
+                isIdentifier = true;
             } catch (ItemNotFoundException ex) {
                 FunctionNotDeclared fnd;
                 fnd = new FunctionNotDeclared(funcInst.getLine(), funcName);
                 System.out.println(fnd.getMessage());
+                hasError = true;
             }
         }
 
         FunctionSymbolTableItem fsti = new FunctionSymbolTableItem();
-        if (flag && funcCall.getArgsWithKey() != null) {
+        if (isIdentifier && funcCall.getArgsWithKey().size() > 0) {
             String funcName = ((Identifier) funcInst).getName();
             try {
                 fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + funcName);
             } catch (ItemNotFoundException ex) {
-                System.out.println("Which function you said you wanted?");
                 System.exit(2);
             }
 
@@ -273,12 +305,12 @@ public class NameAnalyzer extends Visitor<Void> {
                 Identifier id = pair.getKey();
                 // System.out.println("id.getName() = " + id.getName());
                 try {
-                    SymbolTableItem sti = fsti.getFunctionSymbolTable().getItem("Var" + id.getName());
-                    System.out.println("After getItem: " + sti.toString());
+                    SymbolTableItem sti = fsti.getFunctionSymbolTable().getItem("Var_" + id.getName());
                 } catch (ItemNotFoundException ex) {
                     ArgumentNotDeclared and;
                     and = new ArgumentNotDeclared(id.getLine(), id.getName(), funcName);
                     System.out.println(and.getMessage());
+                    hasError = true;
                 }
 
                 pair.getValue().accept(this);
@@ -303,25 +335,25 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(IntValue intValue) {
-        //ToDo
+
         return null;
     }
 
     @Override
     public Void visit(BoolValue boolValue) {
-        //ToDo
+
         return null;
     }
 
     @Override
     public Void visit(StringValue stringValue) {
-        //ToDo
+
         return null;
     }
 
     @Override
     public Void visit(VoidValue voidValue) {
-        //ToDo
+
         return null;
     }
 }

@@ -10,8 +10,8 @@ import java.util.Map;
 public class FunctionCall extends Expression {
     private Expression instance;
     private ArrayList<Expression> args = new ArrayList<>();
-    // private Map<Identifier, Expression> argsWithKey = new HashMap<>();
-    private Map<Identifier, Expression> argsWithKey;
+    private Map<Identifier, Expression> argsWithKey = new HashMap<>();
+    //private Map<Identifier, Expression> argsWithKey;
     public FunctionCall(Expression instance) {
         this.instance = instance;
     }
