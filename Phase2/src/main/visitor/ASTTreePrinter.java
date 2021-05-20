@@ -175,6 +175,7 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionCall funcCall) {
+        System.out.println("A function call");
         messagePrinter(funcCall.getLine(), funcCall.toString());
 
         if (funcCall.getInstance() != null)

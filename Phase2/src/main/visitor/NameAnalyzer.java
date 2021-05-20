@@ -28,7 +28,7 @@ public class NameAnalyzer extends Visitor<Void> {
     public Void visit(Program program) {
 
         SymbolTable.root = new SymbolTable();
-
+        naStack.push(SymbolTable.root);
         // first trying to add all possible functions to root
         for (FunctionDeclaration funcDec : program.getFunctions()) {
             FunctionSymbolTableItem fsti = new FunctionSymbolTableItem(funcDec);
@@ -276,6 +276,8 @@ public class NameAnalyzer extends Visitor<Void> {
     public Void visit(FunctionCall funcCall) {
         Expression funcInst = funcCall.getInstance();
         boolean isIdentifier = false;
+
+        boolean isFunction = true, isFuncPtr = true;
         // System.out.println("func inst is: " + funcInst.toString());
         if (funcInst.toString().contains("Identifier_")) {
             String funcName = ((Identifier) funcInst).getName();
@@ -283,8 +285,19 @@ public class NameAnalyzer extends Visitor<Void> {
                 SymbolTable.root.getItem("Function_" + funcName);
                 isIdentifier = true;
             } catch (ItemNotFoundException ex) {
+                isFunction = false;
+            }
+
+            try {
+                naStack.peek().getItem("Var_" + funcName);
+                isIdentifier = true;
+            } catch (ItemNotFoundException ex) {
+                isFuncPtr = false;
+            }
+
+            if (!isFunction && !isFuncPtr) {
                 FunctionNotDeclared fnd;
-                fnd = new FunctionNotDeclared(funcInst.getLine(), funcName);
+                fnd = new FunctionNotDeclared(funcCall.getLine(), funcName);
                 System.out.println(fnd.getMessage());
                 hasError = true;
             }

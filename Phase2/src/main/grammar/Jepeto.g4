@@ -83,19 +83,30 @@ main returns [MainDeclaration mainRet]
         )
     ;
 
-functionCall returns [FunctionCall funcCallRet, int line] locals [Expression inst]
-    :
-        id = identifier {$inst = $id.IdRet;}
+functionCall returns [FunctionCall funcCallRet, int line]
+    :   { int callCount = 0;
+        System.out.println("callCount: " + callCount);
+        }
+        id = identifier {Identifier inst = $id.IdRet;}
         (LPAR {$line = $LPAR.getLine();} fa = functionArguments RPAR {
-                $funcCallRet = new FunctionCall($inst, $fa.sewcRet, $fa.sewcakRet);
+                System.out.println("callCount: " + callCount);
+                if (callCount == 0)
+                    $funcCallRet = new FunctionCall(inst, $fa.sewcRet, $fa.sewcakRet);
+                else if (callCount > 0)
+                    $funcCallRet = new FunctionCall($funcCallRet.getInstance(), $fa.sewcRet, $fa.sewcakRet);
                 $funcCallRet.setLine($line);
-                $inst = $funcCallRet;
+                callCount += 1;
             }
         )*
         (LPAR {$line = $LPAR.getLine(); } fa2 = functionArguments RPAR {
-                $funcCallRet = new FunctionCall($inst, $fa2.sewcRet, $fa2.sewcakRet);
-                $funcCallRet.setLine($line);
-            }
+            System.out.println("callCount: " + callCount);
+            if (callCount == 0)
+                $funcCallRet = new FunctionCall(inst, $fa2.sewcRet, $fa2.sewcakRet);
+            else if (callCount > 0)
+                $funcCallRet = new FunctionCall($funcCallRet.getInstance(), $fa2.sewcRet, $fa2.sewcakRet);
+            $funcCallRet.setLine($line);
+            callCount += 1;
+        }
         )
     ;
 
