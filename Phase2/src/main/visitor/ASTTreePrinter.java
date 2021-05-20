@@ -175,7 +175,7 @@ public class ASTTreePrinter extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionCall funcCall) {
-        System.out.println("A function call");
+        //System.out.println("A function call");
         messagePrinter(funcCall.getLine(), funcCall.toString());
 
         if (funcCall.getInstance() != null)
@@ -197,8 +197,9 @@ public class ASTTreePrinter extends Visitor<Void> {
     public Void visit(ListValue listValue) {
         messagePrinter(listValue.getLine(), listValue.toString());
 
-        for (Expression exp : listValue.getElements())
-            exp.accept(this);
+        if (listValue.getElements() != null)
+            for (Expression exp : listValue.getElements())
+                exp.accept(this);
         return null;
     }
 

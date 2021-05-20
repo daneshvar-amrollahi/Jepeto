@@ -83,13 +83,13 @@ main returns [MainDeclaration mainRet]
         )
     ;
 
-functionCall returns [FunctionCall funcCallRet, int line]
+/*functionCall returns [FunctionCall funcCallRet, int line]
     :   { int callCount = 0;
-        System.out.println("callCount: " + callCount);
+        //System.out.println("callCount: " + callCount);
         }
         id = identifier {Identifier inst = $id.IdRet;}
         (LPAR {$line = $LPAR.getLine();} fa = functionArguments RPAR {
-                System.out.println("callCount: " + callCount);
+                //System.out.println("callCount: " + callCount);
                 if (callCount == 0)
                     $funcCallRet = new FunctionCall(inst, $fa.sewcRet, $fa.sewcakRet);
                 else if (callCount > 0)
@@ -99,7 +99,7 @@ functionCall returns [FunctionCall funcCallRet, int line]
             }
         )*
         (LPAR {$line = $LPAR.getLine(); } fa2 = functionArguments RPAR {
-            System.out.println("callCount: " + callCount);
+            //System.out.println("callCount: " + callCount);
             if (callCount == 0)
                 $funcCallRet = new FunctionCall(inst, $fa2.sewcRet, $fa2.sewcakRet);
             else if (callCount > 0)
@@ -109,6 +109,31 @@ functionCall returns [FunctionCall funcCallRet, int line]
         }
         )
     ;
+*/
+
+functionCall returns [FunctionCall funcCallRet, int line]
+    :   { int callCount = 0; }
+        id = identifier {Identifier inst = $id.IdRet;}
+        (LPAR {$line = $LPAR.getLine();} fa = functionArguments RPAR {
+                if (callCount == 0)
+                    $funcCallRet = new FunctionCall(inst, $fa.sewcRet, $fa.sewcakRet);
+                else if (callCount > 0)
+                    $funcCallRet = new FunctionCall($funcCallRet, $fa.sewcRet, $fa.sewcakRet);
+                $funcCallRet.setLine($line);
+                callCount += 1;
+            }
+        )*
+        (LPAR {$line = $LPAR.getLine(); } fa2 = functionArguments RPAR {
+                if (callCount == 0)
+                    $funcCallRet = new FunctionCall(inst, $fa2.sewcRet, $fa2.sewcakRet);
+                else if (callCount > 0)
+                    $funcCallRet = new FunctionCall($funcCallRet, $fa2.sewcRet, $fa2.sewcakRet);
+                $funcCallRet.setLine($line);
+                callCount += 1;
+            }
+        )
+    ;
+
 
 functionArguments returns [ArrayList<Expression> sewcRet, Map<Identifier, Expression> sewcakRet]
     :
@@ -300,11 +325,16 @@ appendExpression returns [Expression apExpRet]
         )*;
 
 accessExpression returns [Expression acsExpRet]
-    :
+    : {int count = 0;}
         oe = otherExpression {$acsExpRet = $oe.otherExpRet;}
         (LPAR fa = functionArguments RPAR {
-            $acsExpRet = new FunctionCall($oe.otherExpRet, $fa.sewcRet, $fa.sewcakRet);
+            if (count == 0)
+                $acsExpRet = new FunctionCall($oe.otherExpRet, $fa.sewcRet, $fa.sewcakRet);
+            else
+            if (count > 0)
+                $acsExpRet = new FunctionCall($acsExpRet, $fa.sewcRet, $fa.sewcakRet);
             $acsExpRet.setLine($LPAR.getLine());
+            count += 1;
         } )* //Come back later
         (LBRACK idx = expression {$acsExpRet = new ListAccessByIndex($acsExpRet, $idx.expRet); $acsExpRet.setLine($LBRACK.getLine());} RBRACK)*
         (se = sizeExpression {$acsExpRet = new ListSize($acsExpRet); $acsExpRet.setLine($se.line);})* ;
@@ -331,8 +361,8 @@ values returns [Value valRet]
     ;
 
 listValue returns [ListValue lvRet]
-    : {$lvRet = new ListValue(); $lvRet.setLine($LBRACK.getLine());}
-    LBRACK se = splitedExpressionsWithComma {$lvRet.setElements($se.sewcRet);} RBRACK;
+    : { $lvRet = new ListValue(); }
+    LBRACK {$lvRet.setLine($LBRACK.getLine());} se = splitedExpressionsWithComma {$lvRet.setElements($se.sewcRet);} RBRACK;
 
 boolValue returns [BoolValue bvRet]
     :
