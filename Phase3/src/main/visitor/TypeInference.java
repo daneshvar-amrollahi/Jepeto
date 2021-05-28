@@ -17,6 +17,7 @@ import main.symbolTable.items.*;
 import java.util.*;
 
 public class TypeInference extends Visitor<Type> {
+
     @Override
     public Type visit(BinaryExpression binaryExpression) {
         Expression left = binaryExpression.getFirstOperand();
@@ -34,7 +35,26 @@ public class TypeInference extends Visitor<Type> {
             if ((tl instanceof NoType || tl instanceof BoolType) && (tr instanceof BoolType || tr instanceof NoType))
                 return new NoType();
         }
-        //TODO
+
+        if (operator.equals(BinaryOperator.mult)
+                || operator.equals(BinaryOperator.add)
+                || operator.equals(BinaryOperator.sub)
+                || operator.equals(BinaryOperator.div))
+        {
+            if (tl instanceof IntType && tr instanceof IntType)
+                return new IntType();
+            if ((tl instanceof NoType || tl instanceof IntType) && (tr instanceof BoolType || tr instanceof IntType))
+                return new NoType();
+        }
+
+        if (operator.equals(BinaryOperator.gt)
+                || operator.equals(BinaryOperator.lt))
+        {
+            if (tl instanceof IntType && tr instanceof IntType)
+                return new BoolType();
+            if ((tl instanceof NoType || tl instanceof IntType) && (tr instanceof BoolType || tr instanceof IntType))
+                return new NoType();
+        }
         return new NoType();
     }
 

@@ -18,9 +18,13 @@ import main.symbolTable.items.*;
 import java.util.*;
 
 public class TypeSetter  extends Visitor<Void> {
+
+    private TypeInference typeInference = new TypeInference();
+
     @Override
     public Void visit(Program program) {
-        //TODO
+        program.getMain().accept(this);
+
         return null;
     }
 
@@ -32,37 +36,43 @@ public class TypeSetter  extends Visitor<Void> {
 
     @Override
     public Void visit(MainDeclaration mainDeclaration) {
-        //TODO
+        mainDeclaration.getBody().accept(this);
         return null;
     }
 
     @Override
     public Void visit(BlockStmt blockStmt) {
-        //TODO
+        for (Statement statement: blockStmt.getStatements())
+            statement.accept(this);
+
         return null;
     }
 
     @Override
     public Void visit(ConditionalStmt conditionalStmt) {
-        //TODO
+        conditionalStmt.getCondition().accept(typeInference);
+        conditionalStmt.getThenBody().accept(this);
+        if (conditionalStmt.getElseBody() != null)
+            conditionalStmt.getElseBody().accept(this);
+
         return null;
     }
 
     @Override
     public Void visit(FunctionCallStmt funcCallStmt) {
-        //TODO
+        funcCallStmt.getFunctionCall().accept(typeInference);
         return null;
     }
 
     @Override
     public Void visit(PrintStmt print) {
-        //TODO
+        print.getArg().accept(typeInference);
         return null;
     }
 
     @Override
     public Void visit(ReturnStmt returnStmt) {
-        //TODO
+        returnStmt.getReturnedExpr().accept(typeInference);
         return null;
     }
 }
