@@ -90,37 +90,62 @@ public class TypeInference extends Visitor<Type> {
 
     @Override
     public Type visit(FunctionCall funcCall) {
-        //TODO
+        funcCall.getInstance().accept(this);
+
+        for (Expression expression: funcCall.getArgs())
+            expression.accept(this);
+
+        for (Map.Entry<Identifier, Expression> pair : funcCall.getArgsWithKey().entrySet())
+        {
+            Expression expression = pair.getValue();
+            expression.accept(this);
+        }
         return null;
     }
 
     @Override
-    public Type visit(ListValue listValue) {
-        //TODO
-        return null;
+    public Type visit(ListValue listValue) { // [[1, 2], ["a", "b"]] error?
+        if (listValue.getElements().size() == 0)
+            return new ListType(null);
+
+        Type type = listValue.getElements().get(0).accept(this);
+        NoType noType = new NoType();
+        if (type.getClass().equals(noType.getClass()))
+            return new ListType(noType);
+
+        boolean error = false;
+        for (int i = 1 ; i < listValue.getElements().size() ; i++)
+        {
+            Expression expression = listValue.getElements().get(i);
+            Type curType = expression.accept(this);
+            if (type.getClass().equals(curType.getClass()))
+                error = true;
+        }
+
+        if (!error)
+            return new ListType(type);
+        else
+            return new ListType(noType);
+
     }
 
     @Override
     public Type visit(IntValue intValue) {
-        //TODO
-        return null;
+        return new IntType();
     }
 
     @Override
     public Type visit(BoolValue boolValue) {
-        //TODO
-        return null;
+        return new BoolType();
     }
 
     @Override
     public Type visit(StringValue stringValue) {
-        //TODO
-        return null;
+        return new StringType();
     }
 
     @Override
     public Type visit(VoidValue voidValue) {
-        //TODO
-        return null;
+        return new VoidType();
     }
 }
