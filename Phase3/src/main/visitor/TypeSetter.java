@@ -19,7 +19,7 @@ import java.util.*;
 
 public class TypeSetter  extends Visitor<Void> {
 
-    private TypeInference typeInference = new TypeInference();
+    private final TypeInference typeInference = new TypeInference(this);
 
     @Override
     public Void visit(Program program) {
@@ -30,7 +30,14 @@ public class TypeSetter  extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionDeclaration funcDeclaration) {
-        //TODO
+        var fsti = new FunctionSymbolTableItem();
+        try {
+            fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + funcDeclaration.getFunctionName());
+        } catch (ItemNotFoundException ignore) {}
+
+        SymbolTable.push(fsti.getFunctionSymbolTable());
+//        fsti.getFuncDeclaration().getBody().accept(this);
+        SymbolTable.pop();
         return null;
     }
 

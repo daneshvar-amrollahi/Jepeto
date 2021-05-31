@@ -17,6 +17,11 @@ import main.symbolTable.items.*;
 import java.util.*;
 
 public class TypeInference extends Visitor<Type> {
+    private final TypeSetter typeSetter;
+
+    public TypeInference(TypeSetter typeSetter) {
+        this.typeSetter = typeSetter;
+    };
 
     @Override
     public Type visit(BinaryExpression binaryExpression) {
@@ -55,6 +60,15 @@ public class TypeInference extends Visitor<Type> {
             if ((tl instanceof NoType || tl instanceof IntType) && (tr instanceof BoolType || tr instanceof IntType))
                 return new NoType();
         }
+
+        if (operator.equals(BinaryOperator.append)) {
+            if (!(tl instanceof ListType))
+                return new NoType();
+
+            if (((ListType) tl).getType().getClass().equals(tr.getClass()))
+                return ((ListType) tl);
+        }
+
         return new NoType();
     }
 
@@ -147,7 +161,7 @@ public class TypeInference extends Visitor<Type> {
 
         // This should be handled later
         if (!(funcCall.getInstance() instanceof Identifier))
-            return null;
+            return new NoType();
         Identifier instance = (Identifier) funcCall.getInstance();
         var fsti = new FunctionSymbolTableItem();
         try
@@ -177,8 +191,9 @@ public class TypeInference extends Visitor<Type> {
             } catch (ItemNotFoundException ignore) {}
         }
 
+        fsti.getFuncDeclaration().accept(typeSetter);
         System.out.println("funcCall should return something");
-        return null;
+        return new NoType();
     }
 
     @Override
@@ -203,7 +218,7 @@ public class TypeInference extends Visitor<Type> {
         if (!error)
             return new ListType(type);
         else
-            return new ListType(noType);
+            return noType;
 
     }
 
