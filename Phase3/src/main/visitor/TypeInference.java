@@ -92,14 +92,54 @@ public class TypeInference extends Visitor<Type> {
     public Type visit(FunctionCall funcCall) {
         funcCall.getInstance().accept(this);
 
+        ArrayList<Type> typeArray = new ArrayList<>();
         for (Expression expression: funcCall.getArgs())
-            expression.accept(this);
+        {
+            Type type = expression.accept(this);
+            typeArray.add(type);
+        }
 
+        Map<String, Type> typeMap = new HashMap<>();
         for (Map.Entry<Identifier, Expression> pair : funcCall.getArgsWithKey().entrySet())
         {
             Expression expression = pair.getValue();
-            expression.accept(this);
+            Type type = expression.accept(this);
+            typeMap.put(pair.getKey().getName(), type);
         }
+
+        // This should be handled later
+        if (!(funcCall.getInstance() instanceof Identifier))
+            return null;
+        Identifier instance = (Identifier) funcCall.getInstance();
+        var fsti = new FunctionSymbolTableItem();
+        try
+        {
+            fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + instance.getName());
+        } catch (ItemNotFoundException ignore) {}
+
+        var funcArgs = fsti.getFuncDeclaration().getArgs();
+        for (int i = 0; i < typeArray.size(); i++)
+        {
+            fsti.addArgType(typeArray.get(i));
+            VariableSymbolTableItem varItem;
+            try {
+                varItem = (VariableSymbolTableItem) fsti.getFunctionSymbolTable().getItem("Var_" + funcArgs.get(i).getName());
+                varItem.setType(typeArray.get(i));
+            } catch (ItemNotFoundException ignore) {}
+        }
+
+        for (int i = 0; i < funcArgs.size(); i++)
+        {
+            Type type = typeMap.get(funcArgs.get(i).getName());
+            fsti.addArgType(type);
+            VariableSymbolTableItem varItem;
+            try {
+                varItem = (VariableSymbolTableItem) fsti.getFunctionSymbolTable().getItem("Var_" + funcArgs.get(i).getName());
+                varItem.setType(type);
+            } catch (ItemNotFoundException ignore) {}
+        }
+
+        System.out.println("funcCall should return something");
         return null;
     }
 

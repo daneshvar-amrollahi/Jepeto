@@ -12,6 +12,10 @@ public class FunctionSymbolTableItem extends SymbolTableItem {
     private final ArrayList<Type> argTypes;
     private Type returnType;
 
+    public FunctionSymbolTableItem() {
+        argTypes = new ArrayList<>();
+    }
+
     public FunctionSymbolTableItem(FunctionDeclaration funcDeclaration) {
         this.funcDeclaration = funcDeclaration;
         this.name = funcDeclaration.getFunctionName().getName();

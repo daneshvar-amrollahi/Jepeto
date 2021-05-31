@@ -28,7 +28,8 @@ public class JepetoCompiler {
         //program.accept(astTreePrinter);   //Not used anymore in phase 3
 
         //TODO
-
+        TypeSetter typeSetter = new TypeSetter();
+        typeSetter.visit(program.getMain());
         System.out.println("Compilation successful");
     }
 }
