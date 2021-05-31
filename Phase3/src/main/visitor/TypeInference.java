@@ -60,32 +60,70 @@ public class TypeInference extends Visitor<Type> {
 
     @Override
     public Type visit(UnaryExpression unaryExpression) {
-        //TODO
-        return null;
+        Expression expression = unaryExpression.getOperand();
+        UnaryOperator operator = unaryExpression.getOperator();
+        Type expressionType = expression.accept(this);
+
+        if (operator.equals(UnaryOperator.minus) && (expressionType instanceof IntType))
+            return new IntType();
+
+        if (operator.equals(UnaryOperator.not) && (expressionType instanceof BoolType))
+            return new BoolType();
+
+        return new NoType();
     }
 
     @Override
     public Type visit(AnonymousFunction anonymousFunction) {
-        //TODO
+        try {
+            FunctionSymbolTableItem afsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + anonymousFunction.getName());
+        }
+        catch (ItemNotFoundException ignore) {}
+
+
         return null;
     }
 
     @Override
     public Type visit(Identifier identifier) {
-        //TODO
+        try{
+            VariableSymbolTableItem vsti = (VariableSymbolTableItem) SymbolTable.top.getItem("Var_" + identifier.getName());
+            return vsti.getType();
+        }
+        catch (ItemNotFoundException ignore) {}
+
+        try {
+            FunctionSymbolTableItem fsti = (FunctionSymbolTableItem) SymbolTable.top.getItem("Function_" + identifier.getName());
+            return fsti.getReturnType();
+        }
+        catch (ItemNotFoundException ignore) {}
+
         return null;
     }
 
     @Override
     public Type visit(ListAccessByIndex listAccessByIndex) {
-        //TODO
-        return null;
+        Expression instanceExpr = listAccessByIndex.getInstance();
+        Expression indexExpr = listAccessByIndex.getIndex();
+
+        Type instanceType = instanceExpr.accept(this);
+        Type indexType = indexExpr.accept(this);
+
+        if ((indexType instanceof IntType) && (instanceType instanceof ListType))
+            return ((ListType) instanceType).getType();
+
+        return new NoType();
     }
 
     @Override
     public Type visit(ListSize listSize) {
-        //TODO
-        return null;
+        Expression expression = listSize.getInstance();
+        Type type = expression.accept(this);
+
+        if (type instanceof ListType)
+            return new IntType();
+
+        return new NoType();
     }
 
     @Override
