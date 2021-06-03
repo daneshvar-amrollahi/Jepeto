@@ -19,6 +19,7 @@ import java.util.*;
 
 public class TypeSetter  extends Visitor<Void> {
 
+    public Map<String, Boolean> visited = new HashMap<>();
     private final TypeInference typeInference = new TypeInference(this);
 
     @Override
@@ -30,13 +31,24 @@ public class TypeSetter  extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionDeclaration funcDeclaration) {
+
+        if (visited.containsKey(funcDeclaration.getFunctionName().getName()))
+            return null;
+
+        visited.put(funcDeclaration.getFunctionName().getName(), true);
+
         var fsti = new FunctionSymbolTableItem();
         try {
-            fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + funcDeclaration.getFunctionName());
+            fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + funcDeclaration.getFunctionName().getName());
         } catch (ItemNotFoundException ignore) {}
 
         SymbolTable.push(fsti.getFunctionSymbolTable());
-//        fsti.getFuncDeclaration().getBody().accept(this);
+
+        System.out.println("Function " + funcDeclaration.getFunctionName().getName() + "Arg Types: ");
+        System.out.println(fsti.getArgTypes().toString());
+
+        fsti.getFuncDeclaration().getBody().accept(this);
+
         SymbolTable.pop();
         return null;
     }

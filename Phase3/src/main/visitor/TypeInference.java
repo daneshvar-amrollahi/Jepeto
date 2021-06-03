@@ -158,7 +158,6 @@ public class TypeInference extends Visitor<Type> {
             Type type = expression.accept(this);
             typeMap.put(pair.getKey().getName(), type);
         }
-
         // This should be handled later
         if (!(funcCall.getInstance() instanceof Identifier))
             return new NoType();
