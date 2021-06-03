@@ -64,9 +64,13 @@ public class TypeInference extends Visitor<Type> {
         if (operator.equals(BinaryOperator.append)) {
             if (!(tl instanceof ListType))
                 return new NoType();
+            if (((ListType) tl).getType() == null) {
+                ((ListType) tl).setType(tr);
+                return tl;
+            }
 
             if (((ListType) tl).getType().getClass().equals(tr.getClass()))
-                return ((ListType) tl);
+                return tl;
         }
 
         return new NoType();
@@ -179,17 +183,19 @@ public class TypeInference extends Visitor<Type> {
             } catch (ItemNotFoundException ignore) {}
         }
 
-        for (int i = 0; i < funcArgs.size(); i++)
+        if (!typeMap.isEmpty())
         {
-            Type type = typeMap.get(funcArgs.get(i).getName());
-            fsti.addArgType(type);
-            VariableSymbolTableItem varItem;
-            try {
-                varItem = (VariableSymbolTableItem) fsti.getFunctionSymbolTable().getItem("Var_" + funcArgs.get(i).getName());
-                varItem.setType(type);
-            } catch (ItemNotFoundException ignore) {}
+            for (int i = 0; i < funcArgs.size(); i++)
+            {
+                Type type = typeMap.get(funcArgs.get(i).getName());
+                fsti.addArgType(type);
+                VariableSymbolTableItem varItem;
+                try {
+                    varItem = (VariableSymbolTableItem) fsti.getFunctionSymbolTable().getItem("Var_" + funcArgs.get(i).getName());
+                    varItem.setType(type);
+                } catch (ItemNotFoundException ignore) {}
+            }
         }
-
         fsti.getFuncDeclaration().accept(typeSetter);
         System.out.println("funcCall should return something");
         return new NoType();

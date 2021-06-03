@@ -44,7 +44,7 @@ public class TypeSetter  extends Visitor<Void> {
 
         SymbolTable.push(fsti.getFunctionSymbolTable());
 
-        System.out.println("Function " + funcDeclaration.getFunctionName().getName() + "Arg Types: ");
+        System.out.println("Function " + funcDeclaration.getFunctionName().getName() + ", Arg Types: ");
         System.out.println(fsti.getArgTypes().toString());
 
         fsti.getFuncDeclaration().getBody().accept(this);
