@@ -122,15 +122,6 @@ public class TypeSetter  extends Visitor<Void> {
     public Void visit(ReturnStmt returnStmt) {
         Type returnType = returnStmt.getReturnedExpr().accept(typeInference);
 
-        /*System.out.println("Scope is " + SymbolTable.top.scope);
-        for (Map.Entry<String, SymbolTableItem> pair : SymbolTable.top.items.entrySet())
-        {
-            System.out.println(pair.getKey().toString());
-            System.out.println(pair.getValue().getName());
-        }
-        */
-
-
         var fsti = new FunctionSymbolTableItem();
         try {
             fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + SymbolTable.top.scope);
@@ -147,7 +138,6 @@ public class TypeSetter  extends Visitor<Void> {
         } catch (ItemNotFoundException ignore) {}
 
 
-        //System.out.println(SymbolTable.top.items.toString());
         return null;
     }
 }

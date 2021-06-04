@@ -167,20 +167,32 @@ public class TypeInference extends Visitor<Type> {
             typeMap.put(pair.getKey().getName(), type);
         }
         // This should be handled later
-        if (!(funcCall.getInstance() instanceof Identifier))
-            return new NoType();
 
+        //System.out.println("Instance is " + funcCall.getInstance());
 
-
-        Identifier instance = (Identifier) funcCall.getInstance();
         String functionName = null;
 
-        Type instanceType = instance.accept(this);
-        if (instanceType instanceof FptrType)
-            functionName = ((FptrType) instanceType).getFunctionName();
+        if (!(funcCall.getInstance() instanceof Identifier))
+        {
+            Type type = funcCall.getInstance().accept(this);
+            if (!(type instanceof FptrType))
+                return new NoType();
 
-//        System.out.println("instanceType: " + instanceType);
-//        System.out.println("functionName: " + functionName);
+            try {
+                var fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + ((FptrType) type).getFunctionName());
+
+
+                functionName = fsti.getFuncDeclaration().getFunctionName().getName(); //to be accepted below
+
+            } catch (ItemNotFoundException ignore) {}
+        }
+        else {
+            Identifier instance = (Identifier) funcCall.getInstance();
+            Type instanceType = instance.accept(this);
+            if (instanceType instanceof FptrType)
+                functionName = ((FptrType) instanceType).getFunctionName();
+        }
+
         if (functionName == null)
             return new NoType();
 
@@ -233,7 +245,7 @@ public class TypeInference extends Visitor<Type> {
         }
         fsti.getFuncDeclaration().accept(typeSetter);
         //System.out.println("funcCall should return something");
-        return new NoType();
+        return fsti.getReturnType();
     }
 
     @Override
