@@ -24,7 +24,30 @@ public class TypeSetter  extends Visitor<Void> {
 
     @Override
     public Void visit(Program program) {
+        //System.out.println("First visit");
         program.getMain().accept(this);
+
+        visited.clear();
+        typeInference.visited.clear();
+
+        //System.out.println("Second visit");
+        program.getMain().accept(this);
+
+        for (FunctionDeclaration functionDeclaration: program.getFunctions())
+        {
+            String functionName = functionDeclaration.getFunctionName().getName();
+            if (visited.containsKey(functionName))
+            {
+                var fsti = new FunctionSymbolTableItem();
+                try {
+                    fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + functionName);
+                } catch (ItemNotFoundException ignore) {}
+
+                System.out.println(functionName);
+                System.out.println(fsti.getArgTypes().toString());
+                System.out.println(fsti.getReturnType());
+            }
+        }
 
         return null;
     }
@@ -46,12 +69,14 @@ public class TypeSetter  extends Visitor<Void> {
 
 
         SymbolTable.top.scope = funcDeclaration.getFunctionName().getName();
+
+//        if (fsti.getReturnType() == null) //second visit
         fsti.getFuncDeclaration().getBody().accept(this);
 
 
-        System.out.println(funcDeclaration.getFunctionName().getName());
-        System.out.println(fsti.getArgTypes().toString());
-        System.out.println(fsti.getReturnType());
+//        System.out.println(funcDeclaration.getFunctionName().getName());
+//        System.out.println(fsti.getArgTypes().toString());
+//        System.out.println(fsti.getReturnType());
 
         SymbolTable.pop();
         return null;

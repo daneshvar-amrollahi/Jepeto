@@ -113,7 +113,9 @@ public class TypeInference extends Visitor<Type> {
         catch (ItemNotFoundException ignore) {}
 
         try {
+
             FunctionSymbolTableItem fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + identifier.getName());
+            //fsti.getFuncDeclaration().accept(typeSetter);
             return new FptrType(identifier.getName());
         }
         catch (ItemNotFoundException ignore) {}
@@ -168,8 +170,7 @@ public class TypeInference extends Visitor<Type> {
         if (!(funcCall.getInstance() instanceof Identifier))
             return new NoType();
 
-        //if instance is a visited function --> return that function's return type
-        //if instance is a functionPtr in the arguments --> ...
+
 
         Identifier instance = (Identifier) funcCall.getInstance();
         String functionName = null;
@@ -200,12 +201,14 @@ public class TypeInference extends Visitor<Type> {
         try
         {
             fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + functionName);
+            fsti.getArgTypes().clear();
         }
         catch (ItemNotFoundException ignore) {}
 
         var funcArgs = fsti.getFuncDeclaration().getArgs();
         for (int i = 0; i < typeArray.size(); i++)
         {
+            //System.out.println("first for " + functionName);
             fsti.addArgType(typeArray.get(i));
             VariableSymbolTableItem varItem;
             try {
@@ -218,6 +221,7 @@ public class TypeInference extends Visitor<Type> {
         {
             for (int i = 0; i < funcArgs.size(); i++)
             {
+                //System.out.println("second for " + functionName);
                 Type type = typeMap.get(funcArgs.get(i).getName());
                 fsti.addArgType(type);
                 VariableSymbolTableItem varItem;
@@ -228,7 +232,7 @@ public class TypeInference extends Visitor<Type> {
             }
         }
         fsti.getFuncDeclaration().accept(typeSetter);
-        System.out.println("funcCall should return something");
+        //System.out.println("funcCall should return something");
         return new NoType();
     }
 

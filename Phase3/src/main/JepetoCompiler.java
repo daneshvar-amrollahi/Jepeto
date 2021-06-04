@@ -29,7 +29,7 @@ public class JepetoCompiler {
 
         //TODO
         TypeSetter typeSetter = new TypeSetter();
-        typeSetter.visit(program.getMain());
+        program.accept(typeSetter);
         System.out.println("Compilation successful");
     }
 }
