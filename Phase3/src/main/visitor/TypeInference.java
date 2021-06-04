@@ -19,6 +19,8 @@ import java.util.*;
 public class TypeInference extends Visitor<Type> {
     private final TypeSetter typeSetter;
 
+    public Map<String, Boolean> visited = new HashMap<>();
+
     public TypeInference(TypeSetter typeSetter) {
         this.typeSetter = typeSetter;
     };
@@ -165,39 +167,93 @@ public class TypeInference extends Visitor<Type> {
         // This should be handled later
         if (!(funcCall.getInstance() instanceof Identifier))
             return new NoType();
+
+
+        //if instance is a visited function --> return that function's return type
+        //if instance is a functionPtr in the arguments --> ...
+
         Identifier instance = (Identifier) funcCall.getInstance();
+
+
+        if (visited.containsKey(instance.getName()))
+        {
+            var fsti = new FunctionSymbolTableItem();
+            try
+            {
+                fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + instance.getName());
+
+                return fsti.getReturnType();
+
+            } catch (ItemNotFoundException ignore) {}
+        }
+
+        visited.put(instance.getName(), true);
+
+
+        String functionName;
         var fsti = new FunctionSymbolTableItem();
         try
         {
             fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + instance.getName());
-        } catch (ItemNotFoundException ignore) {}
 
-        var funcArgs = fsti.getFuncDeclaration().getArgs();
-        for (int i = 0; i < typeArray.size(); i++)
-        {
-            fsti.addArgType(typeArray.get(i));
-            VariableSymbolTableItem varItem;
-            try {
-                varItem = (VariableSymbolTableItem) fsti.getFunctionSymbolTable().getItem("Var_" + funcArgs.get(i).getName());
-                varItem.setType(typeArray.get(i));
-            } catch (ItemNotFoundException ignore) {}
-        }
+            functionName = instance.getName();
 
-        if (!typeMap.isEmpty())
-        {
-            for (int i = 0; i < funcArgs.size(); i++)
+            var funcArgs = fsti.getFuncDeclaration().getArgs();
+            for (int i = 0; i < typeArray.size(); i++)
             {
-                Type type = typeMap.get(funcArgs.get(i).getName());
-                fsti.addArgType(type);
+                fsti.addArgType(typeArray.get(i));
                 VariableSymbolTableItem varItem;
                 try {
                     varItem = (VariableSymbolTableItem) fsti.getFunctionSymbolTable().getItem("Var_" + funcArgs.get(i).getName());
-                    varItem.setType(type);
+                    varItem.setType(typeArray.get(i));
                 } catch (ItemNotFoundException ignore) {}
             }
+
+            if (!typeMap.isEmpty())
+            {
+                for (int i = 0; i < funcArgs.size(); i++)
+                {
+                    Type type = typeMap.get(funcArgs.get(i).getName());
+                    fsti.addArgType(type);
+                    VariableSymbolTableItem varItem;
+                    try {
+                        varItem = (VariableSymbolTableItem) fsti.getFunctionSymbolTable().getItem("Var_" + funcArgs.get(i).getName());
+                        varItem.setType(type);
+                    } catch (ItemNotFoundException ignore) {}
+                }
+            }
+            fsti.getFuncDeclaration().accept(typeSetter);
+            System.out.println("funcCall should return something");
+            return new NoType();
+
+        } catch (ItemNotFoundException ignore) { //instance.getName() is an argument
+
+
+            try {
+                var vsti = SymbolTable.top.getItem(instance.getName());
+
+                Type type = instance.accept(this);
+
+                if (type instanceof FptrType)
+                {
+                    var fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + instance.getName());
+
+
+                    if (visited.containsKey(((FptrType) type).getFunctionName()))
+
+                    return fsti.getReturnType();
+                }
+                else
+                {
+
+                }
+
+
+            }
+            catch (ItemNotFoundException ignore) {} //Name Analyzer has checked this
+
         }
-        fsti.getFuncDeclaration().accept(typeSetter);
-        System.out.println("funcCall should return something");
+
         return new NoType();
     }
 
