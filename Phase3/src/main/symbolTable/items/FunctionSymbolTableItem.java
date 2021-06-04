@@ -10,7 +10,7 @@ public class FunctionSymbolTableItem extends SymbolTableItem {
     private SymbolTable FunctionSymbolTable;
     private FunctionDeclaration funcDeclaration;
     private final ArrayList<Type> argTypes;
-    private Type returnType;
+    private Type returnType = null;
 
     public FunctionSymbolTableItem() {
         argTypes = new ArrayList<>();

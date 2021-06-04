@@ -44,10 +44,14 @@ public class TypeSetter  extends Visitor<Void> {
 
         SymbolTable.push(fsti.getFunctionSymbolTable());
 
-        System.out.println("Function " + funcDeclaration.getFunctionName().getName() + ", Arg Types: ");
-        System.out.println(fsti.getArgTypes().toString());
 
+        SymbolTable.top.scope = funcDeclaration.getFunctionName().getName();
         fsti.getFuncDeclaration().getBody().accept(this);
+
+
+        System.out.println(funcDeclaration.getFunctionName().getName());
+        System.out.println(fsti.getArgTypes().toString());
+        System.out.println(fsti.getReturnType());
 
         SymbolTable.pop();
         return null;
@@ -91,7 +95,34 @@ public class TypeSetter  extends Visitor<Void> {
 
     @Override
     public Void visit(ReturnStmt returnStmt) {
-        returnStmt.getReturnedExpr().accept(typeInference);
+        Type returnType = returnStmt.getReturnedExpr().accept(typeInference);
+
+        /*System.out.println("Scope is " + SymbolTable.top.scope);
+        for (Map.Entry<String, SymbolTableItem> pair : SymbolTable.top.items.entrySet())
+        {
+            System.out.println(pair.getKey().toString());
+            System.out.println(pair.getValue().getName());
+        }
+        */
+
+
+        var fsti = new FunctionSymbolTableItem();
+        try {
+            fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + SymbolTable.top.scope);
+
+            if (fsti.getReturnType() == null)
+                fsti.setReturnType(returnType);
+            else
+            {
+                if (fsti.getReturnType() instanceof NoType)
+                    fsti.setReturnType(returnType);
+            }
+
+
+        } catch (ItemNotFoundException ignore) {}
+
+
+        //System.out.println(SymbolTable.top.items.toString());
         return null;
     }
 }
