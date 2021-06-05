@@ -30,6 +30,13 @@ public class JepetoCompiler {
         //TODO
         TypeSetter typeSetter = new TypeSetter();
         program.accept(typeSetter);
-        System.out.println("Compilation successful");
+        ErrorChecker errorChecker = new ErrorChecker();
+        program.accept(errorChecker);
+
+        numberOfErrors = program.accept(errorReporter);
+
+        if (numberOfErrors == 0)
+            System.out.println("Compilation successful");
+
     }
 }

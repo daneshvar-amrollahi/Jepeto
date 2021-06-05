@@ -30,10 +30,17 @@ public class ErrorInference extends Visitor<Type>  {
         Expression left = binaryExpression.getFirstOperand();
         Expression right = binaryExpression.getSecondOperand();
 
+
         Type tl = left.accept(this);
         Type tr = right.accept(this);
         BinaryOperator operator =  binaryExpression.getBinaryOperator();
 
+        if (tl instanceof VoidType || tr instanceof VoidType)
+            if (operator != BinaryOperator.eq && operator != BinaryOperator.neq)
+                binaryExpression.addError(new CantUseValueOfVoidFunction(binaryExpression.getLine()));
+
+
+        //fptr1 is fptr2 case
 
         if (operator.equals(BinaryOperator.and) || operator.equals(BinaryOperator.or)){
             if (tl instanceof BoolType && tr instanceof BoolType)
@@ -99,6 +106,9 @@ public class ErrorInference extends Visitor<Type>  {
         UnaryOperator operator = unaryExpression.getOperator();
         Type expressionType = expression.accept(this);
 
+        if (expressionType instanceof VoidType)
+            unaryExpression.addError(new CantUseValueOfVoidFunction(unaryExpression.getLine()));
+
         if (operator.equals(UnaryOperator.minus) && (expressionType instanceof IntType))
             return new IntType();
 
@@ -146,6 +156,12 @@ public class ErrorInference extends Visitor<Type>  {
         Type instanceType = instanceExpr.accept(this);
         Type indexType = indexExpr.accept(this);
 
+        if (!(instanceType instanceof ListType) && !(instanceType instanceof NoType))
+            listAccessByIndex.addError(new ListAccessByIndexOnNoneList(listAccessByIndex.getLine()));
+
+        if (!(indexType instanceof IntType) && !(indexType instanceof NoType))
+            listAccessByIndex.addError(new ListIndexNotInt(listAccessByIndex.getLine()));
+
         if ((indexType instanceof IntType) && (instanceType instanceof ListType))
             return ((ListType) instanceType).getType();
 
@@ -157,6 +173,9 @@ public class ErrorInference extends Visitor<Type>  {
         Expression expression = listSize.getInstance();
         Type type = expression.accept(this);
 
+        if (!(type instanceof ListType) && !(type instanceof NoType))
+            listSize.addError(new GetSizeOfNoneList(listSize.getLine()));
+
         if (type instanceof ListType)
             return new IntType();
 
@@ -165,7 +184,7 @@ public class ErrorInference extends Visitor<Type>  {
 
     @Override
     public Type visit(FunctionCall funcCall) {
-        funcCall.getInstance().accept(this);
+        Type instanceType = funcCall.getInstance().accept(this);
 
         ArrayList<Type> typeArray = new ArrayList<>();
         for (Expression expression: funcCall.getArgs())
@@ -203,13 +222,17 @@ public class ErrorInference extends Visitor<Type>  {
         }
         else {
             Identifier instance = (Identifier) funcCall.getInstance();
-            Type instanceType = instance.accept(this);
+            instanceType = instance.accept(this);
             if (instanceType instanceof FptrType)
                 functionName = ((FptrType) instanceType).getFunctionName();
         }
 
         if (functionName == null)
+        {
+            if (!(instanceType instanceof NoType))
+                funcCall.addError(new CallOnNoneFptrType(funcCall.getLine()));
             return new NoType();
+        }
 
         if (visited.containsKey(functionName))
         {
@@ -271,6 +294,8 @@ public class ErrorInference extends Visitor<Type>  {
 
         boolean found = false;
         Type foundNonNoType = new NoType(); //didn't mean to set this to NoType()
+
+
         for (int i = 0 ; i < listValue.getElements().size() ; i++)
         {
             Expression expression = listValue.getElements().get(i);
@@ -285,20 +310,21 @@ public class ErrorInference extends Visitor<Type>  {
         if (!found)
             return new ListType(new NoType());
 
-
+        //Now it is guaranteed that foundNonNoType is not NoType
 
         boolean error = false;
 
-        for (int i = 1 ; i < listValue.getElements().size() ; i++)
+        for (int i = 0 ; i < listValue.getElements().size() ; i++)
         {
             Expression expression = listValue.getElements().get(i);
             Type curType = expression.accept(this);
-            if (!(foundNonNoType.getClass().equals(curType.getClass())))
+            if (!(foundNonNoType.getClass().equals(curType.getClass())) && (!(curType instanceof NoType) ))
                 error = true;
         }
 
-        //if (error)
-         //   return new ListElementsTypeNotMatch(listValue.getLine());
+        if (error)
+            listValue.addError(new ListElementsTypeNotMatch(listValue.getLine()));
+
         return new ListType(foundNonNoType);
 
     }

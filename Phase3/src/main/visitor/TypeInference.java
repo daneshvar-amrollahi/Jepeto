@@ -104,6 +104,7 @@ public class TypeInference extends Visitor<Type> {
     public Type visit(AnonymousFunction anonymousFunction) {
         try {
             FunctionSymbolTableItem afsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + anonymousFunction.getName());
+
         }
         catch (ItemNotFoundException ignore) {}
 

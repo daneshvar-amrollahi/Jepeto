@@ -8,7 +8,10 @@ import main.ast.nodes.expression.values.primitive.*;
 import main.ast.nodes.statement.*;
 import main.ast.types.*;
 import main.ast.types.functionPointer.FptrType;
+import main.ast.types.list.ListType;
 import main.ast.types.single.BoolType;
+import main.ast.types.single.IntType;
+import main.ast.types.single.StringType;
 import main.compileErrors.typeErrors.ConditionNotBool;
 import main.compileErrors.typeErrors.ReturnValueNotMatchFunctionReturnType;
 import main.compileErrors.typeErrors.UnsupportedTypeForPrint;
@@ -99,7 +102,10 @@ public class ErrorChecker extends Visitor<Void> {
 
     @Override
     public Void visit(ConditionalStmt conditionalStmt) {
-        conditionalStmt.getCondition().accept(errorInference);
+        Type type = conditionalStmt.getCondition().accept(errorInference);
+        if (!(type instanceof BoolType))
+            conditionalStmt.addError(new ConditionNotBool(conditionalStmt.getLine()));
+
         conditionalStmt.getThenBody().accept(this);
         if (conditionalStmt.getElseBody() != null)
             conditionalStmt.getElseBody().accept(this);
@@ -115,7 +121,9 @@ public class ErrorChecker extends Visitor<Void> {
 
     @Override
     public Void visit(PrintStmt print) {
-        print.getArg().accept(errorInference);
+        Type type = print.getArg().accept(errorInference);
+        if (!(type instanceof IntType) && !(type instanceof BoolType) && !(type instanceof StringType) && !(type instanceof ListType))
+            print.addError(new UnsupportedTypeForPrint(print.getLine()));
         return null;
     }
 
@@ -127,7 +135,7 @@ public class ErrorChecker extends Visitor<Void> {
         try {
             fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + SymbolTable.top.scope);
 
-            if (fsti.getReturnType() == null)
+            if (fsti.getReturnType() == null) //not set til now
                 fsti.setReturnType(returnType);
             else
             {
@@ -135,6 +143,8 @@ public class ErrorChecker extends Visitor<Void> {
                     fsti.setReturnType(returnType);
             }
 
+            if (!(fsti.getReturnType().getClass().equals(returnType.getClass())))
+                returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
 
         } catch (ItemNotFoundException ignore) {}
 
