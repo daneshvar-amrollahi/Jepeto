@@ -12,6 +12,7 @@ import main.ast.types.list.ListType;
 import main.ast.types.single.BoolType;
 import main.ast.types.single.IntType;
 import main.ast.types.single.StringType;
+import main.compileErrors.typeErrors.CantUseValueOfVoidFunction;
 import main.compileErrors.typeErrors.ConditionNotBool;
 import main.compileErrors.typeErrors.ReturnValueNotMatchFunctionReturnType;
 import main.compileErrors.typeErrors.UnsupportedTypeForPrint;
@@ -35,9 +36,9 @@ public class ErrorChecker extends Visitor<Void> {
         errorInference.visited.clear();
 
         //System.out.println("Second visit");
-        program.getMain().accept(this);
+        //program.getMain().accept(this);
 
-        for (FunctionDeclaration functionDeclaration: program.getFunctions())
+        /*for (FunctionDeclaration functionDeclaration: program.getFunctions())
         {
             String functionName = functionDeclaration.getFunctionName().getName();
             if (visited.containsKey(functionName))
@@ -51,7 +52,7 @@ public class ErrorChecker extends Visitor<Void> {
                 System.out.println(fsti.getArgTypes().toString());
                 System.out.println(fsti.getReturnType());
             }
-        }
+        }*/
 
         return null;
     }
@@ -104,7 +105,8 @@ public class ErrorChecker extends Visitor<Void> {
     public Void visit(ConditionalStmt conditionalStmt) {
         Type type = conditionalStmt.getCondition().accept(errorInference);
         if (!(type instanceof BoolType))
-            conditionalStmt.addError(new ConditionNotBool(conditionalStmt.getLine()));
+            if (!(type instanceof NoType))
+                conditionalStmt.addError(new ConditionNotBool(conditionalStmt.getLine()));
 
         conditionalStmt.getThenBody().accept(this);
         if (conditionalStmt.getElseBody() != null)
@@ -122,8 +124,13 @@ public class ErrorChecker extends Visitor<Void> {
     @Override
     public Void visit(PrintStmt print) {
         Type type = print.getArg().accept(errorInference);
+        if (print.getArg() instanceof FunctionCall && type instanceof VoidType) {
+            print.addError(new CantUseValueOfVoidFunction(print.getLine()));
+            type = new NoType();
+        }
         if (!(type instanceof IntType) && !(type instanceof BoolType) && !(type instanceof StringType) && !(type instanceof ListType))
-            print.addError(new UnsupportedTypeForPrint(print.getLine()));
+            if (!(type instanceof NoType))
+                print.addError(new UnsupportedTypeForPrint(print.getLine()));
         return null;
     }
 
@@ -139,12 +146,13 @@ public class ErrorChecker extends Visitor<Void> {
                 fsti.setReturnType(returnType);
             else
             {
-                if (fsti.getReturnType() instanceof NoType)
+                if (fsti.getReturnType() instanceof NoType || fsti.getReturnType() == null)
                     fsti.setReturnType(returnType);
             }
-
-            if (!(fsti.getReturnType().getClass().equals(returnType.getClass())))
-                returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
+            if (returnType != null)
+                if (!(fsti.getReturnType().getClass().equals(returnType.getClass())))
+                    if (!(returnType instanceof NoType))
+                        returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
 
         } catch (ItemNotFoundException ignore) {}
 
