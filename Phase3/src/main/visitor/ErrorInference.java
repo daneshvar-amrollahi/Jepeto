@@ -16,13 +16,13 @@ import main.symbolTable.exceptions.ItemNotFoundException;
 import main.symbolTable.items.*;
 import java.util.*;
 
-public class TypeInference extends Visitor<Type> {
-    private final TypeSetter typeSetter;
+public class ErrorInference extends Visitor<Type>  {
+    private final ErrorChecker errorChecker;
 
     public Map<String, Boolean> visited = new HashMap<>();
 
-    public TypeInference(TypeSetter typeSetter) {
-        this.typeSetter = typeSetter;
+    public ErrorInference(ErrorChecker errorChecker) {
+        this.errorChecker = errorChecker;
     };
 
     @Override
@@ -41,6 +41,8 @@ public class TypeInference extends Visitor<Type> {
 
             if ((tl instanceof NoType || tl instanceof BoolType) && (tr instanceof BoolType || tr instanceof NoType))
                 return new NoType();
+
+            binaryExpression.addError(new UnsupportedOperandType(binaryExpression.getLine(), operator.name()));
         }
 
         if (operator.equals(BinaryOperator.mult)
@@ -52,6 +54,8 @@ public class TypeInference extends Visitor<Type> {
                 return new IntType();
             if ((tl instanceof NoType || tl instanceof IntType) && (tr instanceof BoolType || tr instanceof IntType))
                 return new NoType();
+
+            binaryExpression.addError(new UnsupportedOperandType(binaryExpression.getLine(), operator.name()));
         }
 
         if (operator.equals(BinaryOperator.gt)
@@ -61,12 +65,13 @@ public class TypeInference extends Visitor<Type> {
                 return new BoolType();
             if ((tl instanceof NoType || tl instanceof IntType) && (tr instanceof BoolType || tr instanceof IntType))
                 return new NoType();
+
+            binaryExpression.addError(new UnsupportedOperandType(binaryExpression.getLine(), operator.name()));
         }
 
         if (operator.equals(BinaryOperator.append)) {
-            //System.out.println("Append " + binaryExpression.getLine() + " " + tl + " " + ((ListType)tl).getType() + " , " + tr);
-
             if (!(tl instanceof ListType)) {
+                binaryExpression.addError(new UnsupportedOperandType(binaryExpression.getLine(), operator.name()));
                 return new NoType();
             }
 
@@ -75,11 +80,14 @@ public class TypeInference extends Visitor<Type> {
                 return tl;
             }
 
-            if (((ListType) tl).getType().getClass().equals(tr.getClass())) {
-                //System.out.println("Are you there?");
+            if (((ListType) tl).getType().equals(tr))
                 return tl;
+            else {
+                binaryExpression.addError(new ListElementsTypeNotMatch(binaryExpression.getLine()));
+                return new NoType(); // we doubt this
             }
-            return new NoType(); //We doubt this
+
+
         }
 
         return new NoType();
@@ -108,7 +116,7 @@ public class TypeInference extends Visitor<Type> {
         catch (ItemNotFoundException ignore) {}
 
 
-        return new FptrType(anonymousFunction.getName());
+        return null;
     }
 
     @Override
@@ -250,7 +258,7 @@ public class TypeInference extends Visitor<Type> {
                 } catch (ItemNotFoundException ignore) {}
             }
         }
-        fsti.getFuncDeclaration().accept(typeSetter);
+        fsti.getFuncDeclaration().accept(errorChecker);
         //System.out.println("funcCall should return something");
         return fsti.getReturnType();
     }
@@ -258,7 +266,8 @@ public class TypeInference extends Visitor<Type> {
     @Override
     public Type visit(ListValue listValue) { // [[1, 2], ["a", "b"]] error?
         if (listValue.getElements().size() == 0)
-            return new ListType(new NoType()); //as Nazanin said
+            return new ListType(new NoType());
+
 
         boolean found = false;
         Type foundNonNoType = new NoType(); //didn't mean to set this to NoType()
@@ -275,9 +284,22 @@ public class TypeInference extends Visitor<Type> {
 
         if (!found)
             return new ListType(new NoType());
-        else
-            return new ListType(foundNonNoType);
 
+
+
+        boolean error = false;
+
+        for (int i = 1 ; i < listValue.getElements().size() ; i++)
+        {
+            Expression expression = listValue.getElements().get(i);
+            Type curType = expression.accept(this);
+            if (!(foundNonNoType.getClass().equals(curType.getClass())))
+                error = true;
+        }
+
+        //if (error)
+         //   return new ListElementsTypeNotMatch(listValue.getLine());
+        return new ListType(foundNonNoType);
 
     }
 
