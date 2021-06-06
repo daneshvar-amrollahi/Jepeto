@@ -29,14 +29,9 @@ public class ErrorChecker extends Visitor<Void> {
 
     @Override
     public Void visit(Program program) {
-
         program.getMain().accept(this);
-
         visited.clear();
         errorInference.visited.clear();
-
-
-
         return null;
     }
 
@@ -48,6 +43,7 @@ public class ErrorChecker extends Visitor<Void> {
 
         visited.put(funcDeclaration.getFunctionName().getName(), true);
 
+        // System.out.println("ErrorChecker: Visiting funcDec " + funcDeclaration.getFunctionName().getName());
         var fsti = new FunctionSymbolTableItem();
         try {
             fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + funcDeclaration.getFunctionName().getName());
@@ -117,9 +113,18 @@ public class ErrorChecker extends Visitor<Void> {
         return null;
     }
 
+    public boolean voidOnFuncCall(Expression expr, Type exprRet) {
+        return expr instanceof FunctionCall && exprRet instanceof VoidType;
+    }
+
     @Override
     public Void visit(ReturnStmt returnStmt) {
         Type returnType = returnStmt.getReturnedExpr().accept(errorInference);
+
+        if (voidOnFuncCall(returnStmt.getReturnedExpr(), returnType)) {
+            returnStmt.addError(new CantUseValueOfVoidFunction(returnStmt.getLine()));
+            return null;
+        }
 
         //if (returnType instanceof VoidType) //khode kalemeye void mitoone baashe
         //    returnStmt.addError(new CantUseValueOfVoidFunction(returnStmt.getLine()));
@@ -137,11 +142,10 @@ public class ErrorChecker extends Visitor<Void> {
             }
             if (returnType != null)
                 if (!(fsti.getReturnType().getClass().equals(returnType.getClass())))
-                    if (!(returnType instanceof NoType))
+                    if (!(returnType instanceof NoType)) {
                         returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
-
+                    }
         } catch (ItemNotFoundException ignore) {}
-
 
         return null;
     }

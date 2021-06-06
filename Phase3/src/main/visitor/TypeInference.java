@@ -25,6 +25,24 @@ public class TypeInference extends Visitor<Type> {
         this.typeSetter = typeSetter;
     };
 
+    public boolean checkTypesRecursive(Type a, Type b) {
+        if (a == null && b == null)
+            return true;
+        if (a == null || b == null)
+            return false;
+        if (a instanceof NoType || b instanceof NoType)
+            return true;
+
+        if (a instanceof ListType && b instanceof ListType)
+            return checkTypesRecursive(((ListType) a).getType(), ((ListType) b).getType());
+
+        return a.getClass().equals(b.getClass());
+    }
+
+    public boolean voidOnFuncCall(Expression expr, Type exprRet) {
+        return expr instanceof FunctionCall && exprRet instanceof VoidType;
+    }
+
     @Override
     public Type visit(BinaryExpression binaryExpression) {
         Expression left = binaryExpression.getFirstOperand();
@@ -34,6 +52,8 @@ public class TypeInference extends Visitor<Type> {
         Type tr = right.accept(this);
         BinaryOperator operator =  binaryExpression.getBinaryOperator();
 
+        if (voidOnFuncCall(left, tl) || voidOnFuncCall(right, tr))
+            return new NoType();
 
         if (operator.equals(BinaryOperator.and) || operator.equals(BinaryOperator.or)){
             if (tl instanceof BoolType && tr instanceof BoolType)
@@ -75,7 +95,7 @@ public class TypeInference extends Visitor<Type> {
                 return tl;
             }
 
-            if (((ListType) tl).getType().getClass().equals(tr.getClass())) {
+            if (checkTypesRecursive(((ListType) tl).getType(), tr)) {
                 //System.out.println("Are you there?");
                 return tl;
             }
@@ -127,11 +147,8 @@ public class TypeInference extends Visitor<Type> {
     public Type visit(AnonymousFunction anonymousFunction) {
         try {
             FunctionSymbolTableItem afsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + anonymousFunction.getName());
-
         }
         catch (ItemNotFoundException ignore) {}
-
-
         return new FptrType(anonymousFunction.getName());
     }
 
@@ -181,7 +198,7 @@ public class TypeInference extends Visitor<Type> {
 
     @Override
     public Type visit(FunctionCall funcCall) {
-        funcCall.getInstance().accept(this);
+         funcCall.getInstance().accept(this);
 
         ArrayList<Type> typeArray = new ArrayList<>();
         for (Expression expression: funcCall.getArgs())
@@ -198,11 +215,9 @@ public class TypeInference extends Visitor<Type> {
             typeMap.put(pair.getKey().getName(), type);
         }
         // This should be handled later
-
         //System.out.println("Instance is " + funcCall.getInstance());
 
         String functionName = null;
-
         if (!(funcCall.getInstance() instanceof Identifier))
         {
             Type type = funcCall.getInstance().accept(this);
@@ -211,10 +226,7 @@ public class TypeInference extends Visitor<Type> {
 
             try {
                 var fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + ((FptrType) type).getFunctionName());
-
-
                 functionName = fsti.getFuncDeclaration().getFunctionName().getName(); //to be accepted below
-
             } catch (ItemNotFoundException ignore) {}
         }
         else {
@@ -286,10 +298,13 @@ public class TypeInference extends Visitor<Type> {
 
         boolean found = false;
         Type foundNonNoType = new NoType(); //didn't mean to set this to NoType()
+
+        ArrayList<Type> elemTypes = new ArrayList<>();
         for (int i = 0 ; i < listValue.getElements().size() ; i++)
         {
             Expression expression = listValue.getElements().get(i);
             Type curType = expression.accept(this);
+            elemTypes.add(curType);
             if (!(curType instanceof NoType) && !found)
             {
                 found = true;
@@ -299,10 +314,19 @@ public class TypeInference extends Visitor<Type> {
 
         if (!found)
             return new ListType(new NoType());
-        else
-            return new ListType(foundNonNoType);
+        boolean error = false;
 
+        for (int i = 0 ; i < listValue.getElements().size() ; i++) {
+            // Expression expression = listValue.getElements().get(i);
+            Type curType = elemTypes.get(i);
+            if (!(checkTypesRecursive(foundNonNoType, curType)) && (!(curType instanceof NoType))) {
+                error = true;
+            }
+        }
+        if (error)
+            return new NoType();
 
+        return new ListType(foundNonNoType);
     }
 
     @Override

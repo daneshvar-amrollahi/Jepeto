@@ -25,20 +25,63 @@ public class ErrorInference extends Visitor<Type>  {
         this.errorChecker = errorChecker;
     };
 
+    public boolean checkTypesRecursive(Type a, Type b) {
+        if (a == null && b == null)
+            return false;
+        if (a == null || b == null)
+            return false;
+
+        if (a instanceof NoType || b instanceof NoType)
+            return true;
+
+        if (a instanceof ListType && b instanceof ListType)
+            return checkTypesRecursive(((ListType) a).getType(), ((ListType) b).getType());
+
+        return a.getClass().equals(b.getClass());
+    }
+
+    public boolean voidOnFuncCall(Expression expr, Type exprRet) {
+        return expr instanceof FunctionCall && exprRet instanceof VoidType;
+    }
+
+    public boolean compareFptr(FptrType a, FptrType b) {
+        var fa = new FunctionSymbolTableItem();
+        var fb = new FunctionSymbolTableItem();
+
+        try {
+            fa = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + a.getFunctionName());
+            fb = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + b.getFunctionName());
+        } catch (ItemNotFoundException ignore) {} // This should never happen
+
+        if (fa.getArgTypes().size() != fb.getArgTypes().size())
+            return false;
+        if (!checkTypesRecursive(fa.getReturnType(), fb.getReturnType()))
+            return false;
+        for (int i = 0; i < fa.getArgTypes().size(); i++) {
+            if (!checkTypesRecursive(fa.getArgTypes().get(i), fb.getArgTypes().get(i)))
+                return false;
+        }
+
+        return true;
+    }
+
     @Override
     public Type visit(BinaryExpression binaryExpression) {
         Expression left = binaryExpression.getFirstOperand();
         Expression right = binaryExpression.getSecondOperand();
 
-
         Type tl = left.accept(this);
         Type tr = right.accept(this);
         BinaryOperator operator =  binaryExpression.getBinaryOperator();
 
-        if (tl instanceof VoidType || tr instanceof VoidType)
+        if (voidOnFuncCall(left, tl) || voidOnFuncCall(right, tr)) {
+            binaryExpression.addError(new CantUseValueOfVoidFunction(binaryExpression.getLine()));
+            return new NoType();
+        }
+        /*if (tl instanceof VoidType || tr instanceof VoidType)
             if (operator != BinaryOperator.eq && operator != BinaryOperator.neq)
                 binaryExpression.addError(new CantUseValueOfVoidFunction(binaryExpression.getLine()));
-
+        */
 
         //fptr1 is fptr2 case
 
@@ -77,6 +120,8 @@ public class ErrorInference extends Visitor<Type>  {
         }
 
         if (operator.equals(BinaryOperator.append)) {
+            if (tl instanceof NoType)
+                return new NoType();
             if (!(tl instanceof ListType)) {
                 binaryExpression.addError(new UnsupportedOperandType(binaryExpression.getLine(), operator.name()));
                 return new NoType();
@@ -87,19 +132,20 @@ public class ErrorInference extends Visitor<Type>  {
                 return tl;
             }
 
-            if (((ListType) tl).getType().getClass().equals(tr.getClass()))
+            if (checkTypesRecursive(((ListType) tl).getType(), tr))
                 return tl;
             else {
                 if (!(tr instanceof NoType))
                     binaryExpression.addError(new UnsupportedOperandType(binaryExpression.getLine(), operator.name()));
                 return new NoType(); // we doubt this
             }
-
-
         }
 
         if (operator.equals(BinaryOperator.eq) || operator.equals(BinaryOperator.neq))
         {
+            if (tl == null && tr == null)
+                return new NoType();
+
             if (tl instanceof NoType || tr instanceof NoType)
                 return new NoType();
 
@@ -111,7 +157,11 @@ public class ErrorInference extends Visitor<Type>  {
                 return new NoType();
             }
 
-            if (tl.getClass().equals(tr.getClass()))
+            if (tl instanceof FptrType && tr instanceof FptrType)
+                if (compareFptr((FptrType) tl, (FptrType) tr))
+                    return new BoolType();
+
+                if (tl.getClass().equals(tr.getClass()))
                 return new BoolType();
 
             if (tl instanceof FptrType && tr instanceof VoidType)
@@ -152,9 +202,7 @@ public class ErrorInference extends Visitor<Type>  {
             FunctionSymbolTableItem afsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + anonymousFunction.getName());
         }
         catch (ItemNotFoundException ignore) {}
-
-
-        return null;
+        return new FptrType(anonymousFunction.getName());
     }
 
     @Override
@@ -183,11 +231,11 @@ public class ErrorInference extends Visitor<Type>  {
 
         Type instanceType = instanceExpr.accept(this);
         Type indexType = indexExpr.accept(this);
+        // System.out.println("hiiii " + listAccessByIndex.getLine() + " " + indexType);
 
         if (!(instanceType instanceof ListType) && !(instanceType instanceof NoType))
             listAccessByIndex.addError(new ListAccessByIndexOnNoneList(listAccessByIndex.getLine()));
 
-        System.out.println("hiiii " + listAccessByIndex.getLine() + " " + indexType);
         if (!(indexType instanceof IntType) && !(indexType instanceof NoType))
             listAccessByIndex.addError(new ListIndexNotInt(listAccessByIndex.getLine()));
 
@@ -243,8 +291,6 @@ public class ErrorInference extends Visitor<Type>  {
 
             try {
                 var fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + ((FptrType) type).getFunctionName());
-
-
                 functionName = fsti.getFuncDeclaration().getFunctionName().getName(); //to be accepted below
 
             } catch (ItemNotFoundException ignore) {}
@@ -275,6 +321,8 @@ public class ErrorInference extends Visitor<Type>  {
         }
 
         visited.put(functionName, true);
+
+        // System.out.println("funcCall: functionName: " + functionName);
 
         var fsti = new FunctionSymbolTableItem();
         try
@@ -336,7 +384,7 @@ public class ErrorInference extends Visitor<Type>  {
             }
         }
 
-        System.out.println("List line " + listValue.getLine() + " types: " + elemTypes);
+        // System.out.println("List line " + listValue.getLine() + " types: " + elemTypes);
 
         if (!found)
             return new ListType(new NoType());
@@ -348,13 +396,14 @@ public class ErrorInference extends Visitor<Type>  {
         for (int i = 0 ; i < listValue.getElements().size() ; i++) {
             // Expression expression = listValue.getElements().get(i);
             Type curType = elemTypes.get(i);
-            if (!(foundNonNoType.getClass().equals(curType.getClass())) && (!(curType instanceof NoType))) {
+            if (!(checkTypesRecursive(foundNonNoType, curType)) && (!(curType instanceof NoType))) {
                 error = true;
             }
         }
-        if (error)
+        if (error) {
             listValue.addError(new ListElementsTypeNotMatch(listValue.getLine()));
-
+            return new NoType();
+        }
         return new ListType(foundNonNoType);
     }
 

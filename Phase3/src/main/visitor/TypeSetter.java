@@ -9,6 +9,7 @@ import main.ast.nodes.statement.*;
 import main.ast.types.*;
 import main.ast.types.functionPointer.FptrType;
 import main.ast.types.single.BoolType;
+import main.compileErrors.typeErrors.CantUseValueOfVoidFunction;
 import main.compileErrors.typeErrors.ConditionNotBool;
 import main.compileErrors.typeErrors.ReturnValueNotMatchFunctionReturnType;
 import main.compileErrors.typeErrors.UnsupportedTypeForPrint;
@@ -56,7 +57,6 @@ public class TypeSetter  extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionDeclaration funcDeclaration) {
-
         if (visited.containsKey(funcDeclaration.getFunctionName().getName()))
             return null;
 
@@ -68,18 +68,8 @@ public class TypeSetter  extends Visitor<Void> {
         } catch (ItemNotFoundException ignore) {}
 
         SymbolTable.push(fsti.getFunctionSymbolTable());
-
-
         SymbolTable.top.scope = funcDeclaration.getFunctionName().getName();
-
-//        if (fsti.getReturnType() == null) //second visit
         fsti.getFuncDeclaration().getBody().accept(this);
-
-
-//        System.out.println(funcDeclaration.getFunctionName().getName());
-//        System.out.println(fsti.getArgTypes().toString());
-//        System.out.println(fsti.getReturnType());
-
         SymbolTable.pop();
         return null;
     }
@@ -120,9 +110,16 @@ public class TypeSetter  extends Visitor<Void> {
         return null;
     }
 
+    public boolean voidOnFuncCall(Expression expr, Type exprRet) {
+        return expr instanceof FunctionCall && exprRet instanceof VoidType;
+    }
+
     @Override
     public Void visit(ReturnStmt returnStmt) {
         Type returnType = returnStmt.getReturnedExpr().accept(typeInference);
+
+        if (voidOnFuncCall(returnStmt.getReturnedExpr(), returnType))
+            return null;
 
         var fsti = new FunctionSymbolTableItem();
         try {
