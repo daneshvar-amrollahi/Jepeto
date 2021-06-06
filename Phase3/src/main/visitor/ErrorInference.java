@@ -98,6 +98,33 @@ public class ErrorInference extends Visitor<Type>  {
 
         }
 
+        if (operator.equals(BinaryOperator.eq) || operator.equals(BinaryOperator.neq))
+        {
+            if (tl instanceof NoType || tr instanceof NoType)
+                return new NoType();
+
+            if (tl == null || tr == null)
+                return new NoType();
+
+            if (tl instanceof ListType || tr instanceof ListType) {
+                binaryExpression.addError(new UnsupportedOperandType(binaryExpression.getLine(), operator.name()));
+                return new NoType();
+            }
+
+            if (tl.getClass().equals(tr.getClass()))
+                return new BoolType();
+
+            if (tl instanceof FptrType && tr instanceof VoidType)
+                return new BoolType();
+
+            if (tr instanceof FptrType && tl instanceof VoidType)
+                return new BoolType();
+
+            binaryExpression.addError(new UnsupportedOperandType(binaryExpression.getLine(), operator.name()));
+
+            return new NoType();
+        }
+
         return new NoType();
     }
 
@@ -160,6 +187,7 @@ public class ErrorInference extends Visitor<Type>  {
         if (!(instanceType instanceof ListType) && !(instanceType instanceof NoType))
             listAccessByIndex.addError(new ListAccessByIndexOnNoneList(listAccessByIndex.getLine()));
 
+        System.out.println("hiiii " + listAccessByIndex.getLine() + " " + indexType);
         if (!(indexType instanceof IntType) && !(indexType instanceof NoType))
             listAccessByIndex.addError(new ListIndexNotInt(listAccessByIndex.getLine()));
 
@@ -209,7 +237,7 @@ public class ErrorInference extends Visitor<Type>  {
 
         if (!(funcCall.getInstance() instanceof Identifier))
         {
-            Type type = funcCall.getInstance().accept(this);
+            Type type = instanceType;//funcCall.getInstance().accept(this);
             if (!(type instanceof FptrType))
                 return new NoType();
 

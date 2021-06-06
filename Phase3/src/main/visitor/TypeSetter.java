@@ -41,6 +41,8 @@ public class TypeSetter  extends Visitor<Void> {
                 var fsti = new FunctionSymbolTableItem();
                 try {
                     fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + functionName);
+                    if (fsti.getReturnType() == null)
+                        fsti.setReturnType(new NoType());
                 } catch (ItemNotFoundException ignore) {}
 
                 System.out.println(functionName);

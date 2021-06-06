@@ -82,6 +82,29 @@ public class TypeInference extends Visitor<Type> {
             return new NoType(); //We doubt this
         }
 
+        if (operator.equals(BinaryOperator.eq) || operator.equals(BinaryOperator.neq))
+        {
+            if (tl instanceof NoType || tr instanceof NoType)
+                return new NoType();
+
+            if (tl == null || tr == null)
+                return new NoType();
+
+            if (tl instanceof ListType || tr instanceof ListType)
+                return new NoType();
+
+            if (tl.getClass().equals(tr.getClass()))
+                return new BoolType();
+
+            if (tl instanceof FptrType && tr instanceof VoidType)
+                return new BoolType();
+
+            if (tr instanceof FptrType && tl instanceof VoidType)
+                return new BoolType();
+
+            return new NoType();
+        }
+
         return new NoType();
     }
 
