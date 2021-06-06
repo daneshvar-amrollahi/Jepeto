@@ -43,6 +43,29 @@ public class TypeInference extends Visitor<Type> {
         return expr instanceof FunctionCall && exprRet instanceof VoidType;
     }
 
+    public boolean compareFptr(FptrType a, FptrType b) {
+        var fa = new FunctionSymbolTableItem();
+        var fb = new FunctionSymbolTableItem();
+
+        try {
+            fa = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + a.getFunctionName());
+            fb = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + b.getFunctionName());
+        } catch (ItemNotFoundException ignore) {} // This should never happen
+
+        if (fa.getArgTypes().size() != fb.getArgTypes().size()) {
+            return false;
+        }
+        if (!checkTypesRecursive(fa.getReturnType(), fb.getReturnType())) {
+            return false;
+        }
+        for (int i = 0; i < fa.getArgTypes().size(); i++) {
+            if (!checkTypesRecursive(fa.getArgTypes().get(i), fb.getArgTypes().get(i)))
+                return false;
+        }
+
+        return true;
+    }
+
     @Override
     public Type visit(BinaryExpression binaryExpression) {
         Expression left = binaryExpression.getFirstOperand();
@@ -112,6 +135,13 @@ public class TypeInference extends Visitor<Type> {
 
             if (tl instanceof ListType || tr instanceof ListType)
                 return new NoType();
+
+            if (tl instanceof FptrType && tr instanceof FptrType) {
+                if (compareFptr((FptrType) tl, (FptrType) tr))
+                    return new BoolType();
+                else
+                    return new NoType();
+            }
 
             if (tl.getClass().equals(tr.getClass()))
                 return new BoolType();
@@ -196,6 +226,37 @@ public class TypeInference extends Visitor<Type> {
         return new NoType();
     }
 
+    public boolean checkFuncCallArgs(FunctionSymbolTableItem fsti, ArrayList<Type> typeArray,
+                                     Map<String, Type> typeMap)
+    {
+        ArrayList<Type> funcArgs = fsti.getArgTypes();
+        for (int i = 0; i < typeArray.size(); i++) {
+            if (typeArray.get(i) instanceof FptrType && funcArgs.get(i) instanceof FptrType) {
+                if (!compareFptr((FptrType) typeArray.get(i), (FptrType) funcArgs.get(i)))
+                    return false;
+            }
+            else if (!checkTypesRecursive(typeArray.get(i), funcArgs.get(i)))
+                return false;
+        }
+
+        for (Map.Entry<String, Type> pair : typeMap.entrySet()) {
+            String argName = pair.getKey();
+            Type curType = pair.getValue();
+            VariableSymbolTableItem vsti;
+            try {
+                vsti = (VariableSymbolTableItem) fsti.getFunctionSymbolTable().getItem("Var_" + argName);
+                if (vsti.getType() instanceof FptrType && curType instanceof FptrType) {
+                    if (!compareFptr((FptrType) vsti.getType(), (FptrType) curType))
+                        return false;
+                }
+
+                else if (!checkTypesRecursive(vsti.getType(), curType))
+                    return false;
+            } catch (ItemNotFoundException ignore) {}
+        }
+        return true;
+    }
+
     @Override
     public Type visit(FunctionCall funcCall) {
          funcCall.getInstance().accept(this);
@@ -245,7 +306,10 @@ public class TypeInference extends Visitor<Type> {
             try
             {
                 fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + functionName);
-                return fsti.getReturnType();
+                if (checkFuncCallArgs(fsti, typeArray, typeMap))
+                    return fsti.getReturnType();
+                else
+                    return new NoType();
                 // should also check for argument types
             } catch (ItemNotFoundException ignore) {}
         }

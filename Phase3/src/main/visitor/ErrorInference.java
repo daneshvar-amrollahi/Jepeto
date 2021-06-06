@@ -27,7 +27,7 @@ public class ErrorInference extends Visitor<Type>  {
 
     public boolean checkTypesRecursive(Type a, Type b) {
         if (a == null && b == null)
-            return false;
+            return true;
         if (a == null || b == null)
             return false;
 
@@ -53,10 +53,12 @@ public class ErrorInference extends Visitor<Type>  {
             fb = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + b.getFunctionName());
         } catch (ItemNotFoundException ignore) {} // This should never happen
 
-        if (fa.getArgTypes().size() != fb.getArgTypes().size())
+        if (fa.getArgTypes().size() != fb.getArgTypes().size()) {
             return false;
-        if (!checkTypesRecursive(fa.getReturnType(), fb.getReturnType()))
+        }
+        if (!checkTypesRecursive(fa.getReturnType(), fb.getReturnType())) {
             return false;
+        }
         for (int i = 0; i < fa.getArgTypes().size(); i++) {
             if (!checkTypesRecursive(fa.getArgTypes().get(i), fb.getArgTypes().get(i)))
                 return false;
@@ -157,11 +159,16 @@ public class ErrorInference extends Visitor<Type>  {
                 return new NoType();
             }
 
-            if (tl instanceof FptrType && tr instanceof FptrType)
-                if (compareFptr((FptrType) tl, (FptrType) tr))
+            if (tl instanceof FptrType && tr instanceof FptrType) {
+                if (compareFptr((FptrType) tl, (FptrType) tr)) {
                     return new BoolType();
-
-                if (tl.getClass().equals(tr.getClass()))
+                }
+                else {
+                    binaryExpression.addError(new UnsupportedOperandType(binaryExpression.getLine(), operator.name()));
+                    return new NoType();
+                }
+            }
+            if (tl.getClass().equals(tr.getClass()))
                 return new BoolType();
 
             if (tl instanceof FptrType && tr instanceof VoidType)
@@ -171,7 +178,6 @@ public class ErrorInference extends Visitor<Type>  {
                 return new BoolType();
 
             binaryExpression.addError(new UnsupportedOperandType(binaryExpression.getLine(), operator.name()));
-
             return new NoType();
         }
 
@@ -259,6 +265,37 @@ public class ErrorInference extends Visitor<Type>  {
         return new NoType();
     }
 
+    public boolean checkFuncCallArgs(FunctionSymbolTableItem fsti, ArrayList<Type> typeArray,
+                                     Map<String, Type> typeMap)
+    {
+        ArrayList<Type> funcArgs = fsti.getArgTypes();
+        for (int i = 0; i < typeArray.size(); i++) {
+            if (typeArray.get(i) instanceof FptrType && funcArgs.get(i) instanceof FptrType) {
+                if (!compareFptr((FptrType) typeArray.get(i), (FptrType) funcArgs.get(i)))
+                    return false;
+            }
+            else if (!checkTypesRecursive(typeArray.get(i), funcArgs.get(i)))
+                return false;
+        }
+
+        for (Map.Entry<String, Type> pair : typeMap.entrySet()) {
+            String argName = pair.getKey();
+            Type curType = pair.getValue();
+            VariableSymbolTableItem vsti;
+            try {
+                vsti = (VariableSymbolTableItem) fsti.getFunctionSymbolTable().getItem("Var_" + argName);
+                if (vsti.getType() instanceof FptrType && curType instanceof FptrType) {
+                    if (!compareFptr((FptrType) vsti.getType(), (FptrType) curType))
+                        return false;
+                }
+
+                else if (!checkTypesRecursive(vsti.getType(), curType))
+                    return false;
+            } catch (ItemNotFoundException ignore) {}
+        }
+        return true;
+    }
+
     @Override
     public Type visit(FunctionCall funcCall) {
         Type instanceType = funcCall.getInstance().accept(this);
@@ -315,7 +352,12 @@ public class ErrorInference extends Visitor<Type>  {
             try
             {
                 fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + functionName);
-                return fsti.getReturnType();
+                if (checkFuncCallArgs(fsti, typeArray, typeMap))
+                    return fsti.getReturnType();
+                else {
+                    funcCall.addError(new FunctionCallNotMatchDefinition(funcCall.getLine()));
+                    return new NoType();
+                }
                 // should also check for argument types
             } catch (ItemNotFoundException ignore) {}
         }

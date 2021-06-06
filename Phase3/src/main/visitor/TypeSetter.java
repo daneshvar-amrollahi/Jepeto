@@ -8,6 +8,7 @@ import main.ast.nodes.expression.values.primitive.*;
 import main.ast.nodes.statement.*;
 import main.ast.types.*;
 import main.ast.types.functionPointer.FptrType;
+import main.ast.types.list.ListType;
 import main.ast.types.single.BoolType;
 import main.compileErrors.typeErrors.CantUseValueOfVoidFunction;
 import main.compileErrors.typeErrors.ConditionNotBool;
@@ -114,28 +115,91 @@ public class TypeSetter  extends Visitor<Void> {
         return expr instanceof FunctionCall && exprRet instanceof VoidType;
     }
 
+    public boolean checkTypesRecursive(Type a, Type b) {
+        if (a == null && b == null)
+            return true;
+        if (a == null || b == null)
+            return false;
+
+        if (a instanceof NoType || b instanceof NoType)
+            return true;
+
+        if (a instanceof ListType && b instanceof ListType)
+            return checkTypesRecursive(((ListType) a).getType(), ((ListType) b).getType());
+
+        return a.getClass().equals(b.getClass());
+    }
+
+    public boolean compareFptr(FptrType a, FptrType b) {
+        var fa = new FunctionSymbolTableItem();
+        var fb = new FunctionSymbolTableItem();
+
+        try {
+            fa = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + a.getFunctionName());
+            fb = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + b.getFunctionName());
+        } catch (ItemNotFoundException ignore) {} // This should never happen
+
+        if (fa.getArgTypes().size() != fb.getArgTypes().size()) {
+            return false;
+        }
+        if (!checkTypesRecursive(fa.getReturnType(), fb.getReturnType())) {
+            return false;
+        }
+        for (int i = 0; i < fa.getArgTypes().size(); i++) {
+            if (!checkTypesRecursive(fa.getArgTypes().get(i), fb.getArgTypes().get(i)))
+                return false;
+        }
+
+        return true;
+    }
+
     @Override
     public Void visit(ReturnStmt returnStmt) {
         Type returnType = returnStmt.getReturnedExpr().accept(typeInference);
 
-        if (voidOnFuncCall(returnStmt.getReturnedExpr(), returnType))
+        if (voidOnFuncCall(returnStmt.getReturnedExpr(), returnType)) {
+            // returnStmt.addError(new CantUseValueOfVoidFunction(returnStmt.getLine()));
             return null;
+        }
+
+        //if (returnType instanceof VoidType) //khode kalemeye void mitoone baashe
+        //    returnStmt.addError(new CantUseValueOfVoidFunction(returnStmt.getLine()));
 
         var fsti = new FunctionSymbolTableItem();
         try {
             fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + SymbolTable.top.scope);
 
-            if (fsti.getReturnType() == null)
+            if (fsti.getReturnType() == null) {//not set til now
                 fsti.setReturnType(returnType);
+                return null;
+            }
             else
             {
-                if (fsti.getReturnType() instanceof NoType)
+                if (fsti.getReturnType() instanceof NoType || fsti.getReturnType() == null) {
                     fsti.setReturnType(returnType);
+                    return null;
+                }
             }
+            if (returnType != null) {
+                if (fsti.getReturnType().getClass().equals((returnType.getClass()))) {
+                    if (fsti.getReturnType() instanceof FptrType && returnType instanceof FptrType)
+                        if (!compareFptr((FptrType) fsti.getReturnType(), (FptrType) returnType)) {
+                            // returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
+                            return null;
+                        }
+                    if (!checkTypesRecursive(fsti.getReturnType(), returnType)) {
+                        // returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
+                        return null;
+                    }
+                }
 
-
+                if (!(fsti.getReturnType().getClass().equals(returnType.getClass()))) {
+                    if (!(returnType instanceof NoType)) {
+                        // returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
+                    }
+                }
+            }
         } catch (ItemNotFoundException ignore) {}
-
 
         return null;
     }

@@ -1,0 +1,12 @@
+main: f(1, 2);
+
+func f(a, b): {
+    g(1, 2);
+    g("a", "b");
+    return [[1, 2]];
+    a(1, [[1, 2]], true * 5);
+}
+
+func g(a, b): {
+    return true;
+}
