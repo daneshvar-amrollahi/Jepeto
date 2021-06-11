@@ -168,15 +168,26 @@ public class TypeSetter  extends Visitor<Void> {
         var fsti = new FunctionSymbolTableItem();
         try {
             fsti = (FunctionSymbolTableItem) SymbolTable.root.getItem("Function_" + SymbolTable.top.scope);
-
+            System.out.println("Function " + SymbolTable.top.scope + " line " + returnStmt.getLine()
+                    + " current return type: " + fsti.getReturnType());
+            if (fsti.getReturnType() instanceof ListType)
+                System.out.println("--listType " + ((ListType) fsti.getReturnType()).getType());
             if (fsti.getReturnType() == null) {//not set til now
+                //System.out.println("Function " + SymbolTable.top.scope + ": Set on line " + returnStmt.getLine() + " " + returnType);
                 fsti.setReturnType(returnType);
+                if (returnType instanceof ListType)
+                    //System.out.println("--listType " + ((ListType) fsti.getReturnType()).getType());
+                if (returnType instanceof ListType)
+                    //System.out.println("--actual listType " + ((ListType) returnType).getType());
                 return null;
             }
             else
             {
                 if (fsti.getReturnType() instanceof NoType || fsti.getReturnType() == null) {
                     fsti.setReturnType(returnType);
+                    //System.out.println("Function " + SymbolTable.top.scope + "Set on line " + returnStmt.getLine()
+                            //+ " " + fsti.getReturnType());
+                    //System.out.println("--actual listType " + ((ListType) returnType).getType());
                     return null;
                 }
             }
@@ -188,6 +199,8 @@ public class TypeSetter  extends Visitor<Void> {
                             return null;
                         }
                     if (!checkTypesRecursive(fsti.getReturnType(), returnType)) {
+                        //System.out.println("Function " + SymbolTable.top.scope + ": Oops on line " + returnStmt.getLine() + " "
+                                //+ ((ListType)fsti.getReturnType()).getType() + " " + ((ListType)returnType).getType());
                         // returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
                         return null;
                     }

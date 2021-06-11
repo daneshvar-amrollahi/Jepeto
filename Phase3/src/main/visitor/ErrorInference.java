@@ -190,15 +190,27 @@ public class ErrorInference extends Visitor<Type>  {
         UnaryOperator operator = unaryExpression.getOperator();
         Type expressionType = expression.accept(this);
 
-        if (expressionType instanceof VoidType)
-            unaryExpression.addError(new CantUseValueOfVoidFunction(unaryExpression.getLine()));
-
-        if (operator.equals(UnaryOperator.minus) && (expressionType instanceof IntType))
-            return new IntType();
-
-        if (operator.equals(UnaryOperator.not) && (expressionType instanceof BoolType))
-            return new BoolType();
-
+        if (expression instanceof FunctionCall)
+            if (voidOnFuncCall(expression, expressionType)) {
+                unaryExpression.addError(new CantUseValueOfVoidFunction(unaryExpression.getLine()));
+                return new NoType();
+            }
+        if (operator.equals(UnaryOperator.minus)) {
+            if (expressionType instanceof IntType)
+                return new IntType();
+            else if (!(expressionType instanceof NoType)){
+                unaryExpression.addError(new UnsupportedOperandType(unaryExpression.getLine(), operator.name()));
+                return new NoType();
+            }
+        }
+        if (operator.equals(UnaryOperator.not)) {
+            if (expressionType instanceof BoolType)
+                return new BoolType();
+            else if (!(expressionType instanceof NoType)) {
+                unaryExpression.addError(new UnsupportedOperandType(unaryExpression.getLine(), operator.name()));
+                return new NoType();
+            }
+        }
         return new NoType();
     }
 
