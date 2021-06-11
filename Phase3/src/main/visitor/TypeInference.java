@@ -114,8 +114,9 @@ public class TypeInference extends Visitor<Type> {
             }
 
             if (((ListType) tl).getType() instanceof NoType) {
-                ((ListType) tl).setType(tr);
-                return tl;
+//                ((ListType) tl).setType(tr);
+//                return tl;
+                return new ListType(tr);
             }
 
             if (checkTypesRecursive(((ListType) tl).getType(), tr)) {

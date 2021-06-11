@@ -32,7 +32,7 @@ public class TypeSetter  extends Visitor<Void> {
         visited.clear();
         typeInference.visited.clear();
 
-        //System.out.println("Second visit");
+        System.out.println("Second visit");
         program.getMain().accept(this);
 
         for (FunctionDeclaration functionDeclaration: program.getFunctions())
