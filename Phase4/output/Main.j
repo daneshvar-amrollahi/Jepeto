@@ -11,7 +11,7 @@
 		  .limit stack 140
 		  .limit locals 140
 		  getstatic java/lang/System/out Ljava/io/PrintStream;
-		ldc 2
-		  invokevirtual java/io/PrintStream/println(I)V
+		ldc "How do you care?"
+		invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
 		  return
 		.end method

@@ -16,6 +16,7 @@ import main.symbolTable.items.FunctionSymbolTableItem;
 import main.visitor.Visitor;
 import main.visitor.type.ExpressionTypeChecker;
 
+import javax.swing.plaf.nimbus.State;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -148,7 +149,6 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(MainDeclaration mainDeclaration) {
-
         String command = """
                 .method public static main([Ljava/lang/String;)V
                   .limit stack 140
@@ -168,8 +168,10 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(BlockStmt blockStmt) {
-        //todo
-        return null;
+        StringBuilder command = new StringBuilder();
+        for (Statement stmt : blockStmt.getStatements())
+            command.append(stmt.accept(this)).append('\n');
+        return command.toString();
     }
 
     @Override
@@ -184,6 +186,16 @@ public class CodeGenerator extends Visitor<String> {
         return null;
     }
 
+    public String getTypeSymbol(Type t) {
+        if (t instanceof IntType)
+            return "I";
+        if (t instanceof StringType)
+            return "Ljava/lang/String;";
+        if (t instanceof BoolType)
+            return "Z";
+        return null;
+    }
+
     @Override
     public String visit(PrintStmt print) {
         String command = "";
@@ -192,11 +204,12 @@ public class CodeGenerator extends Visitor<String> {
                 """;
 
         //TODO: Check expression type for proper printing
+        Type t = print.getArg().accept(expressionTypeChecker);
         command += print.getArg().accept(this);
 
-        command += """
-                    invokevirtual java/io/PrintStream/println(I)V
-                  """;
+
+        command += "invokevirtual java/io/PrintStream/println(" +
+                getTypeSymbol(t) +")V\n";
 
         return command;
     }
@@ -262,14 +275,15 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(BoolValue boolValue) {
-        //todo
-        return null;
+        if (boolValue.getConstant())
+            return "ldc 1\n";
+        else
+            return "ldc 0\n";
     }
 
     @Override
     public String visit(StringValue stringValue) {
-        //todo
-        return null;
+        return "ldc \"" + stringValue.getConstant() + "\"\n";
     }
 
     @Override
