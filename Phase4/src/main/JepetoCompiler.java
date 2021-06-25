@@ -36,7 +36,7 @@ public class JepetoCompiler {
             System.exit(1);
         System.out.println("Compilation successful");
 
-        CodeGenerator codeGenerator = new CodeGenerator(typeCheker.getExpressionTypeChecker());
+        CodeGenerator codeGenerator = new CodeGenerator(typeCheker.getExpressionTypeChecker(), typeSetter.getVisited());
         program.accept(codeGenerator);
 
         runJasminFiles();
@@ -46,7 +46,7 @@ public class JepetoCompiler {
         try {
             System.out.println("\n-------------------Generating Class Files-------------------");
             File dir = new File("./output");
-            Process process = Runtime.getRuntime().exec("java -jar jasmin.jar *.j", null, dir);
+            Process process = Runtime.getRuntime().exec("java -jar jasmin.jar Main.j", null, dir);
             printResults(process.getInputStream());
             printResults(process.getErrorStream());
             System.out.println("\n---------------------------Output---------------------------");

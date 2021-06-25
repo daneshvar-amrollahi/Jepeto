@@ -20,23 +20,26 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class CodeGenerator extends Visitor<String> {
     private final String outputPath;
     private FileWriter mainFile;
     private final ExpressionTypeChecker expressionTypeChecker;
     private FunctionDeclaration curFuncDec;
+    private Set<String> visited;
 
-    public CodeGenerator(ExpressionTypeChecker expressionTypeChecker) {
+    public CodeGenerator(ExpressionTypeChecker expressionTypeChecker, Set<String> visited) {
         this.expressionTypeChecker = expressionTypeChecker;
         outputPath = "./output/";
+        this.visited = visited;
         prepareOutputFolder();
     }
 
     private void prepareOutputFolder() {
-        String jasminPath = "utilities/jarFiles/jasmin.jar";
-        String listClassPath = "utilities/codeGenerationUtilityClasses/List.j";
-        String fptrClassPath = "utilities/codeGenerationUtilityClasses/Fptr.j";
+        String jasminPath = "Utilities/jarFiles/jasmin.jar";
+        String listClassPath = "Utilities/codeGenerationUtilityClasses/List.j";
+        String fptrClassPath = "Utilities/codeGenerationUtilityClasses/Fptr.j";
         try{
             File directory = new File(this.outputPath);
             File[] files = directory.listFiles();
@@ -92,7 +95,18 @@ public class CodeGenerator extends Visitor<String> {
     }
 
     private void addStaticMainMethod() {
-        //todo
+
+        String command = """
+                .method public <init>()V
+                .limit stack 140
+                .limit locals 140
+                aload_0
+                invokespecial java/lang/Object/<init>()V
+                return
+                .end method
+                """;
+
+        addCommand(command);
     }
 
     private int slotOf(String identifier) {
@@ -100,9 +114,29 @@ public class CodeGenerator extends Visitor<String> {
         return 0;
     }
 
+    public void addMainDeclaration()
+    {
+        String command = """
+                .class public Main
+                .super java/lang/Object
+                """;
+        addCommand(command);
+    }
+
+
     @Override
     public String visit(Program program) {
-        //todo
+
+        addMainDeclaration();
+        addStaticMainMethod();
+
+        String mainDec = program.getMain().accept(this);
+        addCommand(mainDec);
+
+        for (FunctionDeclaration funcDec: program.getFunctions())
+            if (visited.contains(funcDec.getFunctionName().getName()))
+                funcDec.accept(this);
+
         return null;
     }
 
@@ -114,8 +148,21 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(MainDeclaration mainDeclaration) {
-        //todo
-        return null;
+
+        String command = """
+                .method public static main([Ljava/lang/String;)V
+                  .limit stack 140
+                  .limit locals 140
+                """;
+
+        command += mainDeclaration.getBody().accept(this);
+
+        command += """
+                  return
+                .end method
+                """;
+
+        return command;
     }
 
 
@@ -139,8 +186,19 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(PrintStmt print) {
-        //todo
-        return null;
+        String command = "";
+        command += """
+                  getstatic java/lang/System/out Ljava/io/PrintStream;
+                """;
+
+        //TODO: Check expression type for proper printing
+        command += print.getArg().accept(this);
+
+        command += """
+                    invokevirtual java/io/PrintStream/println(I)V
+                  """;
+
+        return command;
     }
 
     @Override
@@ -199,8 +257,7 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(IntValue intValue) {
-        //todo
-        return null;
+        return "ldc " + String.valueOf(intValue.getConstant()) + "\n";
     }
 
     @Override
