@@ -417,8 +417,33 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(ListValue listValue) {
-        //todo
-        return null;
+        ArrayList<String> listElements = new ArrayList<>();
+        String command = "";
+
+        command += "new List\n";
+//        command += "dup\n";
+
+//        command += """
+//        new java/util/ArrayList
+//        dup
+//        invokespecial java/util/ArrayList/<init>()V;
+//        """;
+
+
+        for (Expression expression: listValue.getElements()) {
+            listElements.add(expression.accept(this));
+        }
+
+        for (String bc: listElements) {
+//            command += "dup\n";
+//            command += bc;
+//            command += "invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z\n";
+//            command += "pop\n";
+        }
+
+        //command += "invokespecial List/<init>(Ljava/util/ArrayList;)V\n";
+
+        return command;
     }
 
     @Override
