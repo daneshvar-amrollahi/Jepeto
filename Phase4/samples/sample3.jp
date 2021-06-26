@@ -1,1 +1,1 @@
-main: print(2 is 2);
+main: print(false or true);

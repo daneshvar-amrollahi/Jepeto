@@ -250,16 +250,30 @@ public class CodeGenerator extends Visitor<String> {
             command += "invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;\n";
         }
 
-//        if (operator.equals(BinaryOperator.and))
-//            command += commandLeft;
-//            command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
-//
-//
-//            command += commandRight;
-//            command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
-//
-//
-//        }
+        if (operator.equals(BinaryOperator.and) || operator.equals(BinaryOperator.or)) {
+            String elseLabel = "Label" + getFresh();
+            String afterLabel = "Label" + getFresh();
+            String ifCommand = "";
+
+            command += commandLeft;
+            command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
+
+            if (operator.equals(BinaryOperator.and))
+                command += "ifeq " + elseLabel + "\n";
+            else
+                command += "ifne " + elseLabel + "\n";
+
+            command += commandRight;
+            command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
+            command += "goto " + afterLabel + "\n";
+            command += elseLabel + ":\n";
+
+            command += "iconst_" + (operator.equals(BinaryOperator.or) ? "1" : "0") + "\n";
+
+            command += afterLabel + ":\n";
+            command += "invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;\n";
+        }
+
 
         if (operator.equals(BinaryOperator.eq) || operator.equals(BinaryOperator.neq)) {
             String elseLabel = "Label" + getFresh();
