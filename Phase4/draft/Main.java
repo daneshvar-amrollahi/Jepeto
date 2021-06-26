@@ -13,6 +13,9 @@ public class Main {
 		arr.add(2);
 		List l = new List(arr);
 		System.out.println(l);
+		l.addElement(100);
+		l.getElement(2);
+		l.getSize();
 		return;
 	}
 }

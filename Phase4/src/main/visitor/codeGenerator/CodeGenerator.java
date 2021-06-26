@@ -82,8 +82,7 @@ public class CodeGenerator extends Visitor<String> {
                 writingFileStream.write(buffer, 0, readLength);
             readingFileStream.close();
             writingFileStream.close();
-        } catch (IOException e) {//never reached
-        }
+        } catch (IOException ignored) {}
     }
 
     private void addCommand(String command) {
@@ -354,7 +353,12 @@ public class CodeGenerator extends Visitor<String> {
         }
 
         //TODO: Append
-
+        if (operator.equals(BinaryOperator.append)) {
+            command += commandLeft;
+            command += "dup\n";
+            command += commandRight;
+            command += "invokevirtual List/addElement(Ljava/lang/Object;)V\n";
+        }
         return command;
     }
 
@@ -399,14 +403,25 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(ListAccessByIndex listAccessByIndex) {
-        //todo
-        return null;
+        String commandList = listAccessByIndex.getInstance().accept(this);
+        String commandIndex = listAccessByIndex.getIndex().accept(this);
+
+        String command = "";
+        command += commandList;
+        command += commandIndex;
+        command += "invokevirtual java/lang/Integer/intValue()I\n";
+        command += "invokevirtual List/getElement(I)Ljava/lang/Object;\n";
+        return command;
     }
 
     @Override
     public String visit(ListSize listSize) {
-        //todo
-        return null;
+        String commandList = listSize.getInstance().accept(this);
+        String command = "";
+        command += commandList;
+        command += "invokevirtual List/getSize()I\n";
+        command += "invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;\n";
+        return command;
     }
 
     @Override

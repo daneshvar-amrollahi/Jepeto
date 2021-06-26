@@ -17,6 +17,12 @@
 		dup
 		invokespecial java/util/ArrayList/<init>()V
 		dup
+		new List
+		dup
+		new java/util/ArrayList
+		dup
+		invokespecial java/util/ArrayList/<init>()V
+		dup
 		ldc 85
 		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
 		invokevirtual java/lang/Integer/intValue()I
@@ -49,6 +55,20 @@
 		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
 		invokevirtual java/lang/Integer/intValue()I
 		isub
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z
+		pop
+		invokespecial List/<init>(Ljava/util/ArrayList;)V
+		dup
+		ldc 11
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		invokevirtual List/addElement(Ljava/lang/Object;)V
+		invokevirtual List/getSize()I
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z
+		pop
+		dup
+		ldc 3
 		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
 		invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z
 		pop
