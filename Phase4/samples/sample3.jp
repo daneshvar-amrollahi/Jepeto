@@ -1,1 +1,1 @@
-main: print("How do you care?");
+main: print(false);

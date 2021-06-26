@@ -10,8 +10,9 @@
 .method public static main([Ljava/lang/String;)V
 		  .limit stack 140
 		  .limit locals 140
-		  getstatic java/lang/System/out Ljava/io/PrintStream;
-		ldc "How do you care?"
-		invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
+		getstatic java/lang/System/out Ljava/io/PrintStream;
+		ldc 0
+		invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;
+		invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V
 		  return
 		.end method

@@ -3,6 +3,7 @@ package main.visitor.codeGenerator;
 import main.ast.nodes.*;
 import main.ast.nodes.declaration.*;
 import main.ast.nodes.expression.*;
+import main.ast.nodes.expression.operators.BinaryOperator;
 import main.ast.nodes.expression.values.*;
 import main.ast.nodes.expression.values.primitive.*;
 import main.ast.nodes.statement.*;
@@ -49,8 +50,7 @@ public class CodeGenerator extends Visitor<String> {
                     file.delete();
              directory.mkdir();
         }
-        catch(SecurityException e) {//unreachable
-        }
+        catch(SecurityException ignored) {}
         copyFile(jasminPath, this.outputPath + "jasmin.jar");
         copyFile(listClassPath, this.outputPath + "List.j");
         copyFile(fptrClassPath, this.outputPath + "Fptr.j");
@@ -60,8 +60,7 @@ public class CodeGenerator extends Visitor<String> {
             File file = new File(path);
             file.createNewFile();
             mainFile = new FileWriter(path);
-        } catch (IOException e) {//unreachable
-        }
+        } catch (IOException ignored) {}
     }
 
     private void copyFile(String toBeCopied, String toBePasted) {
@@ -96,7 +95,6 @@ public class CodeGenerator extends Visitor<String> {
     }
 
     private void addStaticMainMethod() {
-
         String command = """
                 .method public <init>()V
                 .limit stack 140
@@ -127,7 +125,6 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(Program program) {
-
         addMainDeclaration();
         addStaticMainMethod();
 
@@ -199,17 +196,11 @@ public class CodeGenerator extends Visitor<String> {
     @Override
     public String visit(PrintStmt print) {
         String command = "";
-        command += """
-                  getstatic java/lang/System/out Ljava/io/PrintStream;
-                """;
+        command += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
 
-        //TODO: Check expression type for proper printing
         Type t = print.getArg().accept(expressionTypeChecker);
         command += print.getArg().accept(this);
-
-
-        command += "invokevirtual java/io/PrintStream/println(" +
-                getTypeSymbol(t) +")V\n";
+        command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
 
         return command;
     }
@@ -220,10 +211,39 @@ public class CodeGenerator extends Visitor<String> {
         return null;
     }
 
+    public String getOperationCommand(BinaryOperator bo) {
+        if (bo.equals(BinaryOperator.add))
+            return "iadd\n";
+        if (bo.equals(BinaryOperator.sub))
+            return "isub\n";
+        if (bo.equals(BinaryOperator.mult))
+            return "imul\n";
+        if (bo.equals(BinaryOperator.div))
+            return "idiv\n";
+        return null;
+    }
+
     @Override
     public String visit(BinaryExpression binaryExpression) {
-        //todo
-        return null;
+        String command = "";
+        String commandLeft = binaryExpression.getFirstOperand().accept(this);
+        String commandRight = binaryExpression.getSecondOperand().accept(this);
+        String operationCommand = "";
+        Type tl = binaryExpression.getFirstOperand().accept(expressionTypeChecker);
+        Type tr = binaryExpression.getSecondOperand().accept(expressionTypeChecker);
+        BinaryOperator operator = binaryExpression.getBinaryOperator();
+        if (operator.equals(BinaryOperator.add) ||
+            operator.equals(BinaryOperator.sub) ||
+            operator.equals(BinaryOperator.mult) ||
+            operator.equals(BinaryOperator.div)) {
+            command += commandLeft;
+            command += "invokevirtual java/lang/Integer/intValue()I\n";
+            command += commandRight;
+            command += "invokevirtual java/lang/Integer/intValue()I\n";
+            command += getOperationCommand(operator);
+            command += "invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;\n";
+        }
+        return command;
     }
 
     @Override
@@ -270,15 +290,21 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(IntValue intValue) {
-        return "ldc " + String.valueOf(intValue.getConstant()) + "\n";
+        String command = "";
+        command += "ldc " + String.valueOf(intValue.getConstant()) + "\n";
+        command += "invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;\n";
+        return command;
     }
 
     @Override
     public String visit(BoolValue boolValue) {
+        String command = "";
         if (boolValue.getConstant())
-            return "ldc 1\n";
+            command += "ldc 1\n";
         else
-            return "ldc 0\n";
+            command += "ldc 0\n";
+        command += "invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;\n";
+        return command;
     }
 
     @Override
@@ -288,7 +314,6 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(VoidValue voidValue) {
-        //todo
-        return null;
+        return "\n";
     }
 }
