@@ -418,32 +418,30 @@ public class CodeGenerator extends Visitor<String> {
     @Override
     public String visit(ListValue listValue) {
         ArrayList<String> listElements = new ArrayList<>();
-        String command = "";
+        StringBuilder command = new StringBuilder();
 
-        command += "new List\n";
-//        command += "dup\n";
-
-//        command += """
-//        new java/util/ArrayList
-//        dup
-//        invokespecial java/util/ArrayList/<init>()V;
-//        """;
-
+        command.append("new List\n");
+        command.append("dup\n");
+        command.append("""
+                new java/util/ArrayList
+                dup
+                invokespecial java/util/ArrayList/<init>()V
+                """);
 
         for (Expression expression: listValue.getElements()) {
             listElements.add(expression.accept(this));
         }
 
         for (String bc: listElements) {
-//            command += "dup\n";
-//            command += bc;
-//            command += "invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z\n";
-//            command += "pop\n";
+            command.append("dup\n");
+            command.append(bc);
+            command.append("invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z\n");
+            command.append("pop\n");
         }
 
-        //command += "invokespecial List/<init>(Ljava/util/ArrayList;)V\n";
+        command.append("invokespecial List/<init>(Ljava/util/ArrayList;)V\n");
 
-        return command;
+        return command.toString();
     }
 
     @Override

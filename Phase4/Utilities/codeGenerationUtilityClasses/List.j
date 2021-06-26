@@ -133,3 +133,16 @@ Label0:
 Label13:
   13: return
 .end method
+
+.method public toString()Ljava/lang/String;
+  .limit stack 1
+  .limit locals 1
+  .var 0 is this LList; from Label0 to Label7
+Label0:
+  .line 33
+  0: aload_0
+  1: getfield List/elements Ljava/util/ArrayList;
+  4: invokevirtual java/util/ArrayList/toString()Ljava/lang/String;
+Label7:
+  7: areturn
+.end method

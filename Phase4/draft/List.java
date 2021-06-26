@@ -28,4 +28,5 @@ public class List {
 
     public void addElement(Object o) {this.elements.add(getNewObject(o));}
 
+    public String toString() { return this.elements.toString(); }
 }

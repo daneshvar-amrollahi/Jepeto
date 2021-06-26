@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.lang.Object;
+import java.lang.String;
 
 public class List {
     public ArrayList<Object> elements;
@@ -28,4 +30,5 @@ public class List {
 
     public void addElement(Object o) {this.elements.add(getNewObject(o));}
 
+    public String toString() { return this.elements.toString(); }
 }
