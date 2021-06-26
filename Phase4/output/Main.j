@@ -11,17 +11,30 @@
 		  .limit stack 140
 		  .limit locals 140
 		getstatic java/lang/System/out Ljava/io/PrintStream;
-		ldc 0
-		invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;
-		invokevirtual java/lang/Boolean/booleanValue()Z
-		ifne Label0
 		ldc 1
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		invokevirtual java/lang/Integer/intValue()I
+		ldc 1
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		invokevirtual java/lang/Integer/intValue()I
+		iadd
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		invokevirtual java/lang/Integer/intValue()I
+		ldc 2
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		invokevirtual java/lang/Integer/intValue()I
+		if_icmpne Label2
+		iconst_1
+		goto Label3
+		Label2:
+		iconst_0
+		Label3:
 		invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;
 		invokevirtual java/lang/Boolean/booleanValue()Z
-		goto Label1
-		Label0:
-		iconst_1
-		Label1:
+		ldc 1
+		ixor
+		ldc 1
+		iand
 		invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;
 		invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V
 		  return

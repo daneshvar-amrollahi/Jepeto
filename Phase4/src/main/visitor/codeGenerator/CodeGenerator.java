@@ -4,6 +4,7 @@ import main.ast.nodes.*;
 import main.ast.nodes.declaration.*;
 import main.ast.nodes.expression.*;
 import main.ast.nodes.expression.operators.BinaryOperator;
+import main.ast.nodes.expression.operators.UnaryOperator;
 import main.ast.nodes.expression.values.*;
 import main.ast.nodes.expression.values.primitive.*;
 import main.ast.nodes.statement.*;
@@ -274,6 +275,32 @@ public class CodeGenerator extends Visitor<String> {
             command += "invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;\n";
         }
 
+        if (operator.equals(BinaryOperator.lt) || operator.equals(BinaryOperator.gt))
+        {
+            String elseLabel = "Label" + getFresh();
+            String afterLabel = "Label" + getFresh();
+            String ifCommand = "";
+
+
+            command += commandLeft;
+            command += "invokevirtual java/lang/Integer/intValue()I\n";
+            command += commandRight;
+            command += "invokevirtual java/lang/Integer/intValue()I\n";
+
+            if (operator.equals(BinaryOperator.lt))
+                ifCommand = "if_icmpge";
+            else
+                ifCommand = "if_icmple";
+
+
+            command += ifCommand + " " + elseLabel + "\n";
+            command += "iconst_1\n";
+            command += "goto " + afterLabel + "\n";
+            command += elseLabel + ":\n";
+            command += "iconst_0\n";
+            command += afterLabel + ":\n";
+            command += "invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;\n";
+        }
 
         if (operator.equals(BinaryOperator.eq) || operator.equals(BinaryOperator.neq)) {
             String elseLabel = "Label" + getFresh();
@@ -326,15 +353,36 @@ public class CodeGenerator extends Visitor<String> {
             command += "invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;\n";
         }
 
-
+        //TODO: Append
 
         return command;
     }
 
     @Override
     public String visit(UnaryExpression unaryExpression) {
-        //todo
-        return null;
+        unaryExpression.getOperand().accept(this);
+        String operand = unaryExpression.getOperand().accept(this);
+        String command = "";
+        if (unaryExpression.getOperator().equals(UnaryOperator.not)) { //x xor 1 and 1 = not(x)
+            command += operand;
+            command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
+
+            String elseLabel = "Label" + getFresh();
+            String afterLabel = "Label" + getFresh();
+
+            command += "ldc 1\n";
+            command += "ixor\n";
+            command += "ldc 1\n";
+            command += "iand\n";
+            command += "invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;\n";
+        }
+        if (unaryExpression.getOperator().equals(UnaryOperator.minus)) {
+            command += operand;
+            command += "invokevirtual java/lang/Integer/intValue()I\n";
+            command += "ineg\n";
+            command += "invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;\n";
+        }
+        return command;
     }
 
     @Override
