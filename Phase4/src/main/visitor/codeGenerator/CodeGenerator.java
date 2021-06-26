@@ -30,12 +30,18 @@ public class CodeGenerator extends Visitor<String> {
     private final ExpressionTypeChecker expressionTypeChecker;
     private FunctionDeclaration curFuncDec;
     private Set<String> visited;
-
+    private int labelIndex;
     public CodeGenerator(ExpressionTypeChecker expressionTypeChecker, Set<String> visited) {
         this.expressionTypeChecker = expressionTypeChecker;
         outputPath = "./output/";
         this.visited = visited;
+        labelIndex = 0;
         prepareOutputFolder();
+    }
+
+    private int getFresh()
+    {
+        return labelIndex++;
     }
 
     private void prepareOutputFolder() {
@@ -243,6 +249,71 @@ public class CodeGenerator extends Visitor<String> {
             command += getOperationCommand(operator);
             command += "invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;\n";
         }
+
+//        if (operator.equals(BinaryOperator.and))
+//            command += commandLeft;
+//            command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
+//
+//
+//            command += commandRight;
+//            command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
+//
+//
+//        }
+
+        if (operator.equals(BinaryOperator.eq) || operator.equals(BinaryOperator.neq)) {
+            String elseLabel = "Label" + getFresh();
+            String afterLabel = "Label" + getFresh();
+            String ifCommand = "";
+
+            if (tl instanceof IntType)
+            {
+                command += commandLeft;
+                command += "invokevirtual java/lang/Integer/intValue()I\n";
+                command += commandRight;
+                command += "invokevirtual java/lang/Integer/intValue()I\n";
+
+                if (operator.equals(BinaryOperator.eq))
+                    ifCommand = "if_icmpne";
+                else
+                    ifCommand = "if_icmpeq";
+            }
+
+            if (tl instanceof BoolType)
+            {
+                command += commandLeft;
+                command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
+                command += commandRight;
+                command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
+
+                if (operator.equals(BinaryOperator.eq))
+                    ifCommand = "if_icmpne";
+                else
+                    ifCommand = "if_icmpeq";
+            }
+
+            if (tl instanceof ListType || tl instanceof FptrType)
+            {
+                command += commandLeft;
+                command += commandRight;
+
+                if (operator.equals(BinaryOperator.eq))
+                    ifCommand = "if_acmpne";
+                else
+                    ifCommand = "if_acmpeq";
+            }
+
+            command += ifCommand + " " + elseLabel + "\n";
+            command += "iconst_1\n";
+            command += "goto " + afterLabel + "\n";
+            command += elseLabel + ":\n";
+            command += "iconst_0\n";
+            command += afterLabel + ":\n";
+            command += "invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;\n";
+        }
+
+
+
         return command;
     }
 

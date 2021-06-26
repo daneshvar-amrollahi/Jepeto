@@ -1,1 +1,1 @@
-main: print(false);
+main: print(2 is 2);
