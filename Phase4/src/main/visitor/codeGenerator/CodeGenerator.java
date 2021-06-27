@@ -32,11 +32,13 @@ public class CodeGenerator extends Visitor<String> {
     private FunctionDeclaration curFuncDec;
     private Set<String> visited;
     private int labelIndex;
+    private boolean isMain;
     public CodeGenerator(ExpressionTypeChecker expressionTypeChecker, Set<String> visited) {
         this.expressionTypeChecker = expressionTypeChecker;
         outputPath = "./output/";
         this.visited = visited;
         labelIndex = 0;
+        isMain = false;
         prepareOutputFolder();
     }
 
@@ -115,7 +117,7 @@ public class CodeGenerator extends Visitor<String> {
     }
 
     private int slotOf(String identifier) {
-        //todo
+
         return 0;
     }
 
@@ -128,11 +130,23 @@ public class CodeGenerator extends Visitor<String> {
         addCommand(command);
     }
 
+    public void addMainInstance()
+    {
+        String command = """
+                new Main
+                dup
+                invokespecial Main/<init>()V
+                """;
+
+        addCommand(command);
+
+    }
 
     @Override
     public String visit(Program program) {
         addMainDeclaration();
         addStaticMainMethod();
+        addMainInstance();
 
         String mainDec = program.getMain().accept(this);
         addCommand(mainDec);
@@ -188,6 +202,7 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(MainDeclaration mainDeclaration) {
+        isMain = true;
         String command = """
                 .method public static main([Ljava/lang/String;)V
                   .limit stack 140
@@ -200,7 +215,7 @@ public class CodeGenerator extends Visitor<String> {
                   return
                 .end method
                 """;
-
+        isMain = false;
         return command;
     }
 
@@ -221,8 +236,16 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(FunctionCallStmt funcCallStmt) {
-        //todo
-        return null;
+        String command = "";
+        expressionTypeChecker.setFunctioncallStmt(true);
+        command += funcCallStmt.getFunctionCall().accept(this);
+
+        Type t = funcCallStmt.getFunctionCall().accept(expressionTypeChecker);
+        if (!(t instanceof VoidType))
+            command += "pop\n";
+
+        expressionTypeChecker.setFunctioncallStmt(false);
+        return command;
     }
 
     public String getArgTypeSymbol(Type t) {
@@ -445,8 +468,21 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(Identifier identifier) {
-        //todo
-        return null;
+        FunctionSymbolTableItem fsti = getFuncSymbolTableItem(identifier.getName());
+        String command = "";
+        if (fsti == null) { //Not a function name
+            //TODO
+//            int slot = slotOf(identifier);
+//            command = "aload " + slot;
+        }
+        else {
+            command += "new Fptr\n" +
+                    "dup\n" +
+                    (isMain ? "aload_1\n" : "aload_0\n") +
+                    "ldc \"" + identifier.getName() + "\"\n" +
+                    "invokespecial Fptr/<init>(Ljava/lang/Object;Ljava/lang/String;)V\n";
+        }
+        return command;
     }
 
     @Override
@@ -474,8 +510,28 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(FunctionCall funcCall) {
-        //todo
-        return null;
+        ArrayList<String> argByteCodes = new ArrayList<>();
+        for (Expression expression : funcCall.getArgs()) {
+            argByteCodes.add(expression.accept(this));
+        }
+
+        String command = "";
+        command += """
+                new java/util/ArrayList
+                dup
+                invokespecial java/util/ArrayList/<init>()V
+                """;
+
+        for (String bc: argByteCodes) {
+            command += "dup\n";
+            command += bc;
+            command += "\"invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z\\n\"";
+        }
+
+        //TODO: getArgs with key
+
+        command += "invokevirtual Fptr/invoke(Ljava/util/ArrayList;)Ljava/lang/Object;\n";
+        return command;
     }
 
     @Override
