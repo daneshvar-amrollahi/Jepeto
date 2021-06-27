@@ -10,75 +10,55 @@
 .method public static main([Ljava/lang/String;)V
 		  .limit stack 140
 		  .limit locals 140
+		new Main
+		dup
+		invokespecial Main/<init>()V
+		astore_1
 		getstatic java/lang/System/out Ljava/io/PrintStream;
-		new List
+		new Fptr
 		dup
+		aload_1
+		ldc "f"
+		invokespecial Fptr/<init>(Ljava/lang/Object;Ljava/lang/String;)V
 		new java/util/ArrayList
 		dup
 		invokespecial java/util/ArrayList/<init>()V
-		dup
-		new List
-		dup
-		new java/util/ArrayList
-		dup
-		invokespecial java/util/ArrayList/<init>()V
-		dup
-		ldc 85
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/lang/Integer/intValue()I
-		ineg
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z
-		pop
-		dup
-		ldc 32
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/lang/Integer/intValue()I
-		ldc 64
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/lang/Integer/intValue()I
-		imul
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z
-		pop
-		dup
-		ldc 5
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/lang/Integer/intValue()I
-		ldc 2
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/lang/Integer/intValue()I
-		ldc 3
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/lang/Integer/intValue()I
-		imul
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/lang/Integer/intValue()I
-		isub
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z
-		pop
-		invokespecial List/<init>(Ljava/util/ArrayList;)V
-		dup
-		ldc 11
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual List/addElement(Ljava/lang/Object;)V
-		invokevirtual List/getSize()I
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z
-		pop
-		dup
-		ldc 3
-		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
-		invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z
-		pop
-		invokespecial List/<init>(Ljava/util/ArrayList;)V
+		invokevirtual Fptr/invoke(Ljava/util/ArrayList;)Ljava/lang/Object;
 		invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V
 		  return
 		.end method
-.method public f()null
+.method public g()Ljava/lang/Integer;
 		.limit stack 140
 		.limit locals 140
+		getstatic java/lang/System/out Ljava/io/PrintStream;
+		ldc "--inside g"
+		invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V
 		
-		return
+		ldc 1
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		areturn
+		
+		.end method
+.method public f()Ljava/lang/Integer;
+		.limit stack 140
+		.limit locals 140
+		getstatic java/lang/System/out Ljava/io/PrintStream;
+		ldc "--inside f"
+		invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V
+		
+		new Fptr
+		dup
+		aload_0
+		ldc "g"
+		invokespecial Fptr/<init>(Ljava/lang/Object;Ljava/lang/String;)V
+		new java/util/ArrayList
+		dup
+		invokespecial java/util/ArrayList/<init>()V
+		invokevirtual Fptr/invoke(Ljava/util/ArrayList;)Ljava/lang/Object;
+		pop
+		
+		ldc 2
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		areturn
+		
 		.end method

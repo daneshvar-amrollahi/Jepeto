@@ -130,16 +130,14 @@ public class CodeGenerator extends Visitor<String> {
         addCommand(command);
     }
 
-    public void addMainInstance()
+    public String addMainInstance()
     {
-        String command = """
+        return """
                 new Main
                 dup
                 invokespecial Main/<init>()V
+                astore_1
                 """;
-
-        addCommand(command);
-
     }
 
     @Override
@@ -208,7 +206,7 @@ public class CodeGenerator extends Visitor<String> {
                   .limit stack 140
                   .limit locals 140
                 """;
-
+        command += addMainInstance();
         command += mainDeclaration.getBody().accept(this);
 
         command += """
@@ -468,9 +466,11 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(Identifier identifier) {
-        FunctionSymbolTableItem fsti = getFuncSymbolTableItem(identifier.getName());
+        System.out.println("Identifier " + identifier.getName());
+        FunctionSymbolTableItem fsti = getFuncSymbolTableItem("Function_" + identifier.getName());
         String command = "";
         if (fsti == null) { //Not a function name
+            System.out.println("Not what I expected in identifier visit");
             //TODO
 //            int slot = slotOf(identifier);
 //            command = "aload " + slot;
@@ -516,6 +516,8 @@ public class CodeGenerator extends Visitor<String> {
         }
 
         String command = "";
+        command += funcCall.getInstance().accept(this);
+
         command += """
                 new java/util/ArrayList
                 dup
@@ -525,12 +527,19 @@ public class CodeGenerator extends Visitor<String> {
         for (String bc: argByteCodes) {
             command += "dup\n";
             command += bc;
-            command += "\"invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z\\n\"";
+            command += "invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z\n";
         }
 
         //TODO: getArgs with key
 
         command += "invokevirtual Fptr/invoke(Ljava/util/ArrayList;)Ljava/lang/Object;\n";
+
+        /*TODO: After function call is executed, stack top
+            is an object of type Object; an appropriate type-
+            casting must be performed to avoid errors in future
+            uses of this value
+         */
+
         return command;
     }
 
