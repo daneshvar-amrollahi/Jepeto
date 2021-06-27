@@ -1,0 +1,11 @@
+func g(): {
+    print("--inside g");
+    return 1;
+}
+
+func f(): {
+    print("--inside f");
+    g();
+    return 2;
+}
+main: print(f());
