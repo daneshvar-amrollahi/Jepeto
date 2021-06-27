@@ -48,6 +48,8 @@ public class ExpressionTypeChecker extends Visitor<Type> {
         this.curFunction = curFunction;
     }
 
+    public FunctionSymbolTableItem getCurFunction() { return this.curFunction; }
+
     private FunctionSymbolTableItem findFunccSymobolTableItem(FptrType fptr) {
         try{
             FunctionSymbolTableItem func = (FunctionSymbolTableItem) SymbolTable.root.getItem(FunctionSymbolTableItem.START_KEY + fptr.getFunctionName());

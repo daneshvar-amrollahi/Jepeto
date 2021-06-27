@@ -1,1 +1,4 @@
+func f():
+    return void;
+
 main: print([([-85, 32 * 64, 5 - 2*3] :: 11).size, 3]);

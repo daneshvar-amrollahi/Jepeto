@@ -138,16 +138,52 @@ public class CodeGenerator extends Visitor<String> {
         addCommand(mainDec);
 
         for (FunctionDeclaration funcDec: program.getFunctions())
-            if (visited.contains(funcDec.getFunctionName().getName()))
-                funcDec.accept(this);
+//            if (visited.contains(funcDec.getFunctionName().getName()))
+                addCommand(funcDec.accept(this));
+        return null;
+    }
 
+    public FunctionSymbolTableItem getFuncSymbolTableItem(String key) {
+        try {
+            return (FunctionSymbolTableItem) SymbolTable.root.getItem(key);
+        } catch (ItemNotFoundException ignored) {}
         return null;
     }
 
     @Override
-        public String visit(FunctionDeclaration funcDeclaration) {
-        //todo
-        return null;
+    public String visit(FunctionDeclaration funcDeclaration) {
+        //.method public f(IZ)I
+        String funcName = funcDeclaration.getFunctionName().getName();
+
+        String command = "";
+        command += ".method public " + funcName;
+
+        FunctionSymbolTableItem fsti = getFuncSymbolTableItem("Function_" + funcName);
+        expressionTypeChecker.setCurFunction(fsti);
+
+        Map<String, Type> argTypeMap = fsti.getArgTypes();
+        Type returnType = fsti.getReturnType();
+        ArrayList<Type> argTypes = new ArrayList<>();
+        for (Identifier identifier: funcDeclaration.getArgs()) {
+            String argName = identifier.getName();
+            Type t = argTypeMap.get(argName);
+            argTypes.add(t);
+        }
+
+        StringBuilder argList = new StringBuilder("(");
+        for (Type t : argTypes) {
+            argList.append(getArgTypeSymbol(t));
+        }
+        argList.append(")");
+        argList.append(getArgTypeSymbol(returnType));
+        command += argList.toString() + "\n";
+
+        command += ".limit stack 140\n";
+        command += ".limit locals 140\n";
+
+        command += funcDeclaration.getBody().accept(this);
+        command += ".end method\n";
+        return command;
     }
 
     @Override
@@ -189,13 +225,19 @@ public class CodeGenerator extends Visitor<String> {
         return null;
     }
 
-    public String getTypeSymbol(Type t) {
+    public String getArgTypeSymbol(Type t) {
         if (t instanceof IntType)
-            return "I";
+            return "Ljava/lang/Integer;";
         if (t instanceof StringType)
             return "Ljava/lang/String;";
         if (t instanceof BoolType)
-            return "Z";
+            return "Ljava/lang/Boolean;";
+        if (t instanceof ListType)
+            return "LList;";
+        if (t instanceof FptrType)
+            return "LFptr;";
+        if (t instanceof VoidType)
+            return "V";
         return null;
     }
 
@@ -213,8 +255,14 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(ReturnStmt returnStmt) {
-        //todo
-        return null;
+        String command = "";
+        command += returnStmt.getReturnedExpr().accept(this);
+        Type returnType = returnStmt.getReturnedExpr().accept(expressionTypeChecker);
+        if (returnType instanceof VoidType)
+            command += "return\n";
+        else
+            command += "areturn\n";
+        return command;
     }
 
     public String getOperationCommand(BinaryOperator bo) {

@@ -76,3 +76,9 @@
 		invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V
 		  return
 		.end method
+.method public f()null
+		.limit stack 140
+		.limit locals 140
+		
+		return
+		.end method

@@ -7,7 +7,12 @@ public class Main {
 
 	}
 
+	public void f(List l, Integer x) {
+		return;
+	}
+
 	public static void main(String[] args) {
+		Main m = new Main();
 		ArrayList<Object> arr = new ArrayList<>();
 		arr.add(1);
 		arr.add(2);
@@ -16,6 +21,10 @@ public class Main {
 		l.addElement(100);
 		l.getElement(2);
 		l.getSize();
+
+		Fptr fp = new Fptr(m, "f");
+		ArrayList<Object> arr2 = new ArrayList<>();
+		System.out.println(fp.invoke(arr2));
 		return;
 	}
 }
