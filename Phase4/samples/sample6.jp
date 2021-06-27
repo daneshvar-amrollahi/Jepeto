@@ -1,0 +1,12 @@
+func bs(a, start, end, x): {
+    if (start > end):
+        return -1;
+    if (a[(start + end) / 2] is x):
+        return (start + end) / 2;
+    if (a[(start + end) / 2] > x):
+        return bs(a, start, (start + end) / 2 - 1, x);
+
+    return bs(a, (start + end) / 2 + 1, end, x);
+}
+
+main: print(bs(a=[0, 1, 2, 3, 5, 7, 9, 10, 11], x=9, start=0, end=8));
