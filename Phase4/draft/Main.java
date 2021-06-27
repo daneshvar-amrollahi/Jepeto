@@ -7,16 +7,19 @@ public class Main {
 
 	}
 
-	public Integer f() {
-		return Integer.valueOf(2);
-	}
+	//public Integer f() {
+	//	return Integer.valueOf(2);
+	//}
 
 	public static void main(String[] args) {
-		Main m = new Main();
+		List L = new List(new ArrayList<Object>());
+		List L2 = new List(L);
 
-		Fptr fp = new Fptr(m, "f");
-		ArrayList<Object> arr2 = new ArrayList<>();
-		System.out.println(fp.invoke(arr2).getClass());
+//		Main m = new Main();
+//
+//		Fptr fp = new Fptr(m, "f");
+//		ArrayList<Object> arr2 = new ArrayList<>();
+//		System.out.println(fp.invoke(arr2).getClass());
 		return;
 	}
 }

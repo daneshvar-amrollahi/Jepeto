@@ -8,9 +8,7 @@ func f(): {
     return g() + 10;
 }
 
-#func h(x): {
-#    return x + 2;
-#}
-main: print(f() + g());
-
-#main: print(h(5));
+func h(x, y): {
+    return x - y;
+}
+main: print(f() + g() + h(x = 3, y = 2));

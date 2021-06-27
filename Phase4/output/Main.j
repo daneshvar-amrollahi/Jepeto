@@ -24,6 +24,45 @@
 		dup
 		invokespecial java/util/ArrayList/<init>()V
 		invokevirtual Fptr/invoke(Ljava/util/ArrayList;)Ljava/lang/Object;
+		checkcast java/lang/Integer
+		invokevirtual java/lang/Integer/intValue()I
+		new Fptr
+		dup
+		aload_1
+		ldc "g"
+		invokespecial Fptr/<init>(Ljava/lang/Object;Ljava/lang/String;)V
+		new java/util/ArrayList
+		dup
+		invokespecial java/util/ArrayList/<init>()V
+		invokevirtual Fptr/invoke(Ljava/util/ArrayList;)Ljava/lang/Object;
+		checkcast java/lang/Integer
+		invokevirtual java/lang/Integer/intValue()I
+		iadd
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		invokevirtual java/lang/Integer/intValue()I
+		new Fptr
+		dup
+		aload_1
+		ldc "h"
+		invokespecial Fptr/<init>(Ljava/lang/Object;Ljava/lang/String;)V
+		new java/util/ArrayList
+		dup
+		invokespecial java/util/ArrayList/<init>()V
+		dup
+		ldc 3
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z
+		pop
+		dup
+		ldc 2
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z
+		pop
+		invokevirtual Fptr/invoke(Ljava/util/ArrayList;)Ljava/lang/Object;
+		checkcast java/lang/Integer
+		invokevirtual java/lang/Integer/intValue()I
+		iadd
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
 		invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V
 		  return
 		.end method
@@ -55,9 +94,24 @@
 		dup
 		invokespecial java/util/ArrayList/<init>()V
 		invokevirtual Fptr/invoke(Ljava/util/ArrayList;)Ljava/lang/Object;
-		pop
+		checkcast java/lang/Integer
+		invokevirtual java/lang/Integer/intValue()I
+		ldc 10
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		invokevirtual java/lang/Integer/intValue()I
+		iadd
+		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
+		areturn
 		
-		ldc 2
+		.end method
+.method public h(Ljava/lang/Integer;Ljava/lang/Integer;)Ljava/lang/Integer;
+		.limit stack 140
+		.limit locals 140
+		aload 1
+		invokevirtual java/lang/Integer/intValue()I
+		aload 2
+		invokevirtual java/lang/Integer/intValue()I
+		isub
 		invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;
 		areturn
 		

@@ -117,8 +117,14 @@ public class CodeGenerator extends Visitor<String> {
     }
 
     private int slotOf(String identifier) {
-
-        return 0;
+        FunctionSymbolTableItem fsti = expressionTypeChecker.getCurFunction();
+        int cnt = 1;
+        for (Map.Entry<String, Type> entry : fsti.getArgTypes().entrySet()) {
+            if (entry.getKey().equals(identifier))
+                return cnt;
+            cnt++;
+        }
+        return cnt;
     }
 
     public void addMainDeclaration()
@@ -150,7 +156,7 @@ public class CodeGenerator extends Visitor<String> {
         addCommand(mainDec);
 
         for (FunctionDeclaration funcDec: program.getFunctions())
-//            if (visited.contains(funcDec.getFunctionName().getName()))
+            if (visited.contains(funcDec.getFunctionName().getName()))
                 addCommand(funcDec.accept(this));
         return null;
     }
@@ -228,8 +234,19 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(ConditionalStmt conditionalStmt) {
-        //todo
-        return null;
+        String elseLabel = "Label" + getFresh();
+        String afterLabel = "Label" + getFresh();
+        String command = "";
+        command += conditionalStmt.getCondition().accept(this);
+        command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
+        command += "ifeq " + elseLabel + "\n";
+        command += conditionalStmt.getThenBody().accept(this);
+        command += "goto " + afterLabel + "\n";
+        command += elseLabel + ":\n";
+        if (conditionalStmt.getElseBody() != null)
+            command += conditionalStmt.getElseBody().accept(this);
+        command += afterLabel + ":\n";
+        return command;
     }
 
     @Override
@@ -269,8 +286,22 @@ public class CodeGenerator extends Visitor<String> {
 
         Type t = print.getArg().accept(expressionTypeChecker);
         command += print.getArg().accept(this);
-        command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
 
+        if (t instanceof BoolType)
+        {
+            command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
+            command += "invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;\n";
+            command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
+            return command;
+        }
+        else if (t instanceof ListType) {
+            command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
+            return command;
+        }
+        else {
+
+            command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
+        }
         return command;
     }
 
@@ -421,7 +452,7 @@ public class CodeGenerator extends Visitor<String> {
             command += "invokestatic java/lang/Boolean/valueOf(Z)Ljava/lang/Boolean;\n";
         }
 
-        //TODO: Append
+        //Append
         if (operator.equals(BinaryOperator.append)) {
             command += commandLeft;
             command += "dup\n";
@@ -471,9 +502,8 @@ public class CodeGenerator extends Visitor<String> {
         String command = "";
         if (fsti == null) { //Not a function name
             System.out.println("Not what I expected in identifier visit");
-            //TODO
-//            int slot = slotOf(identifier);
-//            command = "aload " + slot;
+            int slot = slotOf(identifier.getName());
+            command = "aload " + slot + "\n";
         }
         else {
             command += "new Fptr\n" +
@@ -495,6 +525,7 @@ public class CodeGenerator extends Visitor<String> {
         command += commandIndex;
         command += "invokevirtual java/lang/Integer/intValue()I\n";
         command += "invokevirtual List/getElement(I)Ljava/lang/Object;\n";
+        command += "checkcast java/lang/Integer\n";
         return command;
     }
 
@@ -508,12 +539,69 @@ public class CodeGenerator extends Visitor<String> {
         return command;
     }
 
+    public String getTypeCastString(Type type) {
+        if (type instanceof VoidType) {
+            return "\n";
+        }
+
+        if (type instanceof IntType) {
+            return "checkcast java/lang/Integer\n";
+        }
+
+        if (type instanceof BoolType) {
+            return "checkcast java/lang/Boolean\n";
+        }
+
+        if (type instanceof ListType) {
+            return "checkcast List\n";
+        }
+
+        if (type instanceof StringType) {
+            return "checkcast java/lang/String\n";
+        }
+
+        if (type instanceof FptrType) {
+            return "checkcast Fptr\n";
+        }
+
+        return "\n";
+    }
+
     @Override
     public String visit(FunctionCall funcCall) {
         ArrayList<String> argByteCodes = new ArrayList<>();
         for (Expression expression : funcCall.getArgs()) {
-            argByteCodes.add(expression.accept(this));
+            String bc = expression.accept(this);
+            Type type = expression.accept(expressionTypeChecker);
+            if (type instanceof ListType) {
+                bc = "new List\n" +
+                        "dup\n" +
+                        bc +
+                        "invokespecial List/<init>(LList;)V\n";
+            }
+            argByteCodes.add(bc);
         }
+
+        //getArgs with key
+        String funcName = ((FptrType)funcCall.getInstance().accept(expressionTypeChecker)).getFunctionName();
+        FunctionSymbolTableItem fsti = getFuncSymbolTableItem("Function_" + funcName);
+
+        for (Map.Entry<String, Type> entryOrig : fsti.getArgTypes().entrySet()) {
+            for (Map.Entry<Identifier, Expression> entryCall : funcCall.getArgsWithKey().entrySet()) {
+                if (entryOrig.getKey().equals(entryCall.getKey().getName())) {
+                    String bc = entryCall.getValue().accept(this);
+                    Type type = entryOrig.getValue();
+                    if (type instanceof ListType) {
+                        bc = "new List\n" +
+                                "dup\n" +
+                                bc +
+                                "invokespecial List/<init>(LList;)V\n";
+                    }
+                    argByteCodes.add(bc);
+                }
+            }
+        }
+
 
         String command = "";
         command += funcCall.getInstance().accept(this);
@@ -528,17 +616,20 @@ public class CodeGenerator extends Visitor<String> {
             command += "dup\n";
             command += bc;
             command += "invokevirtual java/util/ArrayList/add(Ljava/lang/Object;)Z\n";
+            command += "pop\n";
         }
-
-        //TODO: getArgs with key
 
         command += "invokevirtual Fptr/invoke(Ljava/util/ArrayList;)Ljava/lang/Object;\n";
 
-        /*TODO: After function call is executed, stack top
+
+        /*After function call is executed, stack top
             is an object of type Object; an appropriate type-
             casting must be performed to avoid errors in future
             uses of this value
          */
+        Type returnType = funcCall.accept(expressionTypeChecker);
+        command += getTypeCastString(returnType);
+
 
         return command;
     }
