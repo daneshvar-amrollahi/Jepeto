@@ -1,25 +1,26 @@
 import java.util.ArrayList;
 import java.lang.Object;
-//import List.*;
 
 public class Main {
 	Main() {
 
 	}
 
-	//public Integer f() {
-	//	return Integer.valueOf(2);
-	//}
-
 	public static void main(String[] args) {
 		List L = new List(new ArrayList<Object>());
 		List L2 = new List(L);
 
-//		Main m = new Main();
-//
-//		Fptr fp = new Fptr(m, "f");
-//		ArrayList<Object> arr2 = new ArrayList<>();
-//		System.out.println(fp.invoke(arr2).getClass());
+		L.addElement(Integer.valueOf(1));
+		L.addElement(Integer.valueOf(2));
+		System.out.print("[");
+		boolean flag = false;
+		for (int i = 0; i < L.getSize(); ++i) {
+			if (flag)
+				System.out.print(",");
+			flag = true;
+			System.out.print(L.getElement(i));
+		}
+		System.out.println("]");
 		return;
 	}
 }

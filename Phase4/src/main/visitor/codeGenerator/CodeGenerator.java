@@ -279,6 +279,50 @@ public class CodeGenerator extends Visitor<String> {
         return null;
     }
 
+    public String printList() {
+        String command = "";
+        String loopLabel = "Label" + getFresh(); // originally Label50
+        String ifStartLabel = "Label" + getFresh(); // originally Label53
+        String afterLoopLabel = "Label" + getFresh(); // originally Label94
+        String ifFlagElseLabel = "Label" + getFresh(); // originally Label74
+
+        command += "astore 137\n"; // list gets stored at local[137] (originally at 1)
+        command += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
+        command += "ldc \"[\"\n";
+        command += "invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V\n";
+        command += "iconst_0\n";
+        command += "istore 139\n"; // flag stored at local[139] (originally at 3)
+        command += loopLabel + ":\n";
+        command += "iconst_0\n";
+        command += "istore 138\n"; // loop variable (i) stored at local[138] (originally at 4)
+        command += ifStartLabel + ":\n";
+        command += "iload 138\n"; // loading i for if
+        command += "aload 137\n"; // loading list reference to get size
+        command += "invokevirtual List/getSize()I\n"; // actually getting size
+        command += "if_icmpge " + afterLoopLabel + "\n"; // checking loop condition
+        command += "iload 139\n";
+        command += "ifeq " + ifFlagElseLabel + "\n";
+        command += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
+        command += "ldc \",\"\n";
+        command += "invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V\n";
+        command += ifFlagElseLabel +":\n";
+        command += "iconst_1\n";
+        command += "istore 139\n"; // setting flag to true
+        command += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
+        command += "aload 137\n"; // loading list
+        command += "iload 138\n"; // loading i
+        command += "invokevirtual List/getElement(I)Ljava/lang/Object;\n";
+        command += "invokevirtual java/io/PrintStream/print(Ljava/lang/Object;)V\n";
+        command += "iinc 138 1\n"; // incrementing i
+        command += "goto " + ifStartLabel + "\n";
+        command += afterLoopLabel + ":\n";
+        command += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
+        command += "ldc \"]\"\n";
+        command +="invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n";
+
+        return command;
+    }
+
     @Override
     public String visit(PrintStmt print) {
         String command = "";
@@ -295,7 +339,9 @@ public class CodeGenerator extends Visitor<String> {
             return command;
         }
         else if (t instanceof ListType) {
-            command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
+            // command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
+            // TODO: implement printList
+            command += printList();
             return command;
         }
         else {
@@ -497,11 +543,9 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(Identifier identifier) {
-        System.out.println("Identifier " + identifier.getName());
         FunctionSymbolTableItem fsti = getFuncSymbolTableItem("Function_" + identifier.getName());
         String command = "";
         if (fsti == null) { //Not a function name
-            System.out.println("Not what I expected in identifier visit");
             int slot = slotOf(identifier.getName());
             command = "aload " + slot + "\n";
         }
