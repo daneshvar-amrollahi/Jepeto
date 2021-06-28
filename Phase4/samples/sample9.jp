@@ -1,0 +1,7 @@
+func g(x, y):
+    return (x is y);
+
+func f(x):
+    return g(x, x);
+
+main: print(f(f));
