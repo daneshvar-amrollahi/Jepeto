@@ -232,6 +232,14 @@ public class CodeGenerator extends Visitor<String> {
         return command.toString();
     }
 
+    public String dummyInstruction()
+    {
+        return """
+                iconst_0
+                pop
+                """;
+    }
+
     @Override
     public String visit(ConditionalStmt conditionalStmt) {
         String elseLabel = "Label" + getFresh();
@@ -243,9 +251,11 @@ public class CodeGenerator extends Visitor<String> {
         command += conditionalStmt.getThenBody().accept(this);
         command += "goto " + afterLabel + "\n";
         command += elseLabel + ":\n";
+        command += dummyInstruction();
         if (conditionalStmt.getElseBody() != null)
             command += conditionalStmt.getElseBody().accept(this);
         command += afterLabel + ":\n";
+        command += dummyInstruction();
         return command;
     }
 
@@ -331,21 +341,11 @@ public class CodeGenerator extends Visitor<String> {
         Type t = print.getArg().accept(expressionTypeChecker);
         command += print.getArg().accept(this);
 
-        if (t instanceof BoolType)
-        {
-            command += "invokevirtual java/lang/Boolean/booleanValue()Z\n";
-            command += "invokestatic java/lang/Integer/valueOf(I)Ljava/lang/Integer;\n";
-            command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
-            return command;
-        }
-        else if (t instanceof ListType) {
-            // command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
-            // TODO: implement printList
+        if (t instanceof ListType) {
             command += printList();
             return command;
         }
         else {
-
             command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
         }
         return command;
@@ -549,7 +549,7 @@ public class CodeGenerator extends Visitor<String> {
             int slot = slotOf(identifier.getName());
             command = "aload " + slot + "\n";
         }
-        else {
+        else { //is a function name
             command += "new Fptr\n" +
                     "dup\n" +
                     (isMain ? "aload_1\n" : "aload_0\n") +

@@ -1,0 +1,22 @@
+func k(x, y): {
+    print("--inside k");
+    return [1, 777, [ [1, 2].size, [2, 1].size, [3, 3].size ].size, [1].size] :: 5; #[1, 777, 3, 1, 5]
+}
+func g(x, y): {
+    print("--inside g");
+    return k;
+}
+func h(x, y): {
+    print("--inside h");
+    return k;
+}
+func f(x): {
+    g(1, 2);
+    h(1, 2);
+    k(2, 1);
+    if ((x.size) is 2):
+        return g;
+    else:
+        return h;
+}
+main: print(f( [1, 2, [1, 2].size ] :: 3 )(100, 100)(500, 2)[4]);
