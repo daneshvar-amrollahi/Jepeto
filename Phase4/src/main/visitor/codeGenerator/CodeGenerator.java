@@ -155,9 +155,10 @@ public class CodeGenerator extends Visitor<String> {
         String mainDec = program.getMain().accept(this);
         addCommand(mainDec);
 
-        for (FunctionDeclaration funcDec: program.getFunctions())
-            if (visited.contains(funcDec.getFunctionName().getName()))
-                addCommand(funcDec.accept(this));
+        for (String v: visited) {
+            FunctionSymbolTableItem fsti = getFuncSymbolTableItem("Function_" + v);
+            addCommand(fsti.getFuncDeclaration().accept(this));
+        }
         return null;
     }
 
@@ -170,7 +171,6 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(FunctionDeclaration funcDeclaration) {
-        //.method public f(IZ)I
         String funcName = funcDeclaration.getFunctionName().getName();
 
         String command = "";
@@ -537,8 +537,13 @@ public class CodeGenerator extends Visitor<String> {
 
     @Override
     public String visit(AnonymousFunction anonymousFunction) {
-        //todo
-        return null;
+        String command = "";
+        command += "new Fptr\n";
+        command += "dup\n";
+        command += (isMain ? "aload_1\n" : "aload_0\n");
+        command += "ldc \"" + anonymousFunction.getName() + "\"\n";
+        command += "invokespecial Fptr/<init>(Ljava/lang/Object;Ljava/lang/String;)V\n";
+        return command;
     }
 
     @Override
