@@ -1,4 +1,7 @@
 import java.util.ArrayList;
+import java.lang.Object;
+import java.lang.String;
+import java.lang.StringBuilder;
 
 public class List {
     public ArrayList<Object> elements;
@@ -28,5 +31,16 @@ public class List {
 
     public void addElement(Object o) {this.elements.add(getNewObject(o));}
 
-    public String toString() { return this.elements.toString(); }
+    public String toString() {
+        StringBuilder res = new StringBuilder("[");
+        boolean flag = false;
+        for (int i = 0; i < elements.size(); ++i) {
+            if (flag)
+                res.append(",");
+            flag = true;
+            res.append(elements.get(i));
+        }
+        res.append("]");
+        return res.toString();
+    }
 }

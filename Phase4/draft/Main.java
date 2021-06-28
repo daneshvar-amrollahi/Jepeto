@@ -12,15 +12,16 @@ public class Main {
 
 		L.addElement(Integer.valueOf(1));
 		L.addElement(Integer.valueOf(2));
-		System.out.print("[");
-		boolean flag = false;
-		for (int i = 0; i < L.getSize(); ++i) {
-			if (flag)
-				System.out.print(",");
-			flag = true;
-			System.out.print(L.getElement(i));
-		}
-		System.out.println("]");
+//		System.out.print("[");
+//		boolean flag = false;
+//		for (int i = 0; i < L.getSize(); ++i) {
+//			if (flag)
+//				System.out.print(",");
+//			flag = true;
+//			System.out.print(L.getElement(i));
+//		}
+//		System.out.println("]");
+		System.out.println(L);
 		return;
 	}
 }

@@ -341,13 +341,15 @@ public class CodeGenerator extends Visitor<String> {
         Type t = print.getArg().accept(expressionTypeChecker);
         command += print.getArg().accept(this);
 
-        if (t instanceof ListType) {
-            command += printList();
-            return command;
-        }
-        else {
-            command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
-        }
+//        if (t instanceof ListType) {
+//            command += printList();
+//            return command;
+//        }
+//        else {
+//            command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
+//        }
+
+        command += "invokevirtual java/io/PrintStream/println(Ljava/lang/Object;)V\n";
         return command;
     }
 
