@@ -58,3 +58,16 @@ str
 1
 PLC_1400
 ```
+
+# How we Implemented This
+
+The implementation was broken into 4 phases:
+
+1. Grammar specification
+2. Name analysis
+3. Type analysis and inference
+4. Translation to bytecode
+
+The compiler itself is written in the lovely environment of Java!
+
+![With Pain!](assets/troll-troll-sad.gif)
