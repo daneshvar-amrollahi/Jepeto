@@ -41,3 +41,20 @@ func k(arg1, arg2, arg3) :{
     return "true";
 }
 ```
+
+## Sample Output
+
+```Compilation successful
+-------------------Generating Class Files-------------------
+Generated: Fptr.class
+Generated: List.class
+Generated: Main.class
+
+---------------------------Output---------------------------
+-310
+str
+-2
+13
+1
+PLC_1400
+```
